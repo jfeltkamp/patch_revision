@@ -1,0 +1,14 @@
+{
+  "name": "drupal/patch_revision",
+  "type": "drupal-module",
+  "description": "Provides the possibility to patch changes from a entity revision into the current revision.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/patch_revision",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/patch_revision",
+    "source": "http://cgit.drupalcode.org/patch_revision"
+  },
+  "require": { }
+}

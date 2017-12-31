@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Contains patch_revision.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function patch_revision_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the patch_revision module.
+    case 'help.page.patch_revision':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides the possibility to patch changes from a entity revision into the current revision.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+
+
+function patch_revision_node_presave(\Drupal\node\NodeInterface $node) {
+  /** @var $diff_servis \Drupal\patch_revision\DiffService  */
+  $diff_servis = \Drupal::service('patch_revision.diff');
+  $diff = $diff_servis->getDiff('this is first string', 'this is 2nd string');
+
+  $diff = $diff;
+}

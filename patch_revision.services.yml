@@ -1,0 +1,5 @@
+services:
+  patch_revision.diff:
+    class: Drupal\patch_revision\DiffService
+    arguments: ['@entity_type.manager']
+
