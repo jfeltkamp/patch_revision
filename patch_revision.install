@@ -1,0 +1,61 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: johannesbar
+ * Date: 31.12.17
+ * Time: 16:20
+ */
+
+use \Drupal\Core\Database\Database;
+
+/**
+ * Implements hook_install().
+ */
+function patch_revision_install() {
+  $db = Database::getConnection()->schema();
+  if ($db->tableExists('node_revision')) {
+    $spec = [
+      'type' => 'blob',
+      'not null' => FALSE,
+      'serialize' => TRUE
+    ];
+    $db->addField('node_revision', 'revision_diff', $spec);
+  }
+}
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function patch_revision_uninstall() {
+  $db = Database::getConnection()->schema();
+  if ($db->tableExists('node_revision') && $db->fieldExists('node_revision', 'revision_diff')) {
+    $db->dropField('node_revision', 'revision_diff');
+  }
+}
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function patch_revision_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+  $fields = array();
+  if ($entity_type->id() === 'node') {
+    $fields['revision_diff'] = \Drupal\Core\Field\BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Diff'))
+      ->setDescription(t('Diff from previous version when edited.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue('');
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function patch_revision_entity_type_build(array &$entity_types) {
+  /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  $revision_metadata_keys = $entity_types['node']->get('revision_metadata_keys');
+  $revision_metadata_keys['revision_diff'] = 'revision_diff';
+  $entity_types['node']->set('revision_metadata_keys', $revision_metadata_keys);
+}

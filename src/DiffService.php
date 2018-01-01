@@ -2,7 +2,6 @@
 
 namespace Drupal\patch_revision;
 
-use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityTypeManager;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -39,7 +38,7 @@ class DiffService {
    */
   public function getDiff($str_src, $str_target) {
 
-    $process_str = "git diff $(echo \"{$str_src}\" | git hash-object -w --stdin) $(echo \"{$str_target}\" | git hash-object -w --stdin)  --word-diff";
+    $process_str = "git diff $(echo \"{$str_src}\" | git hash-object -w --stdin) $(echo \"{$str_target}\" | git hash-object -w --stdin)  --word-diff --abbrev=4";
 
     $process = new Process($process_str);
     $process->run();

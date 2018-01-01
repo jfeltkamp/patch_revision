@@ -3,3 +3,5 @@ type: module
 description: Provides the possibility to patch changes from a entity revision into the current revision.
 core: 8.x
 package: Argue
+dependencies:
+  - changed_fields

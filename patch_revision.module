@@ -7,6 +7,10 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 
+use Drupal\changed_fields\NodeSubject;
+use Drupal\patch_revision\NodeObserver;
+use Drupal\node\NodeInterface;
+
 /**
  * Implements hook_help().
  */
@@ -25,10 +29,13 @@ function patch_revision_help($route_name, RouteMatchInterface $route_match) {
 
 
 
-function patch_revision_node_presave(\Drupal\node\NodeInterface $node) {
-  /** @var $diff_servis \Drupal\patch_revision\DiffService  */
-  $diff_servis = \Drupal::service('patch_revision.diff');
-  $diff = $diff_servis->getDiff('this is first string', 'this is 2nd string');
+function patch_revision_node_presave(NodeInterface $node) {
+  // Create NodeSubject object that will check node fields by DefaultFieldComparator.
+  $nodeSubject = new NodeSubject($node, 'default_field_comparator');
 
-  $diff = $diff;
+  // Add your observer object to NodeSubject.
+  $nodeSubject->attach(new NodeObserver());
+
+  // Check if node fields have been changed.
+  $nodeSubject->notify();
 }
