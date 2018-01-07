@@ -1,0 +1,5 @@
+entity.patch.add_form:
+  route_name: entity.patch.add_form
+  title: 'Add Patch'
+  appears_on:
+    - entity.patch.collection

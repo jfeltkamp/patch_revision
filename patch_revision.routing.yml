@@ -3,7 +3,7 @@ patch_revision.patch_revision_config:
   path: '/admin/config/patch_revision'
   defaults:
     _form: '\Drupal\patch_revision\Form\PatchRevisionConfig'
-    _title: 'PatchRevisionConfig'
+    _title: 'Patch Revision Config'
   requirements:
     _permission: 'access administration pages'
   options:

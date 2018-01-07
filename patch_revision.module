@@ -29,7 +29,7 @@ function patch_revision_help($route_name, RouteMatchInterface $route_match) {
 
 
 
-function patch_revision_node_presave(NodeInterface $node) {
+function patch_revision_node_update(NodeInterface $node) {
   // Create NodeSubject object that will check node fields by DefaultFieldComparator.
   $nodeSubject = new NodeSubject($node, 'default_field_comparator');
 

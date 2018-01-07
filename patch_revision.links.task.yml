@@ -1,0 +1,22 @@
+# Patch routing definition
+patch.settings_tab:
+  route_name: patch.settings
+  title: 'Settings'
+  base_route: patch.settings
+
+entity.patch.canonical:
+  route_name: entity.patch.canonical
+  base_route: entity.patch.canonical
+  title: 'View'
+
+entity.patch.edit_form:
+  route_name: entity.patch.edit_form
+  base_route: entity.patch.canonical
+  title: 'Edit'
+
+entity.patch.delete_form:
+  route_name:  entity.patch.delete_form
+  base_route:  entity.patch.canonical
+  title: Delete
+  weight: 10
+

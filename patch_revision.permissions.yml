@@ -1,0 +1,19 @@
+add patch entities:
+  title: 'Create new Patch entities'
+
+administer patch entities:
+  title: 'Administer Patch entities'
+  description: 'Allow to access the administration form to configure Patch entities.'
+  restrict access: true
+
+delete patch entities:
+  title: 'Delete Patch entities'
+
+edit patch entities:
+  title: 'Edit Patch entities'
+
+view published patch entities:
+  title: 'View published Patch entities'
+
+view unpublished patch entities:
+  title: 'View unpublished Patch entities'
