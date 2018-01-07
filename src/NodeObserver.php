@@ -35,9 +35,11 @@ class NodeObserver implements ObserverInterface {
   public function getInfo() {
     return [
       'rule' => [
+        'title',
         'body',
       ],
       'problem' => [
+        'title',
         'body',
       ],
     ];
