@@ -1,5 +1,9 @@
 services:
+  plugin.manager.field_patch_plugin:
+    class: Drupal\patch_revision\Plugin\FieldPatchPluginManager
+    parent: default_plugin_manager
+
   patch_revision.diff:
     class: Drupal\patch_revision\DiffService
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@plugin.manager.field_patch_plugin']
 

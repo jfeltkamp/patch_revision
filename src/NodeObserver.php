@@ -32,6 +32,7 @@ class NodeObserver implements ObserverInterface {
     $container = \Drupal::getContainer();
     $this->entity_type_manager = $container->get('entity_type.manager');
     $this->diffService = $container->get('patch_revision.diff');
+    $this->plugin_manager = $container->get('plugin.manager.field_patch_plugin');
   }
 
 
@@ -88,22 +89,23 @@ class NodeObserver implements ObserverInterface {
     $changedFields = $nodeSubject->getChangedFields();
     $node = $nodeSubject->getNode();
     foreach ($changedFields as $name => $values) {
-      $field_type = $node->getFieldDefinition($name)->getType();
-
-
-      // ToDo XXX create Plugin for different field types
-
-      $counts = max([count($values['old_value']), count($values['new_value'])]);
-      for ($i = 0; $i <= $counts; $i++) {
-        $str_src    = isset($values['old_value'][$i]) ? $values['old_value'][$i]['value'] : '';
-        $str_target = isset($values['new_value'][$i]) ? $values['old_value'][$i]['value'] : '';
-
-        $diff[$name][$i] = $this->getDiffService()->getDiff($str_src, $str_target);
-      }
+      $field_type = $node->getFieldDefinition($name);
+      $diff[$name] = $this->getDiffService()->getDiff($field_type, $values['old_value'], $values['new_value']);
     }
     return $diff;
   }
 
+  /**
+   * Returns an existing Patch instance or new created if none exists.
+   *
+   * @param $nid int
+   *   The node ID.
+   * @param $vid int
+   *   The node version ID.
+   *
+   * @return \Drupal\patch_revision\Entity\Patch
+   *   Patch entity prepared with node and version IDs.
+   */
   protected function getPatch($nid, $vid) {
     $storage = $this->entity_type_manager->getStorage('patch');
     $params = ['rid' => $nid, 'rvid' => $vid];
