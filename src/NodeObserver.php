@@ -11,6 +11,7 @@ use Drupal\changed_fields\ObserverInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\patch_revision\Entity\Patch;
 use SplSubject;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Class BasicUsageObserver.
@@ -69,9 +70,16 @@ class NodeObserver implements ObserverInterface {
     if ($node->isNewRevision()) {
       $diff = $this->getNodeDiff($nodeSubject);
       /** @var Patch $patch */
-      $patch = $this->getPatch($node->id(), $node->getRevisionId());
+      $patch = $this->getPatch($node->id());
       $patch->set('patch', $diff);
       $patch->save();
+
+      drupal_set_message(t('Your improvement has been saved and is now to be confirmed by the community.'), 'status', TRUE);
+
+
+      $response = new RedirectResponse(\Drupal::request()->getRequestUri());
+      $response->send();
+      exit;
     }
   }
 
@@ -106,15 +114,10 @@ class NodeObserver implements ObserverInterface {
    * @return \Drupal\patch_revision\Entity\Patch
    *   Patch entity prepared with node and version IDs.
    */
-  protected function getPatch($nid, $vid) {
+  protected function getPatch($nid) {
     $storage = $this->entity_type_manager->getStorage('patch');
-    $params = ['rid' => $nid, 'rvid' => $vid];
-    $patches = $storage->loadByProperties($params);
-    if (!$patches) {
-      $patch = $storage->create($params);
-    } else {
-      $patch = $patches[0];
-    }
+    $params = ['rid' => $nid, 'rvid' => 666];
+    $patch = $storage->create($params);
     return $patch;
   }
 

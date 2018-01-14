@@ -29,13 +29,18 @@ function patch_revision_help($route_name, RouteMatchInterface $route_match) {
 
 
 
-function patch_revision_node_update(NodeInterface $node) {
-  // Create NodeSubject object that will check node fields by DefaultFieldComparator.
-  $nodeSubject = new NodeSubject($node, 'default_field_comparator');
+function patch_revision_node_presave(NodeInterface $node) {
 
-  // Add your observer object to NodeSubject.
-  $nodeSubject->attach(new NodeObserver());
+  if (\Drupal::request()->get('_route') == 'entity.node.edit_form') {
 
-  // Check if node fields have been changed.
-  $nodeSubject->notify();
+    // Create NodeSubject object that will check node fields by DefaultFieldComparator.
+    $nodeSubject = new NodeSubject($node, 'default_field_comparator');
+
+    // Add your observer object to NodeSubject.
+    $nodeSubject->attach(new NodeObserver());
+
+    // Check if node fields have been changed.
+    $nodeSubject->notify();
+
+  }
 }
