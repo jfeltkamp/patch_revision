@@ -2,11 +2,15 @@
 
 namespace Drupal\patch_revision\Entity;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\node\NodeInterface;
+use Drupal\patch_revision\DiffService;
+use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
 
 /**
  * Defines the Patch entity.
@@ -17,7 +21,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *   id = "patch",
  *   label = @Translation("Patch"),
  *   handlers = {
- *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "view_builder" = "Drupal\patch_revision\PatchViewBuilder",
  *     "list_builder" = "Drupal\patch_revision\PatchListBuilder",
  *     "views_data" = "Drupal\patch_revision\Entity\PatchViewsData",
  *
@@ -42,15 +46,25 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *     "patch" = "patch",
  *   },
  *   links = {
- *     "canonical" = "/admin/config/content/patch/{patch}",
- *     "add-form" = "/admin/config/content/patch/add",
- *     "edit-form" = "/admin/config/content/patch/{patch}/edit",
- *     "delete-form" = "/admin/config/content/patch/{patch}/delete",
- *     "collection" = "/admin/config/content/patch",
+ *     "canonical" = "/patch/{patch}",
+ *     "add-form" = "/patch/add",
+ *     "edit-form" = "/patch/{patch}/edit",
+ *     "delete-form" = "/patch/{patch}/delete",
+ *     "collection" = "/patch",
  *   }
  * )
  */
 class Patch extends ContentEntityBase {
+
+  /**
+   * @var EntityInterface
+   */
+  private $originalEntity;
+
+  /**
+   * @var DiffService
+   */
+  private $diffService;
 
 
   /**
@@ -95,6 +109,44 @@ class Patch extends ContentEntityBase {
       ->setDefaultValue([]);
 
     return $fields;
+  }
+
+
+  /**
+   * Returns the referred entity.
+   *
+   * @return \Drupal\node\NodeInterface|FALSE
+   */
+  public function originalEntity() {
+    if (!isset($this->originalEntity)) {
+      /** @var \Drupal\node\NodeInterface[] $orig_entity */
+      $orig_entity = $this->get('rid')->referencedEntities();
+      $this->originalEntity = count($orig_entity) ? $orig_entity[0] : FALSE;
+    }
+    return $this->originalEntity;
+  }
+
+  /**
+   * Returns the Diff entity.
+   *
+   * @return DiffService
+   */
+  public function getDiffService() {
+    if (!isset($this->diffService)) {
+      $this->diffService = \Drupal::service('patch_revision.diff');
+    }
+    return $this->diffService;
+  }
+
+  /**
+   * @return FieldPatchPluginInterface|FALSE
+   */
+  public function getPatchPluginFromOrigFieldName($field_name) {
+    if ($orig_entity = $this->originalEntity()) {
+      $field_type = $orig_entity->getFieldDefinition($field_name)->getType();
+      return $this->getDiffService()->getPluginFromFieldType($field_type);
+    }
+    else return FALSE;
   }
 
 }

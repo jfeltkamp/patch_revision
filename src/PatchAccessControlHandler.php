@@ -21,9 +21,6 @@ class PatchAccessControlHandler extends EntityAccessControlHandler {
     /** @var \Drupal\patch_revision\Entity\PatchInterface $entity */
     switch ($operation) {
       case 'view':
-        if (!$entity->isPublished()) {
-          return AccessResult::allowedIfHasPermission($account, 'view unpublished patch entities');
-        }
         return AccessResult::allowedIfHasPermission($account, 'view published patch entities');
 
       case 'update':

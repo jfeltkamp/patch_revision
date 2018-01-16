@@ -74,10 +74,10 @@ class NodeObserver implements ObserverInterface {
       $patch->set('patch', $diff);
       $patch->save();
 
-      drupal_set_message(t('Your improvement has been saved and is now to be confirmed by the community.'), 'status', TRUE);
+      drupal_set_message(t('Improvement has been saved and is to be confirmed.'), 'status', TRUE);
 
 
-      $response = new RedirectResponse(\Drupal::request()->getRequestUri());
+      $response = new RedirectResponse($patch->url());
       $response->send();
       exit;
     }
