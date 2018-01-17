@@ -23,8 +23,8 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
  *     "text_with_summary",
  *   },
  *   properties = {
- *     "value" = "",
  *     "summary" = "",
+ *     "value" = "",
  *   },
  *   permission = "administer nodes",
  * )

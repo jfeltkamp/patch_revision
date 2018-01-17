@@ -51,13 +51,12 @@ class PatchViewBuilder extends EntityViewBuilder {
 
     /** @var NodeInterface[] $patches */
     $patches = $entity->get('patch')->getValue();
-    foreach ($patches as $key => $patch) {
-      foreach ($patch as $field_name => $value) {
-        $field_patch_plugin = $entity->getPatchPluginFromOrigFieldName($field_name);
-        $view[$field_name] = $field_patch_plugin->getPatchView($field_name, $value);
-      }
+    $patch = count($patches) ? $patches[0] : [];
+    foreach ($patch as $field_name => $value) {
+      $field_patch_plugin = $entity->getPatchPluginFromOrigFieldName($field_name);
+      $field_label = $entity->getOrigFieldLabel($field_name);
+      $view[$field_name] = $field_patch_plugin->getFieldPatchView($field_label, $value);
     }
-
     return $view;
   }
 

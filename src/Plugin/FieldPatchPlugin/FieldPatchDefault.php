@@ -61,5 +61,27 @@ class FieldPatchDefault extends FieldPatchPluginBase {
     return FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function patchStringFormatter($string) {
+    $string = $this->cutDiffHead($string);
+    return [
+      '#markup' => "<pre>{$string}</pre>"
+    ];
+  }
+
+  /**
+   * Get rid of the git diff header.
+   *
+   * @param $string
+   *   Original string.
+   * @return $string
+   *   Cleaned string.
+   */
+  protected function cutDiffHead($string) {
+    preg_match('/@@[0-9,\-+ ]+@@\s([\w\W]*)$/', $string, $result);
+    return count($result) ? (string) $result[1] : $string;
+  }
 
 }

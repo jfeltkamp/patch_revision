@@ -27,6 +27,22 @@ function patch_revision_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
+function patch_revision_theme($existing, $type, $theme, $path) {
+  return [
+    'field_patches' => [
+      'variables' => [
+        'items' => NULL,
+        'title' => NULL,
+      ],
+    ],
+    'field_patch' => [
+      'variables' => [
+        'col' => NULL,
+        'patch' => NULL,
+      ],
+    ],
+  ];
+}
 
 
 function patch_revision_node_presave(NodeInterface $node) {

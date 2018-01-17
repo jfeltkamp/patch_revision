@@ -19,13 +19,6 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     return 'default';
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getPluginDefinition() {
-    return parent::getPluginDefinition();
-  }
-
   protected function getFieldType() {
 
   }
@@ -49,6 +42,28 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
         $str_target = isset($new[$i]) ? $new[$i][$key] : $default_value;
 
         $result[$i][$key] = $this->processValueDiff($str_source, $str_target);
+      }
+    }
+    return $result;
+  }
+
+  /**
+   *
+   */
+  public function getFieldPatchView($field_name, $values) {
+    $result = [
+      '#theme' => 'field_patches',
+      '#title' => ['#markup' => "<h2>{$field_name}</h2>"],
+      '#items' => [],
+    ];
+    foreach ($values as $item => $value) {
+      $result['#items']["item_{$field_name}"] = [];
+      foreach($this->getFieldProperties() as $key => $default_value) {
+        $result['#items'][$item][$key] = [
+          '#theme' => 'field_patch',
+          '#col' => $key,
+          '#patch' => $this->patchStringFormatter($value[$key]),
+        ];
       }
     }
     return $result;

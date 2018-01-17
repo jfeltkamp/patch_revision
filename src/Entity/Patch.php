@@ -139,6 +139,11 @@ class Patch extends ContentEntityBase {
   }
 
   /**
+   * Returns the plugin belongs to the field type.
+   *
+   * @param $field_name
+   *   The field name mashine readable.
+   *
    * @return FieldPatchPluginInterface|FALSE
    */
   public function getPatchPluginFromOrigFieldName($field_name) {
@@ -147,6 +152,19 @@ class Patch extends ContentEntityBase {
       return $this->getDiffService()->getPluginFromFieldType($field_type);
     }
     else return FALSE;
+  }
+
+
+  /**
+   * Returns the label belongs to the field type.
+   *
+   * @return TranslatableMarkup|string
+   */
+  public function getOrigFieldLabel($field_name) {
+    if ($orig_entity = $this->originalEntity()) {
+      return $orig_entity->getFieldDefinition($field_name)->getLabel();
+    }
+    else return '';
   }
 
 }
