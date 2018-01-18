@@ -57,6 +57,7 @@ class PatchViewBuilder extends EntityViewBuilder {
       $field_label = $entity->getOrigFieldLabel($field_name);
       $view[$field_name] = $field_patch_plugin->getFieldPatchView($field_label, $value);
     }
+    $view['#attached']['library'][] = 'diff/diff.visual_inline';
     return $view;
   }
 

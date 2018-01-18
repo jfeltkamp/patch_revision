@@ -66,9 +66,19 @@ class FieldPatchDefault extends FieldPatchPluginBase {
    */
   public function patchStringFormatter($string) {
     $string = $this->cutDiffHead($string);
+    $string = $this->insertInsDelFormatter($string);
     return [
-      '#markup' => "<pre>{$string}</pre>"
+      '#markup' => "{$string}"
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function insertInsDelFormatter($string) {
+    $string = preg_replace('/\[-([\s\S]*?)-\]/', '<del class="diffdel">${1}</del>', $string);
+    $string = preg_replace('/{\+([\s\S]*?)\+}/', '<ins class="diffins">${1}</ins>', $string);
+    return nl2br($string);
   }
 
   /**
