@@ -43,7 +43,9 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
  *     "uuid" = "uuid",
  *     "rid" = "rid",
  *     "rvid" = "rvid",
+ *     "uid" = "uid",
  *     "patch" = "patch",
+ *     "message" = "message",
  *   },
  *   links = {
  *     "canonical" = "/patch/{patch}",
@@ -100,13 +102,32 @@ class Patch extends ContentEntityBase {
     $fields[$entity_type->getKey('rvid')] = BaseFieldDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Node version id'))
       ->setReadOnly(TRUE)
+      ->setDefaultValue('')
       ->setSetting('unsigned', TRUE);
 
+    $fields[$entity_type->getKey('uid')] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('Creator'))
+      ->setDescription(t('The creator of the patch.'))
+      ->setReadOnly(TRUE)
+      ->setSetting('target_type', 'user');
 
     $fields[$entity_type->getKey('patch')] = BaseFieldDefinition::create('map')
       ->setLabel(new TranslatableMarkup('Patch'))
       ->setReadOnly(TRUE)
       ->setDefaultValue([]);
+
+
+    $fields[$entity_type->getKey('message')] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Revision log message'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue('')
+      ->setDisplayOptions('form', [
+        'type' => 'string_textarea',
+        'weight' => 25,
+        'settings' => [
+          'rows' => 3,
+        ],
+      ]);
 
     return $fields;
   }

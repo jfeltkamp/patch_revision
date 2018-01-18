@@ -71,10 +71,14 @@ class NodeObserver implements ObserverInterface {
       $diff = $this->getNodeDiff($nodeSubject);
       /** @var Patch $patch */
       $patch = $this->getPatch($node->id());
-      $patch->set('patch', $diff);
+
+      $patch
+        ->set('patch', $diff)
+        ->set('message', $node->getRevisionLogMessage() ?: ' ')
+        ->set('uid', \Drupal::currentUser()->id());
       $patch->save();
 
-      drupal_set_message(t('Improvement has been saved and is to be confirmed.'), 'status', TRUE);
+      drupal_set_message(t('Thanks. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);
 
 
       $response = new RedirectResponse($patch->url());
@@ -116,7 +120,7 @@ class NodeObserver implements ObserverInterface {
    */
   protected function getPatch($nid) {
     $storage = $this->entity_type_manager->getStorage('patch');
-    $params = ['rid' => $nid, 'rvid' => 666];
+    $params = ['rid' => $nid, 'rvid' => 0];
     $patch = $storage->create($params);
     return $patch;
   }
