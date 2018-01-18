@@ -5,6 +5,8 @@ namespace Drupal\patch_revision;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\Entity\Patch;
 
@@ -48,7 +50,18 @@ class PatchViewBuilder extends EntityViewBuilder {
   public function view(EntityInterface $entity, $view_mode = 'full', $langcode = NULL) {
     /** @var \Drupal\patch_revision\Entity\Patch $entity */
     $view = parent::view($entity, $view_mode, $langcode);
+    $nid = $entity->originalEntity()->id();
 
+    // Set page title.
+    $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
+    $project_link = Link::fromTextAndUrl($entity->originalEntity()->label(), $url);
+    $view['#title'] = $this->t('Improvement for: @title', ['@title' => $project_link->toString()]);
+
+    // Set Creator.
+    $creator = $entity->getCreator();
+    $view['creator'] =  $creator ? user_view($creator, 'compact') : ['#markup' => ''];
+
+    // Build field patches views.
     /** @var NodeInterface[] $patches */
     $patches = $entity->get('patch')->getValue();
     $patch = count($patches) ? $patches[0] : [];

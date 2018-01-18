@@ -11,6 +11,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Defines the Patch entity.
@@ -68,6 +69,10 @@ class Patch extends ContentEntityBase {
    */
   private $diffService;
 
+  /**
+   * @var User
+   */
+  private $creator;
 
   /**
    * {@inheritdoc}
@@ -132,7 +137,6 @@ class Patch extends ContentEntityBase {
     return $fields;
   }
 
-
   /**
    * Returns the referred entity.
    *
@@ -145,6 +149,20 @@ class Patch extends ContentEntityBase {
       $this->originalEntity = count($orig_entity) ? $orig_entity[0] : FALSE;
     }
     return $this->originalEntity;
+  }
+
+  /**
+   * Returns the Creator user.
+   *
+   * @return \Drupal\user\Entity\User|FALSE
+   */
+  public function getCreator() {
+    if (!isset($this->creator)) {
+      /** @var \Drupal\user\Entity\User[] $creator */
+      $creator = $this->get('uid')->referencedEntities();
+      $this->creator = count($creator) ? $creator[0] : FALSE;
+    }
+    return $this->creator;
   }
 
   /**
