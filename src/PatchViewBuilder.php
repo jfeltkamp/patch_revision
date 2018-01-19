@@ -50,16 +50,25 @@ class PatchViewBuilder extends EntityViewBuilder {
   public function view(EntityInterface $entity, $view_mode = 'full', $langcode = NULL) {
     /** @var \Drupal\patch_revision\Entity\Patch $entity */
     $view = parent::view($entity, $view_mode, $langcode);
-    $nid = $entity->originalEntity()->id();
 
-    // Set page title.
-    $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
-    $project_link = Link::fromTextAndUrl($entity->originalEntity()->label(), $url);
-    $view['#title'] = $this->t('Improvement for: @title', ['@title' => $project_link->toString()]);
+    if (FALSE && $entity->originalEntity()) {
+      $nid = $entity->originalEntity()->id();
+      // Set page title.
+      $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
+      $project_link = Link::fromTextAndUrl($entity->originalEntity()->label(), $url);
+      $view['#title'] = $this->t('Improvement for <em>@type: @title</em>', [
+        '@type' => $entity->originalEntity()->type->entity->label(),
+        '@title' => $project_link->toString()
+      ]);
+    } else {
+      $view['#title'] = $this->t('Display patch in a view.');
+    }
 
-    // Set Creator.
+    // Set Creator view.
     $creator = $entity->getCreator();
-    $view['creator'] =  $creator ? user_view($creator, 'compact') : ['#markup' => ''];
+    $view['creator'] =  $creator
+      ? user_view($creator, 'compact')
+      : ['#markup' => ''];
 
     // Build field patches views.
     /** @var NodeInterface[] $patches */
