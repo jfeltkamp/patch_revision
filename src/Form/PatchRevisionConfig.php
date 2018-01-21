@@ -125,18 +125,44 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#weight' => -1,
     ];
 
-
     $form['tab_general'] = [
       '#type' => 'details',
       '#title' => $this->t('General settings'),
       '#description' => $this->t('<h3>General settings</h3>'),
       '#group' => 'bundle_select',
     ];
+
     $form['tab_general']['general_excluded_fields'] = [
       '#type' => 'textarea',
       '#title' => $this->t('General excluded fields.'),
       '#default_value' => implode(PHP_EOL, $config->get('general_excluded_fields')),
       '#description' => $this->t('Insert machine readable field_names one-per-line to exclude from patching. In particular, fields are excluded here that are not contents, but are valuable for the information processing and presentation logic.'),
+    ];
+
+    $form['tab_general']['enable_checkbox_node_form'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Display Checkbox "Create patch from changes" on Node forms.'),
+      '#default_value' => $config->get('enable_checkbox_node_form'),
+      '#group' => 'tab_general',
+      '#description' => t('Let user decide, if he wants to create a patch or save the node regular.'),
+    ];
+
+    $form['tab_general']['log_message_required'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Set log message required.'),
+      '#default_value' => $config->get('log_message_required'),
+      '#group' => 'tab_general',
+      '#description' => t('If checked user can not submit the node form without a log message.'),
+    ];
+
+    $form['tab_general']['log_message_title'] = [
+      '#type' => 'textfield',
+      '#title' => t('Log message title.'),
+      '#default_value' => $config->get('log_message_title'),
+      '#group' => 'tab_general',
+      '#description' => t('The default title of log message ist "Revision log message" what is a bit confusing, because it is also used for patch log messages.'),
+      '#size' => 60,
+      '#maxlength' => 128,
     ];
 
 
@@ -158,6 +184,9 @@ class PatchRevisionConfig extends ConfigFormBase {
     $config = $this->config('patch_revision.config');
     $config->set('node_types', $form_state->getValue('node_types'));
     $config->set('general_excluded_fields', preg_split("/\\r\\n|\\r|\\n/", $form_state->getValue('general_excluded_fields')));
+    $config->set('enable_checkbox_node_form', $form_state->getValue('enable_checkbox_node_form'));
+    $config->set('log_message_required', $form_state->getValue('log_message_required'));
+    $config->set('log_message_title', $form_state->getValue('log_message_title'));
 
     foreach ($form_state->getValues() as $key => $value) {
       if (preg_match('/^bundle_[a-z_]+_fields$/', $key)) {

@@ -7,3 +7,7 @@ services:
     class: Drupal\patch_revision\DiffService
     arguments: ['@entity_type.manager', '@plugin.manager.field_patch_plugin']
 
+  patch_revision.access_service:
+    class: Drupal\patch_revision\AccessService
+    arguments: ['@config.factory', '@current_user', '@request_stack']
+

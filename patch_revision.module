@@ -52,8 +52,11 @@ function patch_revision_theme($existing, $type, $theme, $path) {
 
 
 function patch_revision_node_presave(NodeInterface $node) {
+  /** @var \Drupal\patch_revision\AccessService $access_service */
+  $access_service = \Drupal::service('patch_revision.access_service');
 
-  if (\Drupal::request()->get('_route') == 'entity.node.edit_form') {
+
+  if ($access_service->startPatchCreateProcess()) {
 
     // Create NodeSubject object that will check node fields by DefaultFieldComparator.
     $nodeSubject = new NodeSubject($node, 'default_field_comparator');
@@ -71,14 +74,29 @@ function patch_revision_node_presave(NodeInterface $node) {
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  $form['create_patch'] = [
-    '#type' => 'checkbox',
-    '#title' => t('Create patch from changes.'),
-    '#default_value' => true,
-    '#access' => true,
-    '#group' => 'revision_information',
-    '#disabled' => false,
-    '#description' => t('A patch is an improvement suggestion and therefore less than a revision. It can be reviewed and submitted to a later revision.'),
-    '#weight' => 19
-  ];
+  /** @var \Drupal\patch_revision\AccessService $access_service */
+  $access_service = \Drupal::service('patch_revision.access_service');
+
+  /** @var NodeInterface $node */
+  $node = $form_state->getFormObject()->getEntity();
+  if ($access_service->displayCheckboxCreatePatch($node->getType())) {
+    $form['create_patch'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Create patch from changes.'),
+      '#default_value' => true,
+      '#access' => true,
+      '#group' => 'revision_information',
+      '#disabled' => false,
+      '#description' => t('A patch is an improvement suggestion and therefore less than a revision. It can be reviewed and submitted to a later revision.'),
+      '#weight' => 19
+    ];
+  }
+
+  if ($access_service->logMessageRequired()) {
+    if (isset($form['revision_log']['widget'][0]['value']['#required'])) {
+      $form['revision_log']['widget'][0]['value']['#required'] = TRUE;
+    }
+  }
+
+
 }
