@@ -2,13 +2,13 @@
 
 namespace Drupal\patch_revision\Entity;
 
+use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
 use Drupal\user\Entity\User;
@@ -42,6 +42,9 @@ use Drupal\user\Entity\User;
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
+ *     "status" = "status",
+ *     "rtype" = "rtype",
+ *     "rbundle" = "rbundle",
  *     "rid" = "rid",
  *     "rvid" = "rvid",
  *     "uid" = "uid",
@@ -75,10 +78,57 @@ class Patch extends ContentEntityBase {
   private $creator;
 
   /**
+   * @var EntityFieldManager
+   */
+  private $entityFieldManager;
+
+  /**
+   * @var array
+   */
+  private $entityFieldMap;
+
+  /**
    * {@inheritdoc}
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
+  }
+
+  /**
+   * Returns lazy Entity field manager.
+   * @return EntityFieldManager
+   */
+  protected function getEntityFieldManager() {
+    if (!$this->entityFieldManager) {
+      $this->entityFieldManager = \Drupal::service('entity_field.manager');
+    }
+    return $this->entityFieldManager;
+  }
+
+  /**
+   * Returns lazy Entity field map.
+   *
+   * @return array
+   *   The complete field map.
+   */
+  protected function getEntityFieldMap() {
+    if (!$this->entityFieldMap) {
+      $this->entityFieldMap = $this->getEntityFieldManager()->getFieldMap();
+    }
+    return $this->entityFieldMap;
+  }
+
+
+  /**
+   * Field type property.
+   *
+   * @return string
+   */
+  protected function getEntityFieldType($entity_type, $field_name) {
+    $map = $this->getEntityFieldMap();
+    return (isset($map[$entity_type][$field_name]))
+      ? $map[$entity_type][$field_name]['type']
+      : NULL;
   }
 
   /**
@@ -97,12 +147,26 @@ class Patch extends ContentEntityBase {
       ->setLabel(new TranslatableMarkup('UUID'))
       ->setReadOnly(TRUE);
 
+    $fields[$entity_type->getKey('status')] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('status'))
+      ->setDescription(t('The status of the patch.'))
+      ->setSetting('size', 'small');
+
+    $fields[$entity_type->getKey('rtype')] = BaseFieldDefinition::create('string')
+      ->setLabel(t('type of referred node.'))
+      ->setRevisionable(FALSE)
+      ->setDefaultValue('');
+
+    $fields[$entity_type->getKey('rbundle')] = BaseFieldDefinition::create('string')
+      ->setLabel(t('bundle of referred node'))
+      ->setRevisionable(FALSE)
+      ->setDefaultValue('');
+
     $fields[$entity_type->getKey('rid')] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(new TranslatableMarkup('Referred node'))
       ->setDescription(t('The referred node of the patch.'))
       ->setReadOnly(TRUE)
       ->setSetting('target_type', 'node');
-
 
     $fields[$entity_type->getKey('rvid')] = BaseFieldDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Node version id'))
@@ -119,8 +183,8 @@ class Patch extends ContentEntityBase {
     $fields[$entity_type->getKey('patch')] = BaseFieldDefinition::create('map')
       ->setLabel(new TranslatableMarkup('Patch'))
       ->setReadOnly(TRUE)
-      ->setDefaultValue([]);
-
+      ->setRevisionable(FALSE)
+      ->setDefaultValue('');
 
     $fields[$entity_type->getKey('message')] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Revision log message'))
@@ -185,9 +249,8 @@ class Patch extends ContentEntityBase {
    *
    * @return FieldPatchPluginInterface|FALSE
    */
-  public function getPatchPluginFromOrigFieldName($field_name) {
-    if ($orig_entity = $this->originalEntity()) {
-      $field_type = $orig_entity->getFieldDefinition($field_name)->getType();
+  public function getPatchPluginFromOrigFieldName($entity_id, $field_name) {
+    if ($field_type = $this->getEntityFieldType($entity_id, $field_name)) {
       return $this->getDiffService()->getPluginFromFieldType($field_type);
     }
     else return FALSE;
@@ -200,10 +263,12 @@ class Patch extends ContentEntityBase {
    * @return TranslatableMarkup|string
    */
   public function getOrigFieldLabel($field_name) {
-    if ($orig_entity = $this->originalEntity()) {
+    if (FALSE && $orig_entity = $this->originalEntity()) {
       return $orig_entity->getFieldDefinition($field_name)->getLabel();
     }
-    else return '';
+    else {
+      return ucfirst(str_replace('_', ' ', $field_name));
+    }
   }
 
 }

@@ -41,6 +41,12 @@ function patch_revision_theme($existing, $type, $theme, $path) {
         'patch' => NULL,
       ],
     ],
+    'log_message' => [
+      'variables' => [
+        'label' => NULL,
+        'message' => NULL,
+      ],
+    ],
   ];
 }
 
@@ -59,4 +65,20 @@ function patch_revision_node_presave(NodeInterface $node) {
     $nodeSubject->notify();
 
   }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form['create_patch'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Create patch from changes.'),
+    '#default_value' => true,
+    '#access' => true,
+    '#group' => 'revision_information',
+    '#disabled' => false,
+    '#description' => t('A patch is an improvement suggestion and therefore less than a revision. It can be reviewed and submitted to a later revision.'),
+    '#weight' => 19
+  ];
 }

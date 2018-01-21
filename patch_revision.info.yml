@@ -4,4 +4,5 @@ description: Provides the possibility to patch changes from a entity revision in
 core: 8.x
 package: Argue
 dependencies:
+  - diff
   - changed_fields

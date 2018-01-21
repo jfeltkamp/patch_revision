@@ -12,8 +12,11 @@ delete patch entities:
 edit patch entities:
   title: 'Edit Patch entities'
 
-view published patch entities:
+view patch entities:
   title: 'View published Patch entities'
 
 view unpublished patch entities:
   title: 'View unpublished Patch entities'
+
+apply patch entities:
+  title: 'Apply patch entities to original entity'

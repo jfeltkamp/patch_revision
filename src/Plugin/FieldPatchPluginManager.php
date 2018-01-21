@@ -53,7 +53,6 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    *   Array with all field types a FieldPatchPlugin exists.
    */
   public function getPatchableFieldTypes() {
-
     $plugins = $this->getDefinitions();
     $collector = [];
     foreach ($plugins as $plugin) {
@@ -65,18 +64,19 @@ class FieldPatchPluginManager extends DefaultPluginManager {
 
 
   /**
-   * @param NodeTypeInterface $node_type
-   *    The node type.
+   * @param string $node_type_id
+   *    The node type id.
    * @param bool $bypass_explicit
    *    Bypass explicit check i.e. when form for explicit exclusion is build.
+   *
    * @return \Drupal\Core\Field\FieldDefinitionInterface[]|mixed
    */
-  public function getPatchableFields($node_type, $bypass_explicit = FALSE) {
-    $fields = $this->entityFieldManager->getFieldDefinitions('node', $node_type->id());
+  public function getPatchableFields($node_type_id, $bypass_explicit = FALSE) {
+    $fields = $this->entityFieldManager->getFieldDefinitions('node', $node_type_id);
     $patchable_field_types = $this->getPatchableFieldTypes();
 
     $general_excluded_fields = $this->config->get('general_excluded_fields');
-    $explicit_excluded_fields = $this->config->get('bundle_' . $node_type->id() . '_fields') ?: [];
+    $explicit_excluded_fields = $this->config->get('bundle_' . $node_type_id . '_fields') ?: [];
 
     foreach ($fields as $name => $field) {
       /** @var $field \Drupal\Core\Field\FieldDefinitionInterface */

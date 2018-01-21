@@ -34,10 +34,14 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class FieldPatchDefault extends FieldPatchPluginBase {
 
   /**
-   * @param $str_src mixed
-   * @param $str_target mixed
-   *
-   * @return mixed
+   * {@inheritdoc}
+   */
+  public function getPluginId() {
+    return 'default';
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function processValueDiff($str_src, $str_target) {
 

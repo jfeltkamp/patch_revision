@@ -10,14 +10,6 @@ use Drupal\Component\Plugin\PluginBase;
 abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPluginInterface {
 
 
-  // Add common methods and abstract methods for your plugin type here.
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPluginId() {
-    return 'default';
-  }
 
   protected function getFieldType() {
 

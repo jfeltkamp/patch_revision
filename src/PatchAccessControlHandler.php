@@ -18,10 +18,10 @@ class PatchAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    /** @var \Drupal\patch_revision\Entity\PatchInterface $entity */
+    /** @var \Drupal\patch_revision\Entity\Patch $entity */
     switch ($operation) {
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'view published patch entities');
+        return AccessResult::allowedIfHasPermission($account, 'view patch entities');
 
       case 'update':
         return AccessResult::allowedIfHasPermission($account, 'edit patch entities');

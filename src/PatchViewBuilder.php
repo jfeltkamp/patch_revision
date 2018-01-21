@@ -51,7 +51,7 @@ class PatchViewBuilder extends EntityViewBuilder {
     /** @var \Drupal\patch_revision\Entity\Patch $entity */
     $view = parent::view($entity, $view_mode, $langcode);
 
-    if (FALSE && $entity->originalEntity()) {
+    if ($entity->originalEntity()) {
       $nid = $entity->originalEntity()->id();
       // Set page title.
       $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
@@ -61,7 +61,10 @@ class PatchViewBuilder extends EntityViewBuilder {
         '@title' => $project_link->toString()
       ]);
     } else {
-      $view['#title'] = $this->t('Display patch in a view.');
+      $view['#title'] = $this->t('Display patch for node/@id.', [
+        '@id' => $entity->get('rid')->getString(),
+      ]);
+      drupal_set_message($this->t('The original entity, the patch refers to, could not be find.'), 'error');
     }
 
     // Set Creator view.
@@ -70,12 +73,19 @@ class PatchViewBuilder extends EntityViewBuilder {
       ? user_view($creator, 'compact')
       : ['#markup' => ''];
 
+    // Set Log message.
+    $view['message'] = [
+      '#theme' => 'log_message',
+      '#label' => $this->t('Log message by patch editor:'),
+      '#message' => $entity->get('message')->getString() ?: '',
+    ];
+
     // Build field patches views.
     /** @var NodeInterface[] $patches */
     $patches = $entity->get('patch')->getValue();
     $patch = count($patches) ? $patches[0] : [];
     foreach ($patch as $field_name => $value) {
-      $field_patch_plugin = $entity->getPatchPluginFromOrigFieldName($field_name);
+      $field_patch_plugin = $entity->getPatchPluginFromOrigFieldName('node', $field_name);
       $field_label = $entity->getOrigFieldLabel($field_name);
       $view[$field_name] = $field_patch_plugin->getFieldPatchView($field_label, $value);
     }

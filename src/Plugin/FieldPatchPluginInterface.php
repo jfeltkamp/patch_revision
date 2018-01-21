@@ -10,7 +10,15 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 interface FieldPatchPluginInterface extends PluginInspectionInterface {
 
 
-  // Add get/set methods for your plugin type here.
+  // Add common methods and abstract methods for your plugin type here.
+
+  /**
+   * Get the plugin id.
+   *
+   * @return string
+   *    The id of the plugin.
+   */
+  public function getPluginId();
 
   /**
    * Get a field diff (using output of changed_field API as base).
@@ -31,6 +39,14 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    */
   function patchField();
 
+  /**
+   * Main feature that process the diff command and returns the patch.
+   *
+   * @param $str_src mixed
+   * @param $str_target mixed
+   *
+   * @return mixed
+   */
   function processValueDiff($str_src, $str_target);
 
   /**

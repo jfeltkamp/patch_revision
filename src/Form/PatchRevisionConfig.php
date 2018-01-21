@@ -72,9 +72,12 @@ class PatchRevisionConfig extends ConfigFormBase {
   }
 
   /**
-   * @var $patchable_fields \Drupal\Core\Field\FieldDefinitionInterface[]
-   * @return array
+   * Returns formatted field options to select.
    *
+   * @var $patchable_fields \Drupal\Core\Field\FieldDefinitionInterface[]
+   *   Array with pre selected field definitions.
+   * @return array
+   *   Default values for form select/checkboxes widget.
    */
   protected function getFieldOptions($patchable_fields) {
     $options = [];
@@ -177,7 +180,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    */
   protected function getBundleSelector($node_type, $disabled = TRUE) {
     $config = $this->config('patch_revision.config');
-    $options = $this->getFieldOptions($this->pluginManager->getPatchableFields($node_type, TRUE));
+    $options = $this->getFieldOptions($this->pluginManager->getPatchableFields($node_type->id(), TRUE));
     $element['tab_' . $node_type->id()] = [
       '#type' => 'details',
       '#title' => 'Node type: ' . $node_type->label(),
