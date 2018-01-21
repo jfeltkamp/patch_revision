@@ -3,6 +3,7 @@
 namespace Drupal\patch_revision;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Session\AccountProxy;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -32,12 +33,18 @@ class AccessService {
   protected $currentUser;
 
   /**
-   * Drupal\Core\Session\AccountProxy definition.
+   * Symfony\Component\HttpFoundation\RequestStack definition.
    *
-   * @var RequestStack
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
   protected $requestStack;
 
+  /**
+   * Symfony\Component\HttpFoundation\Request definition.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected $currentRequest;
 
   /**
    * Constructs a new AccessService object.
@@ -47,6 +54,7 @@ class AccessService {
     $this->moduleConfig = $this->configFactory->get('patch_revision.config');
     $this->currentUser = $current_user;
     $this->requestStack = $request_stack;
+    $this->currentRequest = $this->requestStack->getCurrentRequest();
   }
 
   /**
@@ -95,11 +103,11 @@ class AccessService {
    *
    */
   public function startPatchCreateProcess() {
-    if (!$this->requestStack->getCurrentRequest()->get('_route') == 'entity.node.edit_form') {
+    if (!$this->currentRequest->get('_route') == 'entity.node.edit_form') {
       return FALSE;
     }
 
-    if ($this->requestStack->getCurrentRequest()->get('create_patch') !== "1") {
+    if ($this->currentRequest->get('create_patch') !== "1") {
       return FALSE;
     }
 
