@@ -118,4 +118,16 @@ class AccessService {
     return TRUE;
   }
 
+  /**
+   *
+   */
+  public function overrideLogMessageTitle() {
+    if ($log_message_title = $this->moduleConfig->get('log_message_title')) {
+      return $log_message_title;
+    }
+
+    return FALSE;
+  }
+
+
 }

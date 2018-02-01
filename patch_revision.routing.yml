@@ -9,3 +9,26 @@ patch_revision.patch_revision_config:
   options:
     _admin_route: TRUE
 
+patch_revision.patches_overview:
+  path: '/node/{node}/patches'
+  defaults:
+    _title: 'Patches Overview'
+    _controller: '\Drupal\patch_revision\Controller\PatchesOverview::overview'
+  requirements:
+    _permission: 'view patch entities'
+
+patch_revision.patches_overview:
+  path: '/node/{node}/patches'
+  defaults:
+    _title: 'Patches Overview'
+    _controller: '\Drupal\patch_revision\Controller\PatchesOverview::overview'
+  requirements:
+    _permission: 'view patch entities'
+
+entity.patches.apply_form:
+  path: '/patch/{patch}/apply'
+  defaults:
+    _entity_form: 'patch.apply'
+    _title: 'Apply patch to original node.'
+  requirements:
+    _permission: 'view patch entities'

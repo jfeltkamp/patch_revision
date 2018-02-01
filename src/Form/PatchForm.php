@@ -18,9 +18,6 @@ class PatchForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     /* @var $entity \Drupal\patch_revision\Entity\Patch */
     $form = parent::buildForm($form, $form_state);
-
-    $entity = $this->entity;
-
     return $form;
   }
 

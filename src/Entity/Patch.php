@@ -28,7 +28,7 @@ use Drupal\user\Entity\User;
  *
  *     "form" = {
  *       "default" = "Drupal\patch_revision\Form\PatchForm",
- *       "add" = "Drupal\patch_revision\Form\PatchForm",
+ *       "apply" = "Drupal\patch_revision\Form\PatchApplyForm",
  *       "edit" = "Drupal\patch_revision\Form\PatchForm",
  *       "delete" = "Drupal\patch_revision\Form\PatchDeleteForm",
  *     },
@@ -39,8 +39,15 @@ use Drupal\user\Entity\User;
  *   },
  *   base_table = "patch",
  *   admin_permission = "administer patch entities",
+ *   list_cache_contexts = {
+ *     "user.permissions",
+ *     "languages",
+ *     "timezone",
+ *   },
  *   entity_keys = {
  *     "id" = "id",
+ *     "created" = "created",
+ *     "changed" = "changed",
  *     "uuid" = "uuid",
  *     "status" = "status",
  *     "rtype" = "rtype",
@@ -53,7 +60,7 @@ use Drupal\user\Entity\User;
  *   },
  *   links = {
  *     "canonical" = "/patch/{patch}",
- *     "add-form" = "/patch/add",
+ *     "apply-form" = "/patch/{patch}/apply",
  *     "edit-form" = "/patch/{patch}/edit",
  *     "delete-form" = "/patch/{patch}/delete",
  *     "collection" = "/patch",
@@ -137,11 +144,32 @@ class Patch extends ContentEntityBase {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
-
     $fields[$entity_type->getKey('id')] = BaseFieldDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('ID'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
+
+    $fields[$entity_type->getKey('created')] = BaseFieldDefinition::create('created')
+      ->setLabel(t('Added on'))
+      ->setDescription(t('The time that the patch was created.'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'timestamp',
+        'weight' => 0,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'datetime_timestamp',
+        'weight' => 10,
+      ])
+      ->setDisplayConfigurable('form', TRUE);
+
+    $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('The time that the node was last edited.'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
 
     $fields[$entity_type->getKey('uuid')] = BaseFieldDefinition::create('uuid')
       ->setLabel(new TranslatableMarkup('UUID'))
@@ -269,6 +297,8 @@ class Patch extends ContentEntityBase {
     else {
       return ucfirst(str_replace('_', ' ', $field_name));
     }
+
   }
+
 
 }
