@@ -99,7 +99,6 @@ class PatchesOverview extends ControllerBase {
     return $this->render();
   }
 
-
   /**
    *
    */
@@ -134,7 +133,6 @@ class PatchesOverview extends ControllerBase {
       'entity.user.canonical',
       ['user' => $user->id()]
     );
-
 
     $row['message']['data'] = $entity->get('message')->getString();
     $row['operations']['data'] = $this->buildOperations($entity);
@@ -201,6 +199,13 @@ class PatchesOverview extends ControllerBase {
         'title' => $this->t('View'),
         'weight' => 10,
         'url' => $entity->urlInfo('canonical'),
+      ];
+    }
+    if ($entity->access('apply') && $entity->hasLinkTemplate('apply-form')) {
+      $operations['apply'] = [
+        'title' => $this->t('Apply improvement'),
+        'weight' => 30,
+        'url' => $entity->urlInfo('apply-form'),
       ];
     }
     if ($entity->access('update') && $entity->hasLinkTemplate('edit-form')) {

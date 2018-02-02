@@ -28,6 +28,9 @@ class PatchAccessControlHandler extends EntityAccessControlHandler {
 
       case 'delete':
         return AccessResult::allowedIfHasPermission($account, 'delete patch entities');
+
+      case 'apply':
+        return AccessResult::allowedIfHasPermission($account, 'apply patch entities');
     }
 
     // Unknown operation, no opinion.

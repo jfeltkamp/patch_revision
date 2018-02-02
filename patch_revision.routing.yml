@@ -25,7 +25,7 @@ patch_revision.patches_overview:
   requirements:
     _permission: 'view patch entities'
 
-entity.patches.apply_form:
+entity.patch.apply_form:
   path: '/patch/{patch}/apply'
   defaults:
     _entity_form: 'patch.apply'
