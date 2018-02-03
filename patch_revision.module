@@ -24,9 +24,13 @@ function patch_revision_help($route_name, RouteMatchInterface $route_match) {
       return $output;
 
     default:
+      return '';
   }
 }
 
+/**
+ * Implements hook_help().
+ */
 function patch_revision_theme($existing, $type, $theme, $path) {
   return [
     'field_patches' => [

@@ -14,8 +14,8 @@ entity.patch.edit_form:
   base_route: entity.patch.canonical
   title: 'Edit'
 
-entity.patches.apply_form:
-  route_name: entity.patches.apply_form
+entity.patch.apply_form:
+  route_name: entity.patch.apply_form
   base_route: entity.patch.canonical
   title: 'Apply'
 

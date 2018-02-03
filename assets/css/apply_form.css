@@ -1,0 +1,25 @@
+
+.patch_revision_apply_group {
+
+}
+
+
+.patch_revision_apply_group .fieldset-wrapper {
+  display: flex;
+  margin: 0 -15px;
+}
+
+
+.patch_revision_apply_group .fieldset-wrapper .group_left,
+.patch_revision_apply_group .fieldset-wrapper .group_right {
+  flex: 1;
+  padding: 0 15px;
+}
+
+del {
+  background-color: #fcc;
+}
+
+ins {
+  background-color: #cfc;
+}

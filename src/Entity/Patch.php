@@ -72,27 +72,27 @@ class Patch extends ContentEntityBase {
   /**
    * @var EntityInterface
    */
-  private $originalEntity;
+  protected $originalEntity;
 
   /**
    * @var DiffService
    */
-  private $diffService;
+  protected $diffService;
 
   /**
    * @var User
    */
-  private $creator;
+  protected $creator;
 
   /**
    * @var EntityFieldManager
    */
-  private $entityFieldManager;
+  protected $entityFieldManager;
 
   /**
    * @var array
    */
-  private $entityFieldMap;
+  protected $entityFieldMap;
 
   /**
    * {@inheritdoc}
@@ -232,13 +232,27 @@ class Patch extends ContentEntityBase {
   /**
    * Returns the referred entity.
    *
-   * @return \Drupal\node\NodeInterface|FALSE
+   * @var bool $latest
+   *   If method returns current or the latest (possibly unpublished) revision.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|FALSE
    */
-  public function originalEntity() {
+  public function originalEntity($latest = FALSE) {
     if (!isset($this->originalEntity)) {
       /** @var \Drupal\node\NodeInterface[] $orig_entity */
       $orig_entity = $this->get('rid')->referencedEntities();
-      $this->originalEntity = count($orig_entity) ? $orig_entity[0] : FALSE;
+      $this->originalEntity = reset($orig_entity);
+    }
+    if ($this->originalEntity && $latest) {
+      $entity_type = $this->originalEntity->getEntityTypeId();
+      $entity = $this->originalEntity;
+      $revision_ids = $this->entityTypeManager()
+        ->getStorage($entity_type)
+        ->revisionIds($entity);
+      $revision_id = end($revision_ids);
+      if ($revision_id) {
+        return $this->entityTypeManager()->getStorage($entity_type)->loadRevision($revision_id);
+      }
     }
     return $this->originalEntity;
   }
@@ -252,7 +266,7 @@ class Patch extends ContentEntityBase {
     if (!isset($this->creator)) {
       /** @var \Drupal\user\Entity\User[] $creator */
       $creator = $this->get('uid')->referencedEntities();
-      $this->creator = count($creator) ? $creator[0] : FALSE;
+      $this->creator = reset($creator);
     }
     return $this->creator;
   }
