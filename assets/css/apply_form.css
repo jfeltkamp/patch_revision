@@ -1,18 +1,33 @@
 
-.patch_revision_apply_group {
-
+.patchapply-form .patch_revision_apply_group {
+  padding-top: 3.25em;
 }
 
+.patchapply-form .patch_revision_apply_group legend {
+  font-size: 1.25em;
+}
+
+.header_left,
+.header_right {
+  font-weight: 700;
+  border-bottom: 1px solid #c0c0c0;
+}
 
 .patch_revision_apply_group .fieldset-wrapper {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
   display: flex;
   margin: 0 -15px;
 }
 
 
-.patch_revision_apply_group .fieldset-wrapper .group_left,
-.patch_revision_apply_group .fieldset-wrapper .group_right {
-  flex: 1;
+.patch_revision_apply_group .group_left,
+.patch_revision_apply_group .group_right {
+  -webkit-flex: 1 1 50%; /* Safari 6.1+ */
+  -ms-flex: 1 1 50%; /* IE 10 */
+  flex: 1 1 50%;
   padding: 0 15px;
 }
 

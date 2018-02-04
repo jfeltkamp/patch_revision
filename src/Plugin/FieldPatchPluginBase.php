@@ -45,7 +45,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   public function getFieldPatchView($field_name, $values) {
     $result = [
       '#theme' => 'field_patches',
-      '#title' => ['#markup' => "<h2>{$field_name}</h2>"],
+      '#title' => $field_name,
       '#items' => [],
     ];
     foreach ($values as $item => $value) {

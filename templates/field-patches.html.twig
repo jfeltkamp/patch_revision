@@ -1,4 +1,6 @@
-<h2>{{ title }}</h2>
+{% if title %}
+  <h2>{{ title }}</h2>
+{% endif %}
 <dl class="field_patch_items">
   {% for item in items %}
     {{ item }}

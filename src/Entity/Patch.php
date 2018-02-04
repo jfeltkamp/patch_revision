@@ -159,11 +159,7 @@ class Patch extends ContentEntityBase {
         'type' => 'timestamp',
         'weight' => 0,
       ])
-      ->setDisplayOptions('form', [
-        'type' => 'datetime_timestamp',
-        'weight' => 10,
-      ])
-      ->setDisplayConfigurable('form', TRUE);
+      ->setDisplayConfigurable('form', FALSE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
@@ -217,14 +213,7 @@ class Patch extends ContentEntityBase {
     $fields[$entity_type->getKey('message')] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Revision log message'))
       ->setRevisionable(TRUE)
-      ->setDefaultValue('')
-      ->setDisplayOptions('form', [
-        'type' => 'string_textarea',
-        'weight' => 25,
-        'settings' => [
-          'rows' => 3,
-        ],
-      ]);
+      ->setDefaultValue('');
 
     return $fields;
   }

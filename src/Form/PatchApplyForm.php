@@ -15,6 +15,7 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Drupal\patch_revision\Events\PatchRevision;
 use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -164,7 +165,7 @@ class PatchApplyForm extends ContentEntityForm {
 
       $form[$field_name.'_group'] = [
         '#type' => 'fieldset',
-        '#legend' => $field_label,
+        '#title' => $field_label,
         '#open' => TRUE,
         '#attributes' => ['class' => [
           'patch_revision_apply_group',
@@ -172,17 +173,35 @@ class PatchApplyForm extends ContentEntityForm {
         ]],
         'left' => [
           '#type' => 'container',
-          '#attributes' => ['class' => ['group_left']]
+          '#attributes' => ['class' => ['group_left']],
+          'header' => [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['header_left']],
+            'content' => ['#markup' => $this->t('Changes')],
+          ],
         ],
         'right' => [
           '#type' => 'container',
-          '#attributes' => ['class' => ['group_right']]
+          '#attributes' => ['class' => ['group_right']],
+          'header' => [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['header_right']],
+            'content' => ['#markup' => $this->t('Current')],
+          ],
         ],
       ];
-      $form[$field_name.'_group']['left'][$field_name.'_patch'] =  $field_patch_plugin->getFieldPatchView($field_label, $value);
+      $form[$field_name.'_group']['left'][$field_name.'_patch'] =  $field_patch_plugin->getFieldPatchView('', $value);
       $form[$field_name.'_group']['right'][$field_name] = $this->getOrigFieldWidget($form, $form_state, $entity_form_display, $field_name, $orig_entity);
     }
+    $form['status'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Status'),
+      '#description' => $this->t('Status of the patch revision.'),
+      '#options' => PatchRevision::PR_STATUS,
+      '#default_value' => $this->entity->get('status')->getString(),
+    ];
 
+    $form += parent::buildForm($form, $form_state);
     return $form;
   }
 
