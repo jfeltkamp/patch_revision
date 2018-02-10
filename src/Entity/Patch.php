@@ -75,11 +75,6 @@ class Patch extends ContentEntityBase {
   protected $originalEntity;
 
   /**
-   * @var DiffService
-   */
-  protected $diffService;
-
-  /**
    * @var User
    */
   protected $creator;
@@ -93,6 +88,11 @@ class Patch extends ContentEntityBase {
    * @var array
    */
   protected $entityFieldMap;
+
+  /**
+   * @var DiffService
+   */
+  public $diffService;
 
   /**
    * {@inheritdoc}
@@ -131,11 +131,12 @@ class Patch extends ContentEntityBase {
    *
    * @return string
    */
-  protected function getEntityFieldType($entity_type, $field_name) {
+  public function getEntityFieldType($field_name) {
+    $entity_id = $this->entityKeys['rtype'];
     $map = $this->getEntityFieldMap();
-    return (isset($map[$entity_type][$field_name]))
-      ? $map[$entity_type][$field_name]['type']
-      : NULL;
+    return (isset($map[$entity_id][$field_name]))
+      ? $map[$entity_id][$field_name]['type']
+      : '';
   }
 
   /**
@@ -260,6 +261,8 @@ class Patch extends ContentEntityBase {
     return $this->creator;
   }
 
+
+
   /**
    * Returns the Diff entity.
    *
@@ -273,28 +276,12 @@ class Patch extends ContentEntityBase {
   }
 
   /**
-   * Returns the plugin belongs to the field type.
-   *
-   * @param $field_name
-   *   The field name mashine readable.
-   *
-   * @return FieldPatchPluginInterface|FALSE
-   */
-  public function getPatchPluginFromOrigFieldName($entity_id, $field_name) {
-    if ($field_type = $this->getEntityFieldType($entity_id, $field_name)) {
-      return $this->getDiffService()->getPluginFromFieldType($field_type);
-    }
-    else return FALSE;
-  }
-
-
-  /**
    * Returns the label belongs to the field type.
    *
    * @return TranslatableMarkup|string
    */
   public function getOrigFieldLabel($field_name) {
-    if (FALSE && $orig_entity = $this->originalEntity()) {
+    if ($orig_entity = $this->originalEntity()) {
       return $orig_entity->getFieldDefinition($field_name)->getLabel();
     }
     else {
@@ -303,5 +290,21 @@ class Patch extends ContentEntityBase {
 
   }
 
+  /**
+   * Returns patch for a single field.
+   *
+   * @param $field_name string
+   *   The field name to return.
+   *
+   * @return array
+   *   The field value.
+   */
+  public function getPatchValue($field_name = '') {
+    $patch = reset($this->get('patch')->getValue());
+    if ($patch && isset($patch[$field_name])) {
+      return $patch[$field_name];
+    } else
+      return [];
+  }
 
 }

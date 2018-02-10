@@ -15,6 +15,7 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Events\PatchRevision;
 use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -55,11 +56,11 @@ class PatchApplyForm extends ContentEntityForm {
   protected $entityFieldManager;
 
   /**
-   * FieldPatchPluginManager.
+   * DiffService.
    *
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   * @var \Drupal\patch_revision\DiffService
    */
-  protected $patchPluginManager;
+  protected $diffService;
 
   /**
    * @var FormBuilder
@@ -82,13 +83,13 @@ class PatchApplyForm extends ContentEntityForm {
     TimeInterface $time = NULL,
     EntityFieldManager $entity_field_manager,
     EntityTypeManager $entity_type_manager,
-    FieldPatchPluginManager $patch_plugin_manager,
+    DiffService $diff_service,
     FormBuilder $form_builder
   ) {
     parent::__construct( $entity_manager, $entity_type_bundle_info,$time);
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeManager = $entity_type_manager;
-    $this->patchPluginManager = $patch_plugin_manager;
+    $this->diffService = $diff_service;
     $this->formBuilder = $form_builder;
   }
 
@@ -102,7 +103,7 @@ class PatchApplyForm extends ContentEntityForm {
       $container->get('datetime.time'),
       $container->get('entity_field.manager'),
       $container->get('entity_type.manager'),
-      $container->get('plugin.manager.field_patch_plugin'),
+      $container->get('patch_revision.diff'),
       $container->get('form_builder')
     );
   }
@@ -160,7 +161,8 @@ class PatchApplyForm extends ContentEntityForm {
     $patches = $this->entity->get('patch')->getValue();
     $patch = count($patches) ? $patches[0] : [];
     foreach ($patch as $field_name => $value) {
-      $field_patch_plugin = $this->entity->getPatchPluginFromOrigFieldName('node', $field_name);
+      $field_type = $this->entity->getEntityFieldType($field_name);
+      $field_patch_plugin = $this->diffService->getPluginFromFieldType($field_type);
       $field_label = $this->entity->getOrigFieldLabel($field_name);
 
       $form[$field_name.'_group'] = [
@@ -191,7 +193,9 @@ class PatchApplyForm extends ContentEntityForm {
         ],
       ];
       $form[$field_name.'_group']['left'][$field_name.'_patch'] =  $field_patch_plugin->getFieldPatchView('', $value);
-      $form[$field_name.'_group']['right'][$field_name] = $this->getOrigFieldWidget($form, $form_state, $entity_form_display, $field_name, $orig_entity);
+
+      $orig_field_widget = $this->getPatchedFieldWidget($field_name, $orig_entity, $entity_form_display, $form, $form_state);
+      $form[$field_name.'_group']['right'][$field_name] = $orig_field_widget;
     }
     $form['status'] = [
       '#type' => 'select',
@@ -206,17 +210,31 @@ class PatchApplyForm extends ContentEntityForm {
   }
 
   /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   * @param $entity_form_display
    * @param $field_name
    * @param $orig_entity
+   * @param $entity_form_display
+   * @param array $form
+   * @param FormStateInterface $form_state
    * @return array
    */
-  protected function getOrigFieldWidget(array $form, FormStateInterface $form_state, EntityFormDisplay $entity_form_display, $field_name, NodeInterface $orig_entity) {
+  protected function getPatchedFieldWidget($field_name, NodeInterface $orig_entity, EntityFormDisplay $entity_form_display, array $form, FormStateInterface $form_state) {
     if ($widget = $entity_form_display->getRenderer($field_name)) {
+      // Get the original field value.
       $items = $orig_entity->get($field_name);
       $items->filterEmptyItems();
+      $value = $items->getValue();
+
+      // Get the patch for the field.
+      $patch = $this->entity->getPatchValue($field_name);
+
+      // Load the plugin for the field type.
+      $field_type = $this->entity->getEntityFieldType($field_name);
+      $plugin = $this->entity->getDiffService()->getPluginFromFieldType($field_type);
+
+      // Get the patch result.
+      $result = $plugin->patchFieldValue($value, $patch);
+
+      // $items->set(0, ['value' => 'blablub', 'summary' => 'blablub', 'format' => 'plain_text']);
       $field = $widget->form($items, $form, $form_state);
       $field['#access'] = $items->access('edit');
       return $field;

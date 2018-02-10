@@ -108,7 +108,7 @@ class NodeObserver implements ObserverInterface {
     $changedFields = $nodeSubject->getChangedFields();
     $node = $nodeSubject->getNode();
     foreach ($changedFields as $name => $values) {
-      $field_type = $node->getFieldDefinition($name);
+      $field_type = $node->getFieldDefinition($name)->getType();
       $diff[$name] = $this->getDiffService()->getDiff($field_type, $values['old_value'], $values['new_value']);
     }
     return $diff;

@@ -33,17 +33,22 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
   function getFieldDiff(array $old, array $new);
 
   /**
-   * Apply patch to an field
+   * Apply patch to an field value.
+   *
+   * @param mixed $value
+   *   Array with previous saved field data.
+   * @param mixed $patch
+   *   Array with overwritten field data.
    *
    * @return mixed
    */
-  function patchField();
+  function processPatchFieldValue($value, $patch);
 
   /**
    * Main feature that process the diff command and returns the patch.
    *
-   * @param $str_src mixed
-   * @param $str_target mixed
+   * @param mixed $str_src
+   * @param mixed $str_target
    *
    * @return mixed
    */

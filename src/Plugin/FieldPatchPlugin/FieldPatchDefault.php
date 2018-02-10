@@ -45,24 +45,42 @@ class FieldPatchDefault extends FieldPatchPluginBase {
    */
   public function processValueDiff($str_src, $str_target) {
 
-    $process_str = "git diff $(echo \"{$str_src}\" | git hash-object -w --stdin) $(echo \"{$str_target}\" | git hash-object -w --stdin)  --word-diff --abbrev=4";
+    if (is_string($str_src) && is_string($str_target)) {
 
-    $process = new Process($process_str);
-    $process->run();
+      $process_str = "git diff $(echo \"{$str_src}\" | git hash-object -w --stdin) $(echo \"{$str_target}\" | git hash-object -w --stdin)  --word-diff --abbrev=4";
 
-    // executes after the command finishes
-    if (!$process->isSuccessful()) {
-      throw new ProcessFailedException($process);
+      $process = new Process($process_str);
+      $process->run();
+
+      // executes after the command finishes
+      if (!$process->isSuccessful()) {
+        throw new ProcessFailedException($process);
+      }
+
+      return $process->getOutput();
     }
-
-    return $process->getOutput();
+    else {
+      return FALSE;
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function patchField() {
-    return FALSE;
+  public function processPatchFieldValue($value, $patch) {
+    if (!empty($patch)) {
+
+      $patchFileHandle = $this->createTempFile((string) $value);
+      $patchFileMetaData = stream_get_meta_data($patchFileHandle);
+
+      $command = sprintf(
+        'git apply %s',
+        $patchFileMetaData['uri']
+      );
+      $this->runCommand($command, true, $this->targetGitRepository);
+    } else {
+      return $value;
+    }
   }
 
   /**

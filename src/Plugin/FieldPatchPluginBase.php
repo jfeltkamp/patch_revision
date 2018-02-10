@@ -11,6 +11,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
 
 
 
+
   protected function getFieldType() {
 
   }
@@ -40,6 +41,24 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function patchFieldValue($value, $patch) {
+    $result = [];
+    $counts = max([count($value), count($patch)]) - 1;
+    for ($i = 0; $i <= $counts; $i++) {
+      foreach($this->getFieldProperties() as $key => $default_value) {
+
+        $value_item = isset($value[$i]) ? $value[$i][$key] : $default_value;
+        $patch_item = isset($patch[$i]) ? $patch[$i][$key] : FALSE;
+
+        $result[$i][$key] = $this->processPatchFieldValue($value_item, $patch_item);
+      }
+    }
+    return $result;
+  }
+
+  /**
    *
    */
   public function getFieldPatchView($field_name, $values) {
@@ -60,4 +79,25 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     }
     return $result;
   }
+
+
+  /**
+   * Creates a temporary file with content and returns the file handle.
+   *
+   * @param string $content
+   *   The content to apply to the temporary file.
+   *
+   * @return bool|resource
+   *   Returns the file handle or false.
+   */
+  protected function createTempFile($content = null) {
+    $tmpFile = tmpfile();
+    if ($content) {
+      $metaData = stream_get_meta_data($tmpFile);
+      file_put_contents($metaData['uri'], $content);
+    }
+    // xdiff
+    return $tmpFile;
+  }
+
 }

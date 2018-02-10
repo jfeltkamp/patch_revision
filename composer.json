@@ -10,5 +10,7 @@
     "issues": "https://www.drupal.org/project/issues/patch_revision",
     "source": "http://cgit.drupalcode.org/patch_revision"
   },
-  "require": { }
+  "require": {
+    "sebastion/diff": "^"
+  }
 }

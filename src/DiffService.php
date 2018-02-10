@@ -41,20 +41,41 @@ class DiffService {
   /**
    * Get a git-diff between two strings.
    *
-   * @param $field_definition \Drupal\Core\Field\FieldDefinitionInterface
+   * @param $field_type string
    *   The field definition.
-   * @param $str_src array
+   * @param $old array
    *   The source array.
-   * @param $str_target array
+   * @param $new array
    *   The overridden array.
    *
    * @return array|FALSE
    *   The git diff.
    */
-  public function getDiff($field_definition, $old, $new) {
-    $plugin = $this->getPluginFromFieldType($field_definition->getType());
+  public function getDiff($field_type, $old, $new) {
+    $plugin = $this->getPluginFromFieldType($field_type);
     if($plugin instanceof FieldPatchPluginInterface) {
       return $plugin->getFieldDiff($old, $new);
+    }
+    return FALSE;
+  }
+
+  /**
+   * Get a git-diff between two strings.
+   *
+   * @param $field_type string
+   *   The field definition.
+   * @param $value array
+   *   The source array.
+   * @param $patch array
+   *   The overridden array.
+   *
+   * @return array|FALSE
+   *   The git diff.
+   */
+  public function patchField($field_type, $value, $patch) {
+    $plugin = $this->getPluginFromFieldType($field_type);
+    if($plugin instanceof FieldPatchPluginInterface) {
+      return $plugin->patchFieldValue($value, $patch);
     }
     return FALSE;
   }
