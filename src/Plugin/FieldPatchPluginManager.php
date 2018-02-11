@@ -97,4 +97,74 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     }
     return $fields;
   }
+
+
+  /**
+   * @param string $field_type
+   *   The FieldType for what correct plugin is needed.
+   *
+   * @return \Drupal\patch_revision\Plugin\FieldPatchPluginBase|FALSE
+   *   The FieldPatchPlugin belongs to FieldType.
+   */
+  public function getPluginFromFieldType($field_type) {
+    switch($field_type) {
+      case 'string':
+      case 'string_long':
+      case 'text':
+      case 'text_long':
+        $plugin = $this->createInstance('default', ['field_type' => $field_type]);
+        break;
+      default:
+        if ($this->hasDefinition($field_type)) {
+          $plugin = $this->createInstance($field_type);
+        } else {
+          $plugin = FALSE;
+        }
+    }
+
+    return $plugin;
+  }
+
+  /**
+   * Get a git-diff between two strings.
+   *
+   * @param $field_type string
+   *   The field definition.
+   * @param $old array
+   *   The source array.
+   * @param $new array
+   *   The overridden array.
+   *
+   * @return array|FALSE
+   *   The git diff.
+   */
+  public function getDiff($field_type, $old, $new) {
+    $plugin = $this->getPluginFromFieldType($field_type);
+    if($plugin instanceof FieldPatchPluginInterface) {
+      return $plugin->getFieldDiff($old, $new);
+    }
+    return FALSE;
+  }
+
+  /**
+   * Get a git-diff between two strings.
+   *
+   * @param $field_type string
+   *   The field definition.
+   * @param $value array
+   *   The source array.
+   * @param $patch array
+   *   The overridden array.
+   *
+   * @return array|FALSE
+   *   The git diff.
+   */
+  public function patchField($field_type, $value, $patch) {
+    $plugin = $this->getPluginFromFieldType($field_type);
+    if($plugin instanceof FieldPatchPluginInterface) {
+      return $plugin->patchFieldValue($value, $patch);
+    }
+    return FALSE;
+  }
+
 }

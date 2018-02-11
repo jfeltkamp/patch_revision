@@ -9,6 +9,10 @@ namespace Drupal\patch_revision\Events;
 
 final class PatchRevision {
 
+
+  const PR_PATCH_TEMP_FILE_NAME = 'FOO';
+  const PR_ORIG_TEMP_FILE_NAME = 'PAT';
+
   /**
    * @var integer
    *   Stored value for pro argument.
@@ -51,4 +55,5 @@ final class PatchRevision {
   ];
 
 
+  const CODE_PATCH_EMPTY = 1001;
 }

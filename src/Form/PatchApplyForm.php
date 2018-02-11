@@ -162,7 +162,7 @@ class PatchApplyForm extends ContentEntityForm {
     $patch = count($patches) ? $patches[0] : [];
     foreach ($patch as $field_name => $value) {
       $field_type = $this->entity->getEntityFieldType($field_name);
-      $field_patch_plugin = $this->diffService->getPluginFromFieldType($field_type);
+      $field_patch_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type);
       $field_label = $this->entity->getOrigFieldLabel($field_name);
 
       $form[$field_name.'_group'] = [
@@ -229,13 +229,18 @@ class PatchApplyForm extends ContentEntityForm {
 
       // Load the plugin for the field type.
       $field_type = $this->entity->getEntityFieldType($field_name);
-      $plugin = $this->entity->getDiffService()->getPluginFromFieldType($field_type);
+      $plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type);
 
       // Get the patch result.
       $result = $plugin->patchFieldValue($value, $patch);
 
-      // $items->set(0, ['value' => 'blablub', 'summary' => 'blablub', 'format' => 'plain_text']);
+      $items->setValue($result['result']);
+
       $field = $widget->form($items, $form, $form_state);
+
+      $plugin->setWidgetFeedback($field, $result['feedback']);
+
+
       $field['#access'] = $items->access('edit');
       return $field;
     }

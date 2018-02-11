@@ -95,10 +95,37 @@ class Patch extends ContentEntityBase {
   public $diffService;
 
   /**
+   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+   */
+  private $pluginManager;
+
+  /**
    * {@inheritdoc}
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
+  }
+
+  /**
+   * @return \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   */
+  public function getPluginManager() {
+    if (!$this->pluginManager) {
+      $this->pluginManager = \Drupal::service('plugin.manager.field_patch_plugin');
+    }
+    return $this->pluginManager;
+  }
+
+  /**
+   * Returns the Diff entity.
+   *
+   * @return DiffService
+   */
+  public function getDiffService() {
+    if (!$this->diffService) {
+      $this->diffService = \Drupal::service('patch_revision.diff');
+    }
+    return $this->diffService;
   }
 
   /**
@@ -259,20 +286,6 @@ class Patch extends ContentEntityBase {
       $this->creator = reset($creator);
     }
     return $this->creator;
-  }
-
-
-
-  /**
-   * Returns the Diff entity.
-   *
-   * @return DiffService
-   */
-  public function getDiffService() {
-    if (!isset($this->diffService)) {
-      $this->diffService = \Drupal::service('patch_revision.diff');
-    }
-    return $this->diffService;
   }
 
   /**

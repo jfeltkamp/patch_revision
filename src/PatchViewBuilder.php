@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityViewBuilder;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
-use Drupal\patch_revision\Entity\Patch;
 
 /**
  * View builder handler for nodes.
@@ -22,9 +21,7 @@ class PatchViewBuilder extends EntityViewBuilder {
     if (empty($entities)) {
       return;
     }
-
     parent::buildComponents($build, $entities, $displays, $view_mode);
-
   }
 
   /**
@@ -32,7 +29,6 @@ class PatchViewBuilder extends EntityViewBuilder {
    */
   protected function getBuildDefaults(EntityInterface $entity, $view_mode) {
     $defaults = parent::getBuildDefaults($entity, $view_mode);
-
     return $defaults;
   }
 
@@ -86,7 +82,7 @@ class PatchViewBuilder extends EntityViewBuilder {
     $patch = count($patches) ? $patches[0] : [];
     foreach ($patch as $field_name => $value) {
       $field_type = $entity->getEntityFieldType($field_name);
-      $field_patch_plugin = $entity->getDiffService()->getPluginFromFieldType($field_type);
+      $field_patch_plugin = $entity->getPluginManager()->getPluginFromFieldType($field_type);
       $field_label = $entity->getOrigFieldLabel($field_name);
       $view[$field_name] = $field_patch_plugin->getFieldPatchView($field_label, $value);
     }

@@ -23,6 +23,13 @@
 }
 
 
+.patch-value-failed textarea.text-summary {
+  border: 1px solid #ff8800;
+}
+.patch-summary-failed textarea.text-full {
+  border: 1px solid #ff8800;
+}
+
 .patch_revision_apply_group .group_left,
 .patch_revision_apply_group .group_right {
   -webkit-flex: 1 1 50%; /* Safari 6.1+ */

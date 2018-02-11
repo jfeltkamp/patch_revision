@@ -10,11 +10,8 @@ use Drupal\Component\Plugin\PluginBase;
 abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPluginInterface {
 
 
+  protected function getFieldType() {}
 
-
-  protected function getFieldType() {
-
-  }
 
   public function getFieldProperties() {
     $plugin_definition = $this->getPluginDefinition();
@@ -52,7 +49,10 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
         $value_item = isset($value[$i]) ? $value[$i][$key] : $default_value;
         $patch_item = isset($patch[$i]) ? $patch[$i][$key] : FALSE;
 
-        $result[$i][$key] = $this->processPatchFieldValue($value_item, $patch_item);
+        $result_container = $this->processPatchFieldValue($value_item, $patch_item);
+
+        $result['result'][$i][$key] = $result_container['result'];
+        $result['feedback'][$i][$key] = $result_container['feedback'];
       }
     }
     return $result;
@@ -98,6 +98,26 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     }
     // xdiff
     return $tmpFile;
+  }
+
+  /**
+   * Creates a temporary file with content and returns the file handle.
+   *
+   * @param string $content
+   *   The content to apply to the temporary file.
+   *
+   * @return bool|resource
+   *   Returns the file handle or false.
+   */
+  protected function createNamTempFile($name, $content = null) {
+    $tmpFile = tempnam(sys_get_temp_dir(), $name);
+    $handle = fopen($tmpFile, "rw");
+    if ($content) {
+      $metaData = stream_get_meta_data($handle);
+      file_put_contents($metaData['uri'], $content);
+    }
+    // xdiff
+    return $handle;
   }
 
 }

@@ -34,4 +34,28 @@ class FieldPatchTextSummary extends FieldPatchDefault {
     return 'text_with_summary';
   }
 
+  /**
+   * @param $field array
+   * @param $feedback array
+   */
+  public function setWidgetFeedback(&$field, $feedback) {
+    $item = 0;
+    while (isset($field['widget'][$item])) {
+      if(!$feedback[$item]['summary']['applied']) {
+        if($field['widget']['#cardinality'] > 1) {
+          $field['widget'][$item]['#attributes']['class'][] = 'patch-summary-failed';
+        } else {
+          $field['#attributes']['class'][] = 'patch-summary-failed';
+        }
+      }
+      if(!$feedback[$item]['value']['applied']) {
+        if($field['widget']['#cardinality'] > 1) {
+          $field['widget'][$item]['#attributes']['class'][] = 'patch-value-failed';
+        } else {
+          $field['#attributes']['class'][] = 'patch-value-failed';
+        }
+      }
+      $item++;
+    }
+  }
 }

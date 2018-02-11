@@ -22,11 +22,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class NodeObserver implements ObserverInterface {
 
   /**
-   * @var DiffService|NULL
-   */
-  private $diffService;
-
-  /**
    * @var EntityTypeManager|NULL
    */
   private $entity_type_manager;
@@ -45,16 +40,8 @@ class NodeObserver implements ObserverInterface {
   function __construct() {
     $container = \Drupal::getContainer();
     $this->entity_type_manager = $container->get('entity_type.manager');
-    $this->diffService = $container->get('patch_revision.diff');
     $this->plugin_manager = $container->get('plugin.manager.field_patch_plugin');
     $this->config = $container->get('config.manager')->getConfigFactory()->get('patch_revision.config');
-  }
-
-  /**
-   * @return DiffService|mixed|NULL
-   */
-  protected function getDiffService() {
-    return $this->diffService;
   }
 
   /**
@@ -109,7 +96,7 @@ class NodeObserver implements ObserverInterface {
     $node = $nodeSubject->getNode();
     foreach ($changedFields as $name => $values) {
       $field_type = $node->getFieldDefinition($name)->getType();
-      $diff[$name] = $this->getDiffService()->getDiff($field_type, $values['old_value'], $values['new_value']);
+      $diff[$name] = $this->plugin_manager->getDiff($field_type, $values['old_value'], $values['new_value']);
     }
     return $diff;
   }
