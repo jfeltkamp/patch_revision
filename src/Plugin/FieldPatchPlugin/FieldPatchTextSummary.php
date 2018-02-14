@@ -8,6 +8,8 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
 /**
  * Plugin implementation of the 'promote' actions.
  *
@@ -42,6 +44,12 @@ class FieldPatchTextSummary extends FieldPatchDefault {
     $item = 0;
     while (isset($field['widget'][$item])) {
       if(!$feedback[$item]['summary']['applied']) {
+        if (isset($field['#type']) && $field['#type'] == 'container') {
+          $field['patch_warn'] = [
+            '#markup' => $this->getMergeConflictMessage(),
+            '#weight' => -50,
+          ];
+        }
         if($field['widget']['#cardinality'] > 1) {
           $field['widget'][$item]['#attributes']['class'][] = 'patch-summary-failed';
         } else {
@@ -49,6 +57,12 @@ class FieldPatchTextSummary extends FieldPatchDefault {
         }
       }
       if(!$feedback[$item]['value']['applied']) {
+        if (isset($field['#type']) && $field['#type'] == 'container') {
+          $field['patch_warn'] = [
+            '#markup' => $this->getMergeConflictMessage(),
+            '#weight' => -50,
+          ];
+        }
         if($field['widget']['#cardinality'] > 1) {
           $field['widget'][$item]['#attributes']['class'][] = 'patch-value-failed';
         } else {

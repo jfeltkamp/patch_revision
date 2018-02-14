@@ -3,14 +3,32 @@
 namespace Drupal\patch_revision\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Base class for Field patch plugin plugins.
  */
 abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPluginInterface {
 
+  /**
+   * @var TranslatableMarkup|NULL
+   */
+  protected $mergeConflictMessage;
 
   protected function getFieldType() {}
+
+  /**
+   * Get the conflict message.
+   *
+   * @return TranslatableMarkup
+   */
+  protected function getMergeConflictMessage() {
+    if (!$this->mergeConflictMessage) {
+      $this->mergeConflictMessage =
+        new TranslatableMarkup('<strong class="pr-conflict-warning">Field has merge conflicts, please edit manually.</strong>');
+    }
+    return $this->mergeConflictMessage;
+  }
 
 
   public function getFieldProperties() {
@@ -18,6 +36,26 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     return ($plugin_definition['properties']);
   }
 
+  /**
+   * @param $field array
+   * @param $feedback array
+   */
+  public function setWidgetFeedback(&$field, $feedback) {
+    $item = 0;
+    while (isset($field['widget'][$item])) {
+      if(!$feedback[$item]['value']['applied']) {
+        if (isset($field['#type']) && $field['#type'] == 'container') {
+          array_unshift($field, ['#markup' => $this->getMergeConflictMessage()] );
+        }
+        if($field['widget']['#cardinality'] > 1) {
+          $field['widget'][$item]['#attributes']['class'][] = 'patch-value-failed';
+        } else {
+          $field['#attributes']['class'][] = 'patch-value-failed';
+        }
+      }
+      $item++;
+    }
+  }
 
   /**
    * {@inheritdoc}
@@ -116,7 +154,6 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $metaData = stream_get_meta_data($handle);
       file_put_contents($metaData['uri'], $content);
     }
-    // xdiff
     return $handle;
   }
 

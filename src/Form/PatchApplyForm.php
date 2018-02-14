@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\TypedData\Exception\ReadOnlyException;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
@@ -197,6 +198,8 @@ class PatchApplyForm extends ContentEntityForm {
       $orig_field_widget = $this->getPatchedFieldWidget($field_name, $orig_entity, $entity_form_display, $form, $form_state);
       $form[$field_name.'_group']['right'][$field_name] = $orig_field_widget;
     }
+
+
     $form['status'] = [
       '#type' => 'select',
       '#title' => $this->t('Status'),
@@ -234,7 +237,11 @@ class PatchApplyForm extends ContentEntityForm {
       // Get the patch result.
       $result = $plugin->patchFieldValue($value, $patch);
 
-      $items->setValue($result['result']);
+      try {
+        $items->setValue($result['result']);
+      } catch (ReadOnlyException $e) {
+
+      }
 
       $field = $widget->form($items, $form, $form_state);
 

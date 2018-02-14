@@ -22,11 +22,22 @@
   margin: 0 -15px;
 }
 
+strong.pr-conflict-warning {
+  display: block;
+  border-top: 1px solid #ff8800;
+  position: relative;
+  top: -1px;
+  text-align: center;
+  color: #FF8800;
+  font-weight: normal;
+}
 
-.patch-value-failed textarea.text-summary {
+.patch-summary-failed textarea.text-summary {
   border: 1px solid #ff8800;
 }
-.patch-summary-failed textarea.text-full {
+
+.patch-value-failed  textarea.text-full,
+.patch-value-failed  input.text-full {
   border: 1px solid #ff8800;
 }
 
