@@ -77,14 +77,21 @@ class FieldPatchDefault extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function processPatchFieldValue($value, $patch) {
-    if (!empty($patch)) {
-      $dmp = new DiffMatchPatch();
+    $dmp = new DiffMatchPatch();
+    try {
       $patches = $dmp->patch_fromText($patch);
+    } catch(\Exception $e) {
+      drupal_set_message($e->getMessage()) ;
+    }
+
+    if (isset($patches) && is_array($patches)) {
 
       $result = $dmp->patch_apply($patches, $value);
-      $code = ceil((count(array_filter($result[1]))/count($result[1])) * 100);
+      $code = (count($patches))
+        ? ceil((count(array_filter($result[1]))/count($result[1])) * 100)
+        : 100;
 
-      $feedback = ['code' => $code .'%'];
+      $feedback = ['code' => $code];
       if (!$code) {
         // debug: throw new ProcessFailedException($process);
         $result = $value;
@@ -104,7 +111,7 @@ class FieldPatchDefault extends FieldPatchPluginBase {
         'result' => $value,
         'feedback' => [
           'applied' => FALSE,
-          'code' => PatchRevision::CODE_PATCH_EMPTY,
+          'code' => 0,
         ],
       ];
     }
@@ -120,28 +127,6 @@ class FieldPatchDefault extends FieldPatchPluginBase {
     return [
       '#markup' => "{$string}"
     ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function insertInsDelFormatter($string) {
-    $string = preg_replace('/\[-([\s\S]*?)-\]/', '<del class="diffdel"> ${1}</del>', $string);
-    $string = preg_replace('/{\+([\s\S]*?)\+}/', '<ins class="diffins"> ${1}</ins>', $string);
-    return nl2br($string);
-  }
-
-  /**
-   * Get rid of the git diff header.
-   *
-   * @param $string
-   *   Original string.
-   * @return $string
-   *   Cleaned string.
-   */
-  protected function cutDiffHead($string) {
-    preg_match('/@@[0-9,\-+ ]+@@\s([\w\W]*)$/', $string, $result);
-    return count($result) ? (string) $result[1] : $string;
   }
 
 }

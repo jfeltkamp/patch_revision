@@ -2,6 +2,7 @@
 
 namespace Drupal\patch_revision\Entity;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -98,6 +99,11 @@ class Patch extends ContentEntityBase {
    * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager;
    */
   private $pluginManager;
+
+  /**
+   * @var array;
+   */
+  private $origRevisionIds;
 
   /**
    * {@inheritdoc}
@@ -247,31 +253,77 @@ class Patch extends ContentEntityBase {
   }
 
   /**
+   * Returns all revision_ids for an entity.
+   *
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
+  public function getOrigRevisionIds() {
+    if (!$this->origRevisionIds) {
+      $entity = $this->originalEntity();
+      $entity_type = $entity->getEntityTypeId();
+      $this->origRevisionIds = $this->entityTypeManager()->getStorage($entity_type)->revisionIds($entity);
+    }
+    return $this->origRevisionIds;
+  }
+
+  /**
    * Returns the referred entity.
    *
-   * @var bool $latest
+   * @var string|int $version
    *   If method returns current or the latest (possibly unpublished) revision.
+   *   Accepted values are 'current', 'latest' or a revision_id as '123'.
    *
    * @return \Drupal\Core\Entity\EntityInterface|FALSE
    */
-  public function originalEntity($latest = FALSE) {
+  public function originalEntity() {
     if (!isset($this->originalEntity)) {
       /** @var \Drupal\node\NodeInterface[] $orig_entity */
       $orig_entity = $this->get('rid')->referencedEntities();
       $this->originalEntity = reset($orig_entity);
     }
-    if ($this->originalEntity && $latest) {
-      $entity_type = $this->originalEntity->getEntityTypeId();
-      $entity = $this->originalEntity;
-      $revision_ids = $this->entityTypeManager()
-        ->getStorage($entity_type)
-        ->revisionIds($entity);
-      $revision_id = end($revision_ids);
-      if ($revision_id) {
-        return $this->entityTypeManager()->getStorage($entity_type)->loadRevision($revision_id);
-      }
-    }
     return $this->originalEntity;
+  }
+
+  /**
+   * Returns a revision referred entity or FALSE if none exists.
+   *
+   * @var string|int $version
+   *   If method returns current or the latest (possibly unpublished) revision.
+   *   Accepted values are 'current', 'latest' or a revision_id as '123'.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|FALSE
+   */
+  public function originalEntityRevision($revision = 'current') {
+    $entity = $this->originalEntity();
+    if ($revision == 'current') {
+      return $entity;
+    }
+
+    try {
+      $entity_type = $entity->getEntityTypeId();
+      $revision_ids = $this->getOrigRevisionIds();
+      $revision_id = ($revision == 'latest') ? end($revision_ids) : $revision;
+      if (in_array($revision_id, $revision_ids)) {
+          return $this->entityTypeManager()->getStorage($entity_type)->loadRevision($revision_id);
+      } else {
+        return FALSE;
+      }
+    } catch(InvalidPluginDefinitionException $e) {
+      drupal_set_message($e->getMessage(),'error');
+      return FALSE;
+    }
+  }
+
+
+  /**
+   * Returns a revision referred entity or FALSE if none exists.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|FALSE
+   */
+  public function originalEntityRevisionOld() {
+    $vid = $this->get('rvid')->getString();
+    return $this->originalEntityRevision($vid);
   }
 
   /**

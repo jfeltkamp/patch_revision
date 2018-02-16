@@ -67,6 +67,7 @@ class NodeObserver implements ObserverInterface {
       $patch = $this->getPatch($node->id(), $node->getEntityTypeId(), $node->bundle());
 
       $patch
+        ->set('rvid', $node->original->getRevisionId())
         ->set('patch', $diff)
         ->set('message', $node->getRevisionLogMessage() ?: ' ')
         ->set('uid', \Drupal::currentUser()->id());

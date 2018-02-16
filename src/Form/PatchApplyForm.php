@@ -147,7 +147,9 @@ class PatchApplyForm extends ContentEntityForm {
     $form['#attached']['library'][] = 'patch_revision/patch_revision.apply_form';
 
     /** @var NodeInterface $orig_entity */
-    $orig_entity = $this->entity->originalEntity(TRUE);
+    $orig_entity = $this->entity->originalEntityRevision('latest');
+    // @Todo Create patch view with old and new.
+    $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
     $form_id = [
       $orig_entity->getEntityTypeId(),

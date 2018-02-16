@@ -15,6 +15,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    */
   protected $mergeConflictMessage;
 
+
   protected function getFieldType() {}
 
   /**
@@ -25,11 +26,23 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   protected function getMergeConflictMessage() {
     if (!$this->mergeConflictMessage) {
       $this->mergeConflictMessage =
-        new TranslatableMarkup('<strong class="pr-conflict-warning">Field has merge conflicts, please edit manually.</strong>');
+        new TranslatableMarkup('<strong class="pr-success-message">Field has merge conflicts, please edit manually.</strong>');
     }
     return $this->mergeConflictMessage;
   }
 
+  /**
+   * Get the conflict message.
+   *
+   * @return TranslatableMarkup
+   */
+  protected function getMergeSuccessMessage($percent) {
+    return new TranslatableMarkup('Field patch applied by %percent%.',
+      [
+        '%percent' => $percent,
+      ]
+    );
+  }
 
   public function getFieldProperties() {
     $plugin_definition = $this->getPluginDefinition();
