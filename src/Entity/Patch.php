@@ -110,7 +110,7 @@ class Patch extends ContentEntityBase {
   /**
    * @var array;
    */
-  private $patch;
+  private $diff;
 
   /**
    * {@inheritdoc}
@@ -264,12 +264,12 @@ class Patch extends ContentEntityBase {
    *
    * @return array
    */
-  public function patch() {
-    if (!$this->patch) {
+  public function getPatchField() {
+    if (!$this->diff) {
       $patch = $this->get('patch')->getValue();
-      $this->patch = (count($patch)) ? $patch[0] : [];
+      $this->diff = (count($patch)) ? $patch[0] : [];
     }
-    return $this->patch;
+    return $this->diff;
   }
 
   /**
@@ -282,7 +282,7 @@ class Patch extends ContentEntityBase {
    *   The field value.
    */
   public function getPatchValue($field_name = '') {
-    $patch = $this->patch();
+    $patch = $this->getPatchField();
     if (isset($patch[$field_name])) {
       return $patch[$field_name];
     } else

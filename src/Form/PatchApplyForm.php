@@ -126,7 +126,7 @@ class PatchApplyForm extends ContentEntityForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // $patch = $this->entity->patch();
+    // $patch = $this->entity->getPatchField();
     // $orig_entity = $this->entity->originalEntityRevision('latest');
 
 
@@ -153,7 +153,7 @@ class PatchApplyForm extends ContentEntityForm {
     /** @var NodeInterface $orig_entity_old */
     $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
-    $patch = $this->entity->patch();
+    $patch = $this->entity->getPatchField();
     foreach ($patch as $field_name => $field_patch) {
 
       // Build frame for each field.

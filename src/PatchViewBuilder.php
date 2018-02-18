@@ -79,7 +79,7 @@ class PatchViewBuilder extends EntityViewBuilder {
 
     // Build field patches views.
     /** @var NodeInterface[] $patches */
-    $patch = $entity->patch();
+    $patch = $entity->getPatchField();
     foreach ($patch as $field_name => $value) {
       $field_type = $entity->getEntityFieldType($field_name);
       $field_patch_plugin = $entity->getPluginManager()->getPluginFromFieldType($field_type);
