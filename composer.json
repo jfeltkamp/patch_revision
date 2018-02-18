@@ -11,7 +11,6 @@
     "source": "http://cgit.drupalcode.org/patch_revision"
   },
   "require": {
-    "mkalkbrenner/php-htmldiff-advanced": "~0.0.8",
     "yetanotherape/diff-match-patch": "^1.0"
   }
 }

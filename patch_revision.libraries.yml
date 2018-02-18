@@ -2,4 +2,10 @@ patch_revision.apply_form:
   css:
     theme:
       assets/css/apply_form.css: {}
+      assets/css/diff.css: {}
 
+patch_revision.patch_view:
+  css:
+    theme:
+      assets/css/patch_view.css: {}
+      assets/css/diff.css: {}

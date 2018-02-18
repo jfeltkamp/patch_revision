@@ -1,0 +1,12 @@
+
+fieldset.pr_field_view:not(.fieldgroup) {
+  padding-top: 3.25em;
+}
+
+fieldset.pr_field_view:not(.fieldgroup) > legend {
+  font-size: 1.25em;
+  border-bottom: 1px solid #c0c0c0;
+  display: block;
+  left: 18px;
+  right: 18px;
+}

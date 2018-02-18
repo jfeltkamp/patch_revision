@@ -110,21 +110,22 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
-  public function getFieldPatchView($field_name, $values) {
+  public function getFieldPatchView($values, $field, $label = '') {
     $result = [
       '#theme' => 'field_patches',
-      '#title' => $field_name,
+      '#title' => $label,
       '#items' => [],
     ];
+    $field_value = $field->getValue();
     foreach ($values as $item => $value) {
-      $result['#items']["item_{$field_name}"] = [];
+      $result['#items']["item_{$field->getName()}"] = [];
       foreach($this->getFieldProperties() as $key => $default_value) {
         $result['#items'][$item][$key] = [
           '#theme' => 'field_patch',
           '#col' => $key,
-          '#patch' => $this->patchStringFormatter($value[$key]),
+          '#patch' => $this->patchStringFormatter($value[$key], $field_value[$item][$key]),
         ];
       }
     }

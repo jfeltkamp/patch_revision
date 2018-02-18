@@ -46,14 +46,15 @@ class PatchViewBuilder extends EntityViewBuilder {
   public function view(EntityInterface $entity, $view_mode = 'full', $langcode = NULL) {
     /** @var \Drupal\patch_revision\Entity\Patch $entity */
     $view = parent::view($entity, $view_mode, $langcode);
+    $original_entity = $entity->originalEntityRevision('origin');
 
-    if ($entity->originalEntity()) {
-      $nid = $entity->originalEntity()->id();
+    if ($original_entity) {
+      $nid = $original_entity->id();
       // Set page title.
       $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
       $project_link = Link::fromTextAndUrl($entity->originalEntity()->label(), $url);
       $view['#title'] = $this->t('Improvement for <em>@type: @title</em>', [
-        '@type' => $entity->originalEntity()->type->entity->label(),
+        '@type' => $original_entity->type->entity->label(),
         '@title' => $project_link->toString()
       ]);
     } else {
@@ -78,15 +79,28 @@ class PatchViewBuilder extends EntityViewBuilder {
 
     // Build field patches views.
     /** @var NodeInterface[] $patches */
-    $patches = $entity->get('patch')->getValue();
-    $patch = count($patches) ? $patches[0] : [];
+    $patch = $entity->patch();
     foreach ($patch as $field_name => $value) {
       $field_type = $entity->getEntityFieldType($field_name);
       $field_patch_plugin = $entity->getPluginManager()->getPluginFromFieldType($field_type);
-      $field_label = $entity->getOrigFieldLabel($field_name);
-      $view[$field_name] = $field_patch_plugin->getFieldPatchView($field_label, $value);
+      $original_entity->get($field_name);
+      $field_view = $field_patch_plugin->getFieldPatchView($value, $original_entity->get($field_name));
+      $view[$field_name] = [
+        '#type' => 'fieldset',
+        '#title' => $entity->getOrigFieldLabel($field_name),
+        '#open' => TRUE,
+        '#attributes' => [
+          'class' => [
+            'pr_field_view',
+            'pr_field_view_name__' . $field_name,
+            'pr_field_view_type__' . $field_type,
+          ]
+        ],
+        'content' => $field_view,
+      ];
+
     }
-    $view['#attached']['library'][] = 'diff/diff.visual_inline';
+    $view['#attached']['library'][] = 'patch_revision/patch_revision.patch_view';
     return $view;
   }
 

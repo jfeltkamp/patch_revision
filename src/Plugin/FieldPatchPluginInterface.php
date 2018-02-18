@@ -3,6 +3,7 @@
 namespace Drupal\patch_revision\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Field\FieldItemList;
 
 /**
  * Defines an interface for Field patch plugin plugins.
@@ -57,20 +58,22 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
   /**
    * Returns a formatted view for the complete Patch.
    *
-   * @param $field_name
-   *   Field name
-   * @param $value
+   * @param array $patch_value
+   *   The patch for this field
+   * @param \Drupal\Core\Field\FieldItemList $field
+   *   FieldItemList .
    *
    * @return mixed
    */
-  function getFieldPatchView($field_name, $value);
+  function getFieldPatchView($patch_value, $field);
 
 
   /**
    * Returns a render array with formatted markup.
    *
-   * @param $string
+   * @param string $patch
+   * @param string $value_old
    * @return array
    */
-  function patchStringFormatter($string);
+  function patchStringFormatter($patch, $value_old);
 }

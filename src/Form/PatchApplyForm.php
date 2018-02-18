@@ -7,18 +7,16 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\Exception\ReadOnlyException;
-use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Events\PatchRevision;
-use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -128,7 +126,11 @@ class PatchApplyForm extends ContentEntityForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Empty implementation of the abstract submit class.
+    // $patch = $this->entity->patch();
+    // $orig_entity = $this->entity->originalEntityRevision('latest');
+
+
+    $form = $form;
   }
 
   /**
@@ -148,33 +150,21 @@ class PatchApplyForm extends ContentEntityForm {
 
     /** @var NodeInterface $orig_entity */
     $orig_entity = $this->entity->originalEntityRevision('latest');
-    // @Todo Create patch view with old and new.
+    /** @var NodeInterface $orig_entity_old */
     $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
-    $form_id = [
-      $orig_entity->getEntityTypeId(),
-      $orig_entity->bundle(),
-      'default'
-    ];
-    $form_id = implode('.', $form_id);
+    $patch = $this->entity->patch();
+    foreach ($patch as $field_name => $field_patch) {
 
-    /** @var EntityFormDisplay $entity_form_display */
-    $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
-
-    $patches = $this->entity->get('patch')->getValue();
-    $patch = count($patches) ? $patches[0] : [];
-    foreach ($patch as $field_name => $value) {
-      $field_type = $this->entity->getEntityFieldType($field_name);
-      $field_patch_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type);
+      // Build frame for each field.
       $field_label = $this->entity->getOrigFieldLabel($field_name);
-
       $form[$field_name.'_group'] = [
         '#type' => 'fieldset',
         '#title' => $field_label,
         '#open' => TRUE,
         '#attributes' => ['class' => [
-          'patch_revision_apply_group',
-          'patch_revision_apply_' . $field_name,
+          'pr_apply_group',
+          'pr_apply_' . $field_name,
         ]],
         'left' => [
           '#type' => 'container',
@@ -195,10 +185,32 @@ class PatchApplyForm extends ContentEntityForm {
           ],
         ],
       ];
-      $form[$field_name.'_group']['left'][$field_name.'_patch'] =  $field_patch_plugin->getFieldPatchView('', $value);
 
-      $orig_field_widget = $this->getPatchedFieldWidget($field_name, $orig_entity, $entity_form_display, $form, $form_state);
+      // Left side content. Old Value with highlighted patch
+      $field_old = $orig_entity_old->get($field_name);
+      $field_type = $this->entity->getEntityFieldType($field_name);
+      $field_patch_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type);
+      $result_old = $field_patch_plugin->getFieldPatchView($field_patch, $field_old);
+      $form[$field_name.'_group']['left'][$field_name.'_patch'] = $result_old;
+
+      // Right side. Latest value form element with patch applied.
+      $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
+      /** @var EntityFormDisplay $entity_form_display */
+      $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
+      $widget = $entity_form_display->getRenderer($field_name);
+      $value_latest = $orig_entity->get($field_name);
+      $patched_value = $field_patch_plugin->patchFieldValue($value_latest->getValue(), $field_patch);
+      try {
+        $value_latest->setValue($patched_value['result']);
+      } catch (\Exception $e) {
+        if ($e instanceof \InvalidArgumentException) {}
+        if ($e instanceof ReadOnlyException) {}
+      }
+      $orig_field_widget = $widget->form($value_latest, $form, $form_state);
+      $field_patch_plugin->setWidgetFeedback($orig_field_widget, $patched_value['feedback']);
+      $orig_field_widget['#access'] = $value_latest->access('edit');
       $form[$field_name.'_group']['right'][$field_name] = $orig_field_widget;
+
     }
 
 
@@ -215,46 +227,15 @@ class PatchApplyForm extends ContentEntityForm {
   }
 
   /**
-   * @param $field_name
-   * @param $orig_entity
-   * @param $entity_form_display
-   * @param array $form
-   * @param FormStateInterface $form_state
-   * @return array
+   * Returns the action form element for the current entity form.
    */
-  protected function getPatchedFieldWidget($field_name, NodeInterface $orig_entity, EntityFormDisplay $entity_form_display, array $form, FormStateInterface $form_state) {
-    if ($widget = $entity_form_display->getRenderer($field_name)) {
-      // Get the original field value.
-      $items = $orig_entity->get($field_name);
-      $items->filterEmptyItems();
-      $value = $items->getValue();
-
-      // Get the patch for the field.
-      $patch = $this->entity->getPatchValue($field_name);
-
-      // Load the plugin for the field type.
-      $field_type = $this->entity->getEntityFieldType($field_name);
-      $plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type);
-
-      // Get the patch result.
-      $result = $plugin->patchFieldValue($value, $patch);
-
-      try {
-        $items->setValue($result['result']);
-      } catch (ReadOnlyException $e) {
-
-      }
-
-      $field = $widget->form($items, $form, $form_state);
-
-      $plugin->setWidgetFeedback($field, $result['feedback']);
-
-
-      $field['#access'] = $items->access('edit');
-      return $field;
+  protected function actionsElement(array $form, FormStateInterface $form_state) {
+    $element = parent::actionsElement($form, $form_state);
+    // unset($element['delete']);
+    if (isset($element['submit'])) {
+      $element['submit']['#value'] = new TranslatableMarkup('Save improvement to document');
     }
-    return [];
+    return $element;
   }
-
 
 }

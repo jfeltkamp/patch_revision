@@ -1,9 +1,9 @@
 
-.patchapply-form .patch_revision_apply_group {
+.pr_apply_group {
   padding-top: 3.25em;
 }
 
-.patchapply-form .patch_revision_apply_group legend {
+.pr_apply_group legend {
   font-size: 1.25em;
 }
 
@@ -13,7 +13,7 @@
   border-bottom: 1px solid #c0c0c0;
 }
 
-.patch_revision_apply_group .fieldset-wrapper {
+.pr_apply_group .fieldset-wrapper {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -50,18 +50,10 @@ strong.pr-succes-message.error {
   border: 1px solid #ff8800;
 }
 
-.patch_revision_apply_group .group_left,
-.patch_revision_apply_group .group_right {
+.pr_apply_group .group_left,
+.pr_apply_group .group_right {
   -webkit-flex: 1 1 50%; /* Safari 6.1+ */
   -ms-flex: 1 1 50%; /* IE 10 */
   flex: 1 1 50%;
   padding: 0 15px;
-}
-
-del {
-  background-color: #fcc;
-}
-
-ins {
-  background-color: #cfc;
 }

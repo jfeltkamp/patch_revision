@@ -13,6 +13,8 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
 use Drupal\user\Entity\User;
+use Drupal\Core\Entity\ContentEntityType;
+use Drupal\Core\Annotation\Translation;
 
 /**
  * Defines the Patch entity.
@@ -104,6 +106,11 @@ class Patch extends ContentEntityBase {
    * @var array;
    */
   private $origRevisionIds;
+
+  /**
+   * @var array;
+   */
+  private $patch;
 
   /**
    * {@inheritdoc}
@@ -253,6 +260,36 @@ class Patch extends ContentEntityBase {
   }
 
   /**
+   * Returns patch for all changed fields.
+   *
+   * @return array
+   */
+  public function patch() {
+    if (!$this->patch) {
+      $patch = $this->get('patch')->getValue();
+      $this->patch = (count($patch)) ? $patch[0] : [];
+    }
+    return $this->patch;
+  }
+
+  /**
+   * Returns patch for a single field.
+   *
+   * @param $field_name string
+   *   The field name to return.
+   *
+   * @return array
+   *   The field value.
+   */
+  public function getPatchValue($field_name = '') {
+    $patch = $this->patch();
+    if (isset($patch[$field_name])) {
+      return $patch[$field_name];
+    } else
+      return [];
+  }
+
+  /**
    * Returns all revision_ids for an entity.
    *
    * @return array
@@ -290,27 +327,39 @@ class Patch extends ContentEntityBase {
    *
    * @var string|int $version
    *   If method returns current or the latest (possibly unpublished) revision.
-   *   Accepted values are 'current', 'latest' or a revision_id as '123'.
+   *   Accepted values are 'current', 'latest', 'origin' or a revision_id as '123'.
    *
    * @return \Drupal\Core\Entity\EntityInterface|FALSE
    */
   public function originalEntityRevision($revision = 'current') {
     $entity = $this->originalEntity();
-    if ($revision == 'current') {
-      return $entity;
+    $revision_ids = $this->getOrigRevisionIds();
+
+    switch ($revision) {
+      case 'current':
+        return $entity;
+        break;
+      case 'latest':
+        $revision_id = end($revision_ids);
+        break;
+      case 'origin':
+        $revision_id = (int) $this->get('rvid')->getString();
+        break;
+      default:
+        $revision_id = in_array((int) $revision, $revision_ids)
+          ? (int) $revision
+          : FALSE;
     }
 
     try {
-      $entity_type = $entity->getEntityTypeId();
-      $revision_ids = $this->getOrigRevisionIds();
-      $revision_id = ($revision == 'latest') ? end($revision_ids) : $revision;
-      if (in_array($revision_id, $revision_ids)) {
-          return $this->entityTypeManager()->getStorage($entity_type)->loadRevision($revision_id);
+      if ($revision_id) {
+        $entity_type = $entity->getEntityTypeId();
+        return $this->entityTypeManager()->getStorage($entity_type)->loadRevision($revision_id);
       } else {
         return FALSE;
       }
     } catch(InvalidPluginDefinitionException $e) {
-      drupal_set_message($e->getMessage(),'error');
+      drupal_set_message($e->getMessage(), 'error');
       return FALSE;
     }
   }
@@ -322,8 +371,7 @@ class Patch extends ContentEntityBase {
    * @return \Drupal\Core\Entity\EntityInterface|FALSE
    */
   public function originalEntityRevisionOld() {
-    $vid = $this->get('rvid')->getString();
-    return $this->originalEntityRevision($vid);
+    return $this->originalEntityRevision('origin');
   }
 
   /**
@@ -352,24 +400,6 @@ class Patch extends ContentEntityBase {
     else {
       return ucfirst(str_replace('_', ' ', $field_name));
     }
-
-  }
-
-  /**
-   * Returns patch for a single field.
-   *
-   * @param $field_name string
-   *   The field name to return.
-   *
-   * @return array
-   *   The field value.
-   */
-  public function getPatchValue($field_name = '') {
-    $patch = reset($this->get('patch')->getValue());
-    if ($patch && isset($patch[$field_name])) {
-      return $patch[$field_name];
-    } else
-      return [];
   }
 
 }

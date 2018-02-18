@@ -120,10 +120,12 @@ class FieldPatchDefault extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchStringFormatter($patch) {
+  public function patchStringFormatter($patch, $value_old) {
     $dmp = new DiffMatchPatch();
     $patches = $dmp->patch_fromText($patch);
-    $string = $dmp->diff_prettyHtml([$patches]);
+    $value_new = $dmp->patch_apply($patches, $value_old);
+    $diff = $dmp->diff_main($value_old, $value_new[0]);
+    $string = $dmp->diff_prettyHtml($diff);
     return [
       '#markup' => "{$string}"
     ];
