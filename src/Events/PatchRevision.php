@@ -7,11 +7,11 @@
  */
 namespace Drupal\patch_revision\Events;
 
+
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+
 final class PatchRevision {
-
-
-  const PR_PATCH_TEMP_FILE_NAME = 'FOO';
-  const PR_ORIG_TEMP_FILE_NAME = 'PAT';
+  use StringTranslationTrait;
 
   /**
    * @var integer
@@ -32,7 +32,7 @@ final class PatchRevision {
    *   Stored value for con argument.
    */
   const PR_STATUS_PATCHED = 3;
-  const PR_STATUS_PATCHED_TXT = 'patched';
+  const PR_STATUS_PATCHED_TXT = 'applied';
 
   /**
    * @var integer
@@ -56,4 +56,28 @@ final class PatchRevision {
 
 
   const CODE_PATCH_EMPTY = 1001;
+
+  /**
+   * @param $status
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|string
+   */
+  public function getStatusLiteral($status) {
+    switch ((int) $status) {
+      case 0:
+        $label = $this->t(self::PR_STATUS_DISABLED_TXT);
+        break;
+      case 1:
+        $label = $this->t(self::PR_STATUS_ACTIVE_TXT);
+        break;
+      case 2:
+        $label = $this->t(self::PR_STATUS_CONFLICTED_TXT);
+        break;
+      case 3:
+        $label =  $this->t(self::PR_STATUS_PATCHED_TXT);
+        break;
+      default:
+        return $this->t('undefined');
+    }
+    return $label;
+  }
 }

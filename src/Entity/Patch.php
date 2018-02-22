@@ -311,7 +311,7 @@ class Patch extends ContentEntityBase {
    *   If method returns current or the latest (possibly unpublished) revision.
    *   Accepted values are 'current', 'latest' or a revision_id as '123'.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|FALSE
+   * @return \Drupal\node\NodeInterface|FALSE
    */
   public function originalEntity() {
     if (!isset($this->originalEntity)) {
@@ -329,7 +329,7 @@ class Patch extends ContentEntityBase {
    *   If method returns current or the latest (possibly unpublished) revision.
    *   Accepted values are 'current', 'latest', 'origin' or a revision_id as '123'.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|FALSE
+   * @return \Drupal\node\NodeInterface|FALSE
    */
   public function originalEntityRevision($revision = 'current') {
     $entity = $this->originalEntity();

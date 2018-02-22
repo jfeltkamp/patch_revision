@@ -1,9 +1,9 @@
 <?php
 
 namespace Drupal\patch_revision;
+
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Session\AccountProxy;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**

@@ -8,11 +8,7 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\patch_revision\Events\PatchRevision;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Drupal\patch_revision\Annotation\FieldPatchPlugin;
 use Drupal\Core\Annotation\Translation;
 use DiffMatchPatch\DiffMatchPatch;

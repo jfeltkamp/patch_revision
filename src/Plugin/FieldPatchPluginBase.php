@@ -3,12 +3,15 @@
 namespace Drupal\patch_revision\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Base class for Field patch plugin plugins.
  */
 abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * @var TranslatableMarkup|NULL
@@ -26,7 +29,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   protected function getMergeConflictMessage() {
     if (!$this->mergeConflictMessage) {
       $this->mergeConflictMessage =
-        new TranslatableMarkup('<strong class="pr-success-message">Field has merge conflicts, please edit manually.</strong>');
+        $this->t('Field has merge conflicts, please edit manually.');
     }
     return $this->mergeConflictMessage;
   }
@@ -37,7 +40,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    * @return TranslatableMarkup
    */
   protected function getMergeSuccessMessage($percent) {
-    return new TranslatableMarkup('Field patch applied by %percent%.',
+    return $this->t('Field patch applied by %percent%.',
       [
         '%percent' => $percent,
       ]
@@ -55,18 +58,39 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    */
   public function setWidgetFeedback(&$field, $feedback) {
     $item = 0;
+    $applied = [];
+    $code = [];
+    $properties = array_keys($this->getFieldProperties());
+
     while (isset($field['widget'][$item])) {
-      if(!$feedback[$item]['value']['applied']) {
-        if (isset($field['#type']) && $field['#type'] == 'container') {
-          array_unshift($field, ['#markup' => $this->getMergeConflictMessage()] );
+      foreach ($properties as $property) {
+        if(!$feedback[$item][$property]['applied']) {
+          $applied[] = FALSE;
+          if($field['widget']['#cardinality'] > 1) {
+            $field['widget'][$item]['#attributes']['class'][] = 'patch-summary-failed';
+          } else {
+            $field['#attributes']['class'][] = 'patch-summary-failed';
+          }
         }
-        if($field['widget']['#cardinality'] > 1) {
-          $field['widget'][$item]['#attributes']['class'][] = 'patch-value-failed';
-        } else {
-          $field['#attributes']['class'][] = 'patch-value-failed';
-        }
+        $code[] = (int) $feedback[$item][$property]['code'];
       }
       $item++;
+    }
+    $code = round(array_sum($code) / count($code));
+    $message = (in_array(FALSE, $applied))
+      ? $this->getMergeConflictMessage()
+      : $this->getMergeSuccessMessage($code);
+
+    $message_type = (!in_array(FALSE, $applied)) ? 'message' : 'error';
+    $message_type = ($message_type !== 'error' && $code >= 99) ? $message_type : 'warning';
+
+    if (isset($field['#type']) && $field['#type'] == 'container') {
+      $field['patch_warn'] = [
+        '#markup' => $message,
+        '#weight' => -50,
+        '#prefix' => "<strong class=\"pr-succes-message $message_type\">",
+        '#suffix' => "</strong>",
+      ];
     }
   }
 

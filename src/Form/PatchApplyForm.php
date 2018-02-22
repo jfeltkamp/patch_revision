@@ -14,10 +14,13 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\Exception\ReadOnlyException;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Events\PatchRevision;
+use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Class PatchSettingsForm.
@@ -67,6 +70,11 @@ class PatchApplyForm extends ContentEntityForm {
   protected $formBuilder;
 
   /**
+   * @var PatchRevision
+   */
+  protected $constants;
+
+  /**
    * Constructs a ContentEntityForm object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
@@ -90,6 +98,7 @@ class PatchApplyForm extends ContentEntityForm {
     $this->entityTypeManager = $entity_type_manager;
     $this->diffService = $diff_service;
     $this->formBuilder = $form_builder;
+    $this->constants = new PatchRevision();
   }
 
   /**
@@ -126,11 +135,50 @@ class PatchApplyForm extends ContentEntityForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // $patch = $this->entity->getPatchField();
-    // $orig_entity = $this->entity->originalEntityRevision('latest');
+    // CHECK STATUS
+    if (($status = (int) $form_state->getValue('status')) !== PatchRevision::PR_STATUS_ACTIVE) {
+      if (\Drupal::currentUser()->hasPermission('change status of patch entities')) {
+        $this->entity->set('status', $status);
+        $this->entity->save();
+      }
+      drupal_set_message(
+        $this->t('Status was set to "@status". The status must be "@active" to apply the improvement.', [
+          '@status' => $this->constants->getStatusLiteral($status),
+          '@active' => $this->constants->getStatusLiteral(1),
+        ]), 'warning');
 
+      $form_state->setRedirectUrl($this->entity->toUrl());
+      return;
+    }
 
-    $form = $form;
+    // CHECK ORIGINAL ENTITY
+    if (!$orig_entity = $this->entity->originalEntityRevision('latest')) {
+      drupal_set_message($this->t('Original entity could not be loaded. Seems as Improvement is obsolet.'), 'error');
+      return;
+    }
+
+    // APPLY SUCCEEDED
+    foreach ($this->entity->getPatchField() as $name => $patch) {
+      $orig_entity->set($name, $form_state->getValue($name));
+    }
+    // Set revision information.
+    $orig_entity->setNewRevision(TRUE);
+    /** @var UserInterface|FALSE $patch_creator */
+    $patch_creator = reset($this->entity->get('uid')->referencedEntities());
+    $message = $this->t('Applied improvement with id "@id" of user "@user" with message "@message".', [
+      '@id' => $this->entity->id(),
+      '@user' => ($patch_creator) ? $patch_creator->getAccountName() : $this->t('Anonymous'),
+      '@message' => $this->entity->get('message')->getString(),
+    ]);
+    $orig_entity->set('revision_log', $message);
+    $orig_entity->save();
+
+    $this->entity->set('status', PatchRevision::PR_STATUS_PATCHED);
+    $this->entity->save();
+    drupal_set_message($message);
+
+    $form_state->setRedirectUrl($orig_entity->toUrl());
+    return;
   }
 
   /**
@@ -141,10 +189,23 @@ class PatchApplyForm extends ContentEntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    *
-   * @return array
+   * @return array|RedirectResponse
    *   Form definition array.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+
+    if (($status = (int) $this->entity->get('status')->getString()) !== PatchRevision::PR_STATUS_ACTIVE) {
+      drupal_set_message(
+        $this->t('Status is "@status". The status must be "@active" to apply the improvement.', [
+          '@status' => $this->constants->getStatusLiteral($status),
+          '@active' => $this->constants->getStatusLiteral(1),
+        ]), 'warning');
+
+      /** @var \Drupal\Core\Url $url */
+      $url = $this->entity->toUrl();
+      return new RedirectResponse($url->toString());
+    }
+
     $form['#parents'] = [];
     $form['#attached']['library'][] = 'patch_revision/patch_revision.apply_form';
 
@@ -213,14 +274,17 @@ class PatchApplyForm extends ContentEntityForm {
 
     }
 
-
-    $form['status'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Status'),
-      '#description' => $this->t('Status of the patch revision.'),
-      '#options' => PatchRevision::PR_STATUS,
-      '#default_value' => $this->entity->get('status')->getString(),
-    ];
+    if (\Drupal::currentUser()->hasPermission('change status of patch entities')) {
+      $form['status'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Status'),
+        '#description' => $this->t('Status of the improvement. Set to "active" if improvement shall be applied to original entity.', [
+          '@status' => $this->constants->getStatusLiteral(1)
+        ]),
+        '#options' => PatchRevision::PR_STATUS,
+        '#default_value' => $this->entity->get('status')->getString(),
+      ];
+    }
 
     $form += parent::buildForm($form, $form_state);
     return $form;
@@ -231,9 +295,9 @@ class PatchApplyForm extends ContentEntityForm {
    */
   protected function actionsElement(array $form, FormStateInterface $form_state) {
     $element = parent::actionsElement($form, $form_state);
-    // unset($element['delete']);
+    unset($element['delete']);
     if (isset($element['submit'])) {
-      $element['submit']['#value'] = new TranslatableMarkup('Save improvement to document');
+      $element['submit']['#value'] = new TranslatableMarkup('Apply improvement');
     }
     return $element;
   }

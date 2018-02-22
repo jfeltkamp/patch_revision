@@ -20,3 +20,6 @@ view unpublished patch entities:
 
 apply patch entities:
   title: 'Apply patch entities to original entity'
+
+change status of patch entities:
+  title: 'Apply patch entities to original entity'

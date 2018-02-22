@@ -8,7 +8,8 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\patch_revision\Annotation\FieldPatchPlugin;
+use Drupal\Core\Annotation\Translation;
 
 /**
  * Plugin implementation of the 'promote' actions.
@@ -36,50 +37,4 @@ class FieldPatchTextSummary extends FieldPatchDefault {
     return 'text_with_summary';
   }
 
-  /**
-   * @param $field array
-   * @param $feedback array
-   */
-  public function setWidgetFeedback(&$field, $feedback) {
-    $item = 0;
-    $applied = [];
-    $code = [];
-    while (isset($field['widget'][$item])) {
-      if(!$feedback[$item]['summary']['applied']) {
-        $applied[] = FALSE;
-        if($field['widget']['#cardinality'] > 1) {
-          $field['widget'][$item]['#attributes']['class'][] = 'patch-summary-failed';
-        } else {
-          $field['#attributes']['class'][] = 'patch-summary-failed';
-        }
-      }
-      if(!$feedback[$item]['value']['applied']) {
-        $applied[] = FALSE;
-        if($field['widget']['#cardinality'] > 1) {
-          $field['widget'][$item]['#attributes']['class'][] = 'patch-value-failed';
-        } else {
-          $field['#attributes']['class'][] = 'patch-value-failed';
-        }
-      }
-      $code[] = (int) $feedback[$item]['summary']['code'];
-      $code[] = (int) $feedback[$item]['value']['code'];
-      $item++;
-    }
-    $code = round(array_sum($code) / count($code));
-    $message = (in_array(FALSE, $applied))
-      ? $this->getMergeConflictMessage()
-      : $this->getMergeSuccessMessage($code);
-
-    $message_type = (!in_array(FALSE, $applied)) ? 'message' : 'error';
-    $message_type = ($message_type !== 'error' && $code >= 99) ? $message_type : 'warning';
-
-    if (isset($field['#type']) && $field['#type'] == 'container') {
-      $field['patch_warn'] = [
-        '#markup' => $message,
-        '#weight' => -50,
-        '#prefix' => '<strong class="pr-succes-message '. $message_type .'">',
-        '#suffix' => '</strong>',
-      ];
-    }
-  }
 }
