@@ -142,7 +142,7 @@ class PatchApplyForm extends ContentEntityForm {
         $this->entity->save();
       }
       drupal_set_message(
-        $this->t('Status was set to "@status". The status must be "@active" to apply the improvement.', [
+        $this->t('Status was set to "@status". The status must be "@active" to apply improvements.', [
           '@status' => $this->constants->getStatusLiteral($status),
           '@active' => $this->constants->getStatusLiteral(1),
         ]), 'warning');
@@ -158,8 +158,24 @@ class PatchApplyForm extends ContentEntityForm {
     }
 
     // APPLY SUCCEEDED
+    /** @var \Drupal\field\Entity\FieldConfig[] $field_defs */
+    $field_defs = $orig_entity->getFieldDefinitions();
     foreach ($this->entity->getPatchField() as $name => $patch) {
-      $orig_entity->set($name, $form_state->getValue($name));
+      if(isset($field_defs[$name])) {
+        // We must filter values because smt. $form_state->getValue() returns widget elements as btn "Add more items".
+        $field_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_defs[$name]->getType());
+        $properties = ($field_plugin) ? $field_plugin->getFieldProperties() : [];
+        $new_value = array_filter($form_state->getValue($name), function($val, $key) use($properties) {
+          $has_expected_props = count(array_intersect_key($properties, $val)) == count($properties);
+          return is_array($val) && $has_expected_props;
+        },ARRAY_FILTER_USE_BOTH);
+
+        $orig_entity->set($name, $new_value);
+      } else {
+        drupal_set_message($this->t('Field "@field" is not defined and can not be patched.', [
+          '@field' => $name,
+        ]), 'warning');
+      }
     }
     // Set revision information.
     $orig_entity->setNewRevision(TRUE);

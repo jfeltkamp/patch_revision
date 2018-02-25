@@ -64,15 +64,19 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
 
     while (isset($field['widget'][$item])) {
       foreach ($properties as $property) {
-        if(!$feedback[$item][$property]['applied']) {
-          $applied[] = FALSE;
-          if($field['widget']['#cardinality'] > 1) {
-            $field['widget'][$item]['#attributes']['class'][] = 'patch-summary-failed';
-          } else {
-            $field['#attributes']['class'][] = 'patch-summary-failed';
+        if(isset($feedback[$item][$property]['applied'])) {
+          if ($feedback[$item][$property]['applied'] === FALSE) {
+            $applied[] = FALSE;
+            if($field['widget']['#cardinality'] > 1) {
+              $field['widget'][$item]['#attributes']['class'][] = "pr-apply-{$property}-failed";
+            } else {
+              $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
+            }
           }
         }
-        $code[] = (int) $feedback[$item][$property]['code'];
+        if ($feedback[$item][$property]['code']) {
+          $code[] = (int) $feedback[$item][$property]['code'];
+        }
       }
       $item++;
     }
@@ -146,10 +150,11 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     foreach ($values as $item => $value) {
       $result['#items']["item_{$field->getName()}"] = [];
       foreach($this->getFieldProperties() as $key => $default_value) {
+        $old_value = $field_value[$item][$key] ?: $default_value;
         $result['#items'][$item][$key] = [
           '#theme' => 'field_patch',
           '#col' => $key,
-          '#patch' => $this->patchStringFormatter($value[$key], $field_value[$item][$key]),
+          '#patch' => $this->patchStringFormatter($value[$key], $old_value),
         ];
       }
     }

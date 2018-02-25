@@ -114,6 +114,10 @@ class FieldPatchPluginManager extends DefaultPluginManager {
       case 'text_long':
         $plugin = $this->createInstance('default', ['field_type' => $field_type]);
         break;
+      case 'float':
+      case 'integer':
+        $plugin = $this->createInstance('number', ['field_type' => $field_type]);
+        break;
       default:
         if ($this->hasDefinition($field_type)) {
           $plugin = $this->createInstance($field_type);
