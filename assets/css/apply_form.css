@@ -13,7 +13,7 @@
   border-bottom: 1px solid #c0c0c0;
 }
 
-.pr_apply_group .fieldset-wrapper {
+.pr_apply_group > .fieldset-wrapper {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -22,7 +22,7 @@
   margin: 0 -15px;
 }
 
-strong.pr-succes-message {
+strong.pr-success-message {
   display: block;
   border-top: 1px solid #66AA00;
   position: relative;
@@ -31,11 +31,11 @@ strong.pr-succes-message {
   color: #66AA00;
   font-weight: normal;
 }
-strong.pr-succes-message.warning {
+strong.pr-success-message.warning {
   border-color: #ff8800;
   color: #ff8800;
 }
-strong.pr-succes-message.error {
+strong.pr-success-message.error {
   border-color: #bb0000;
   color: #bb0000;
 }

@@ -8,33 +8,35 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
+use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\patch_revision\Annotation\FieldPatchPlugin;
 use Drupal\Core\Annotation\Translation;
+use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
  * Plugin implementation of the 'promote' actions.
  *
  * @FieldPatchPlugin(
- *   id = "text_with_summary",
- *   label = @Translation("FieldPatchPlugin for field type Texts with summary"),
- *   description = @Translation("Diff plugin for all texts with summary."),
+ *   id = "daterange",
+ *   label = @Translation("FieldPatchPlugin for field type daterange."),
+ *   description = @Translation("FieldPatchPlugin for field type daterange."),
  *   field_types = {
- *     "text_with_summary",
+ *     "daterange",
  *   },
  *   properties = {
- *     "summary" = "",
  *     "value" = "",
+ *     "end_value" = "",
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchTextSummary extends FieldPatchDiffable {
+class FieldPatchDaterange extends FieldPatchDateTime {
 
   /**
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'text_with_summary';
+    return 'daterange';
   }
 
 }

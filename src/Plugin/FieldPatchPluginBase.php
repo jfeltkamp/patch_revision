@@ -19,7 +19,9 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   protected $mergeConflictMessage;
 
 
-  protected function getFieldType() {}
+  protected function getFieldType() {
+    return $this->configuration['field_type'];
+  }
 
   /**
    * Get the conflict message.
@@ -92,7 +94,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $field['patch_warn'] = [
         '#markup' => $message,
         '#weight' => -50,
-        '#prefix' => "<strong class=\"pr-succes-message $message_type\">",
+        '#prefix' => "<strong class=\"pr-success-message $message_type\">",
         '#suffix' => "</strong>",
       ];
     }
@@ -161,43 +163,30 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     return $result;
   }
 
-
   /**
-   * Creates a temporary file with content and returns the file handle.
+   * Data integrity test before writing data to entity.
    *
-   * @param string $content
-   *   The content to apply to the temporary file.
+   * @param $value
+   *   The value from patch entity to write into original entity.
    *
-   * @return bool|resource
-   *   Returns the file handle or false.
+   * @return bool
+   *   If data integrity test is valid.
    */
-  protected function createTempFile($content = null) {
-    $tmpFile = tmpfile();
-    if ($content) {
-      $metaData = stream_get_meta_data($tmpFile);
-      file_put_contents($metaData['uri'], $content);
-    }
-    // xdiff
-    return $tmpFile;
+  public function validateDataIntegrity($value) {
+    $properties = $this->getFieldProperties();
+    return count(array_intersect_key($properties, $value)) == count($properties);
   }
 
   /**
-   * Creates a temporary file with content and returns the file handle.
+   * Some date don't come from $form_state->getValue() in as they are used to write in database.
    *
-   * @param string $content
-   *   The content to apply to the temporary file.
+   * @param mixed $data
+   *   Data as they are received from $form_state object.
    *
-   * @return bool|resource
-   *   Returns the file handle or false.
+   * @return mixed
+   *   data writable to database.
    */
-  protected function createNamTempFile($name, $content = null) {
-    $tmpFile = tempnam(sys_get_temp_dir(), $name);
-    $handle = fopen($tmpFile, "rw");
-    if ($content) {
-      $metaData = stream_get_meta_data($handle);
-      file_put_contents($metaData['uri'], $content);
-    }
-    return $handle;
+  public function prepareData($data) {
+    return $data;
   }
-
 }

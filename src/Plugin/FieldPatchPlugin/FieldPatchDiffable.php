@@ -17,9 +17,9 @@ use DiffMatchPatch\DiffMatchPatch;
  * Plugin implementation of the 'promote' actions.
  *
  * @FieldPatchPlugin(
- *   id = "default",
- *   label = @Translation("Set promoted/Unset promoted"),
- *   description = @Translation("Set/unset promote property of the parent node of this field."),
+ *   id = "diffable",
+ *   label = @Translation("Improvements by diff."),
+ *   description = @Translation("Partial improvements of the value by likely unified diffs equal to git."),
  *   field_types = {
  *     "string",
  *     "string_long",
@@ -32,29 +32,17 @@ use DiffMatchPatch\DiffMatchPatch;
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchDefault extends FieldPatchPluginBase {
+class FieldPatchDiffable extends FieldPatchPluginBase {
 
   /**
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'default';
+    return 'diffable';
   }
 
   /**
    * {@inheritdoc}
-
-      $process_str = "git diff $(echo \"{$str_src}\" | git hash-object -w --stdin --path=foobar.txt) $(echo \"{$str_target}\" | git hash-object -w --stdin --path=foobar.txt)  --word-diff --abbrev=4";
-
-      $process = new Process($process_str);
-      $process->run();
-
-      // executes after the command finishes
-      if (!$process->isSuccessful()) {
-        throw new ProcessFailedException($process);
-      }
-      $output = $process->getOutput();
-      $output = preg_replace('/^[^@]+/', '', $output);
    */
   public function processValueDiff($str_src, $str_target) {
 

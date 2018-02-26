@@ -107,26 +107,16 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    *   The FieldPatchPlugin belongs to FieldType.
    */
   public function getPluginFromFieldType($field_type) {
-    switch($field_type) {
-      case 'string':
-      case 'string_long':
-      case 'text':
-      case 'text_long':
-        $plugin = $this->createInstance('default', ['field_type' => $field_type]);
-        break;
-      case 'float':
-      case 'integer':
-        $plugin = $this->createInstance('number', ['field_type' => $field_type]);
-        break;
-      default:
-        if ($this->hasDefinition($field_type)) {
-          $plugin = $this->createInstance($field_type);
-        } else {
-          $plugin = FALSE;
+    if ($this->hasDefinition($field_type, ['field_type' => $field_type])) {
+      return $this->createInstance($field_type);
+    } else {
+      foreach ($this->getDefinitions() as $key => $definition) {
+        if (in_array($field_type, $definition['field_types'])) {
+          return $this->createInstance($key, ['field_type' => $field_type]);
         }
+      }
+      return FALSE;
     }
-
-    return $plugin;
   }
 
   /**

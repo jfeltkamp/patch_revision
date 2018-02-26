@@ -16,13 +16,17 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * Plugin implementation of the 'promote' actions.
  *
  * @FieldPatchPlugin(
- *   id = "number",
+ *   id = "undiffable",
  *   label = @Translation("FieldPatchPlugin for all field types of numbers"),
  *   description = @Translation("Diff plugin for all texts with summary."),
  *   field_types = {
  *     "float",
  *     "integer",
  *     "decimal",
+ *     "email",
+ *     "telephone",
+ *     "datetime",
+ *     "timestamp",
  *   },
  *   properties = {
  *     "value" = "",
@@ -30,28 +34,27 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchNumber extends FieldPatchPluginBase {
+class FieldPatchUndiffable extends FieldPatchPluginBase {
 
   /**
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'number';
+    return 'undiffable';
   }
 
   /**
    * {@inheritdoc}
    */
   function patchStringFormatter($patch, $value_old) {
-    if (isset($patch['const'])) {
+    $patch = json_decode($patch, true);
+    if (empty($patch)) {
       return [
-        '#markup' => $this->t('No changes. (Value was @value)', [
-          '@value' => $patch['const'],
-        ])
+        '#markup' => $value_old
       ];
     } else {
       return [
-        '#markup' => $this->t('Old value: <del>@old</del><br>New value: <ins>@new</ins>', [
+        '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
           '@old' => $patch['old'],
           '@new' => $patch['new'],
         ])
@@ -63,12 +66,12 @@ class FieldPatchNumber extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   function processPatchFieldValue($value, $patch) {
-    if (isset($patch['const'])) {
-      $code = ($patch['const'] === $value) ? 100 : 90;
+    $patch = json_decode($patch, true);
+    if (empty($patch)) {
       return [
         'result' => $value,
         'feedback' => [
-          'code' => $code,
+          'code' => 100,
           'applied' => TRUE
         ],
       ];
@@ -89,14 +92,9 @@ class FieldPatchNumber extends FieldPatchPluginBase {
    */
   function processValueDiff($str_src, $str_target) {
     if ($str_src === $str_target) {
-      return [
-        'const' => $str_src
-      ];
+      return json_encode([]);
     } else {
-      return [
-       'old' => $str_src,
-       'new' => $str_target,
-      ];
+      return json_encode(['old' => $str_src, 'new' => $str_target]);
     }
   }
 

@@ -164,10 +164,9 @@ class PatchApplyForm extends ContentEntityForm {
       if(isset($field_defs[$name])) {
         // We must filter values because smt. $form_state->getValue() returns widget elements as btn "Add more items".
         $field_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_defs[$name]->getType());
-        $properties = ($field_plugin) ? $field_plugin->getFieldProperties() : [];
-        $new_value = array_filter($form_state->getValue($name), function($val, $key) use($properties) {
-          $has_expected_props = count(array_intersect_key($properties, $val)) == count($properties);
-          return is_array($val) && $has_expected_props;
+        $form_value = $field_plugin->prepareData($form_state->getValue($name));
+        $new_value = array_filter($form_value, function($val, $key) use($field_plugin) {
+          return $field_plugin->validateDataIntegrity($val);
         },ARRAY_FILTER_USE_BOTH);
 
         $orig_entity->set($name, $new_value);

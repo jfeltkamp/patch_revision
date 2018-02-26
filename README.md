@@ -3,7 +3,6 @@
 |:---------------------------|:---------:|
 | ____________               |           |
 |   *Texts*                  |           |
-| list_string                | YES       |
 | string                     | YES       |
 | string_long                | YES       |
 | text                       | YES       |
@@ -11,29 +10,34 @@
 | text_with_summary          | YES       |
 | ____________               |           |
 |  *Numbers*                 |           |
-| boolean                    | no        |
-| integer                    | no        |
-| list_integer               | no        |
-| float                      | no        |
-| list_float                 | no        |
-| decimal                    | no        |
-| datetime                   | no        |
-| timestamp                  | no        |
-| daterange                  | no        |
+| boolean                    | YES       |
+| integer                    | YES       |
+| float                      | YES       |
+| decimal                    | YES       |
+| link                       | YES       |
+| datetime                   | YES       |
+| timestamp                  | YES       |
+| daterange                  | YES       |
+| ____________               |           |
+|  *Lists*                   |           |
+| list_integer               | YES       |
+| list_string                | YES       |
+| list_float                 | YES       |
 | ____________               |           |
 | *Identifier*               |           |
-| uri                        | no        |
-| link                       | no        |
-| path                       | no        |
-| email                      | no        |
-| password                   | no        |
-| telephone                  | no        |
+| email                      | YES       |
+| telephone                  | YES       |
 | ____________               |           |
 | *References*               |           |
-| comment                    | ???       |
 | entity_reference           | no        |
 | entity_reference_revisions | no        |
 | image                      | no        |
 | file                       | no        |
-| language                   | no        |
-| map                        | no        |
+| ____________               |           |
+| *Still thinking what to do*|           |
+| uri                        | ???       |
+| path                       | ???       |
+| language                   | ???       |
+| map                        | ???       |
+| password                   | ???       |
+| comment                    | ???       |
