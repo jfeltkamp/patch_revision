@@ -34,7 +34,7 @@
 | image                      | no        |
 | file                       | no        |
 | ____________               |           |
-| *Still thinking what to do*|           |
+| *Thinking what to do*      |           |
 | uri                        | ???       |
 | path                       | ???       |
 | language                   | ???       |

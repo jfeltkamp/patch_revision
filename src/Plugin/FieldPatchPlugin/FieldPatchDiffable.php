@@ -19,7 +19,6 @@ use DiffMatchPatch\DiffMatchPatch;
  * @FieldPatchPlugin(
  *   id = "diffable",
  *   label = @Translation("Improvements by diff."),
- *   description = @Translation("Partial improvements of the value by likely unified diffs equal to git."),
  *   field_types = {
  *     "string",
  *     "string_long",

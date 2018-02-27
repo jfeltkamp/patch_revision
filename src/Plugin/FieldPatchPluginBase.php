@@ -54,21 +54,44 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     return ($plugin_definition['properties']);
   }
 
+
+  protected function mergeFeedback($feedback) {
+    $applied = [];
+    $code = [];
+    $messages = [];
+    foreach ($feedback as $fb) {
+      foreach ($fb as $property => $result) {
+        $applied[] = $result['applied'];
+        $code[] = $result['code'];
+        if (isset($result['message'])) { $messages[] = $result['message']; }
+      }
+    }
+    $code = round(array_sum($code) / count($code));
+    $applied = (!in_array(FALSE, $applied));
+    if (!$applied) { $type = 'error'; }
+    elseif($code < 100) {  $type = 'warning'; }
+    else { $type = 'message'; }
+    return [
+      'code' => $code,
+      'applied' => $applied,
+      'type' => $type,
+      'messages' => $messages,
+    ];
+  }
+
   /**
    * @param $field array
    * @param $feedback array
    */
   public function setWidgetFeedback(&$field, $feedback) {
     $item = 0;
-    $applied = [];
-    $code = [];
+    $result = $this->mergeFeedback($feedback);
     $properties = array_keys($this->getFieldProperties());
 
     while (isset($field['widget'][$item])) {
       foreach ($properties as $property) {
         if(isset($feedback[$item][$property]['applied'])) {
           if ($feedback[$item][$property]['applied'] === FALSE) {
-            $applied[] = FALSE;
             if($field['widget']['#cardinality'] > 1) {
               $field['widget'][$item]['#attributes']['class'][] = "pr-apply-{$property}-failed";
             } else {
@@ -76,25 +99,19 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
             }
           }
         }
-        if ($feedback[$item][$property]['code']) {
-          $code[] = (int) $feedback[$item][$property]['code'];
-        }
       }
       $item++;
     }
-    $code = round(array_sum($code) / count($code));
-    $message = (in_array(FALSE, $applied))
-      ? $this->getMergeConflictMessage()
-      : $this->getMergeSuccessMessage($code);
 
-    $message_type = (!in_array(FALSE, $applied)) ? 'message' : 'error';
-    $message_type = ($message_type !== 'error' && $code >= 99) ? $message_type : 'warning';
+    $message = ($result['applied'])
+      ? $this->getMergeSuccessMessage($result['code'])
+      : $this->getMergeConflictMessage();
 
     if (isset($field['#type']) && $field['#type'] == 'container') {
-      $field['patch_warn'] = [
+      $field['patch_result'] = [
         '#markup' => $message,
         '#weight' => -50,
-        '#prefix' => "<strong class=\"pr-success-message $message_type\">",
+        '#prefix' => "<strong class=\"pr-success-message {$result['type']}\">",
         '#suffix' => "</strong>",
       ];
     }
@@ -109,8 +126,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     for ($i = 0; $i <= $counts; $i++) {
       foreach($this->getFieldProperties() as $key => $default_value) {
 
-        $str_source = isset($old[$i]) ? $old[$i][$key] : $default_value;
-        $str_target = isset($new[$i]) ? $new[$i][$key] : $default_value;
+        $str_source = isset($old[$i][$key]) ? $old[$i][$key] : $default_value;
+        $str_target = isset($new[$i][$key]) ? $new[$i][$key] : $default_value;
 
         $result[$i][$key] = $this->processValueDiff($str_source, $str_target);
       }
@@ -152,11 +169,12 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     foreach ($values as $item => $value) {
       $result['#items']["item_{$field->getName()}"] = [];
       foreach($this->getFieldProperties() as $key => $default_value) {
-        $old_value = $field_value[$item][$key] ?: $default_value;
+        $old_value = isset($field_value[$item][$key]) ? $field_value[$item][$key] : $default_value;
+        $patch = $this->patchStringFormatter($value[$key], $old_value);
         $result['#items'][$item][$key] = [
           '#theme' => 'field_patch',
           '#col' => $key,
-          '#patch' => $this->patchStringFormatter($value[$key], $old_value),
+          '#patch' => $patch,
         ];
       }
     }
@@ -173,6 +191,9 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    *   If data integrity test is valid.
    */
   public function validateDataIntegrity($value) {
+    if (!is_array($value)) {
+      return FALSE;
+    }
     $properties = $this->getFieldProperties();
     return count(array_intersect_key($properties, $value)) == count($properties);
   }

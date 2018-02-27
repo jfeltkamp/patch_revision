@@ -19,7 +19,6 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "datetime",
  *   label = @Translation("FieldPatchPlugin for all field types of numbers"),
- *   description = @Translation("Diff plugin for all texts with summary."),
  *   field_types = {
  *     "datetime",
  *     "timestamp",

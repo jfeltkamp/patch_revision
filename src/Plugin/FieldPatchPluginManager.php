@@ -89,7 +89,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
         || in_array($name, $general_excluded_fields)
 
         // IS NOT bypass AND IS explicit excluded fields.
-        || (!$bypass_explicit && $explicit_excluded_fields[$name] === $name)
+        || (!$bypass_explicit && in_array($name, $explicit_excluded_fields, TRUE))
       ) {
         unset($fields[$name]);
       }
@@ -102,17 +102,22 @@ class FieldPatchPluginManager extends DefaultPluginManager {
   /**
    * @param string $field_type
    *   The FieldType for what correct plugin is needed.
+   * @param array $config
+   *   The plugin configuration.
    *
    * @return \Drupal\patch_revision\Plugin\FieldPatchPluginBase|FALSE
    *   The FieldPatchPlugin belongs to FieldType.
    */
-  public function getPluginFromFieldType($field_type) {
-    if ($this->hasDefinition($field_type, ['field_type' => $field_type])) {
-      return $this->createInstance($field_type);
+  public function getPluginFromFieldType($field_type, $config = []) {
+    $config = is_array($config) ? $config : [];
+    $config = array_merge($config, ['field_type' => $field_type]);
+
+    if ($this->hasDefinition($field_type)) {
+      return $this->createInstance($field_type, $config);
     } else {
       foreach ($this->getDefinitions() as $key => $definition) {
         if (in_array($field_type, $definition['field_types'])) {
-          return $this->createInstance($key, ['field_type' => $field_type]);
+          return $this->createInstance($key, $config);
         }
       }
       return FALSE;

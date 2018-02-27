@@ -82,9 +82,12 @@ class PatchViewBuilder extends EntityViewBuilder {
     $patch = $entity->getPatchField();
     foreach ($patch as $field_name => $value) {
       $field_type = $entity->getEntityFieldType($field_name);
-      $field_patch_plugin = $entity->getPluginManager()->getPluginFromFieldType($field_type);
-      $original_entity->get($field_name);
-      $field_view = $field_patch_plugin->getFieldPatchView($value, $original_entity->get($field_name));
+      $original_field = $original_entity->get($field_name);
+      $config = ($field_type == 'entity_reference')
+        ? ['entity_type' => $original_field->getSetting('target_type')]
+        : [];
+      $field_patch_plugin = $entity->getPluginManager()->getPluginFromFieldType($field_type, $config);
+      $field_view = ($field_patch_plugin) ? $field_patch_plugin->getFieldPatchView($value, $original_field) : [];
       $view[$field_name] = [
         '#type' => 'fieldset',
         '#title' => $entity->getOrigFieldLabel($field_name),

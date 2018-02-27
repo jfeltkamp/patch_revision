@@ -17,7 +17,6 @@ use Drupal\Core\Annotation\Translation;
  * @FieldPatchPlugin(
  *   id = "boolean",
  *   label = @Translation("FieldPatchPlugin for all field type boolean."),
- *   description = @Translation("FieldPatchPlugin plugin for all fields of type boolean."),
  *   field_types = {
  *     "boolean",
  *   },
@@ -40,38 +39,28 @@ class FieldPatchBoolean extends FieldPatchUndiffable {
    * {@inheritdoc}
    */
   public function setWidgetFeedback(&$field, $feedback) {
-    $item = 0;
-    $applied = [];
-    $code = [];
+    $result = $this->mergeFeedback($feedback);
     $properties = array_keys($this->getFieldProperties());
 
     foreach ($feedback as $key => $col) {
       foreach ($properties as $property) {
         if(isset($col[$property]['applied'])) {
           if ($col[$property]['applied'] === FALSE) {
-            $applied[] = FALSE;
             $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
           }
-        }
-        if ($feedback[$item][$property]['code']) {
-          $code[] = (int) $feedback[$item][$property]['code'];
         }
       }
     }
 
-    $code = round(array_sum($code) / count($code));
-    $message = (in_array(FALSE, $applied))
-      ? $this->getMergeConflictMessage()
-      : $this->getMergeSuccessMessage($code);
-
-    $message_type = (!in_array(FALSE, $applied)) ? 'message' : 'error';
-    $message_type = ($message_type !== 'error' && $code >= 99) ? $message_type : 'warning';
+    $message = ($result['applied'])
+      ? $this->getMergeSuccessMessage($result['code'])
+      : $this->getMergeConflictMessage();
 
     if (isset($field['#type']) && $field['#type'] == 'container') {
-      $field['patch_warn'] = [
+      $field['patch_result'] = [
         '#markup' => $message,
         '#weight' => -50,
-        '#prefix' => "<strong class=\"pr-success-message $message_type\">",
+        '#prefix' => "<strong class=\"pr-success-message {$result['type']}\">",
         '#suffix' => "</strong>",
       ];
     }

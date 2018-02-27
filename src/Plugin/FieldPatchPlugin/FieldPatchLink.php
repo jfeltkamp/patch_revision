@@ -17,14 +17,12 @@ use Drupal\Core\Annotation\Translation;
  * @FieldPatchPlugin(
  *   id = "link",
  *   label = @Translation("FieldPatchPlugin for all field types of link"),
- *   description = @Translation("Diff plugin for all field types of link."),
  *   field_types = {
  *     "link",
  *   },
  *   properties = {
  *     "uri" = "",
  *     "title" = "",
- *     "options" = "",
  *   },
  *   permission = "administer nodes",
  * )
@@ -45,4 +43,5 @@ class FieldPatchLink extends FieldPatchUndiffable {
     $properties = ['uri' => "", 'title' => ""];
     return count(array_intersect_key($properties, $value)) == count($properties);
   }
+
 }

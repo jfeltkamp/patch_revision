@@ -3,15 +3,11 @@
 namespace Drupal\patch_revision\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\Core\Field\FieldItemList;
 
 /**
  * Defines an interface for Field patch plugin plugins.
  */
 interface FieldPatchPluginInterface extends PluginInspectionInterface {
-
-
-  // Add common methods and abstract methods for your plugin type here.
 
   /**
    * Get the plugin id.

@@ -17,7 +17,6 @@ use Drupal\Core\Annotation\Translation;
  * @FieldPatchPlugin(
  *   id = "text_with_summary",
  *   label = @Translation("FieldPatchPlugin for field type Texts with summary"),
- *   description = @Translation("Diff plugin for all texts with summary."),
  *   field_types = {
  *     "text_with_summary",
  *   },

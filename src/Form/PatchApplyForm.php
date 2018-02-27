@@ -164,7 +164,9 @@ class PatchApplyForm extends ContentEntityForm {
       if(isset($field_defs[$name])) {
         // We must filter values because smt. $form_state->getValue() returns widget elements as btn "Add more items".
         $field_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_defs[$name]->getType());
-        $form_value = $field_plugin->prepareData($form_state->getValue($name));
+        $form_value = ($field_plugin)
+          ? $field_plugin->prepareData($form_state->getValue($name))
+          : $form_state->getValue($name);
         $new_value = array_filter($form_value, function($val, $key) use($field_plugin) {
           return $field_plugin->validateDataIntegrity($val);
         },ARRAY_FILTER_USE_BOTH);
@@ -179,7 +181,8 @@ class PatchApplyForm extends ContentEntityForm {
     // Set revision information.
     $orig_entity->setNewRevision(TRUE);
     /** @var UserInterface|FALSE $patch_creator */
-    $patch_creator = reset($this->entity->get('uid')->referencedEntities());
+    $users = $this->entity->get('uid')->referencedEntities();
+    $patch_creator = reset($users);
     $message = $this->t('Applied improvement with id "@id" of user "@user" with message "@message".', [
       '@id' => $this->entity->id(),
       '@user' => ($patch_creator) ? $patch_creator->getAccountName() : $this->t('Anonymous'),
@@ -265,27 +268,37 @@ class PatchApplyForm extends ContentEntityForm {
       // Left side content. Old Value with highlighted patch
       $field_old = $orig_entity_old->get($field_name);
       $field_type = $this->entity->getEntityFieldType($field_name);
-      $field_patch_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type);
-      $result_old = $field_patch_plugin->getFieldPatchView($field_patch, $field_old);
-      $form[$field_name.'_group']['left'][$field_name.'_patch'] = $result_old;
+      $config = ($field_type == 'entity_reference')
+        ? ['entity_type' => $field_old->getSetting('target_type')]
+        : [];
+      $field_patch_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type, $config);
+      if ($field_patch_plugin) {
+        $result_old = $field_patch_plugin->getFieldPatchView($field_patch, $field_old);
+        $form[$field_name.'_group']['left'][$field_name.'_patch'] = $result_old;
 
-      // Right side. Latest value form element with patch applied.
-      $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
-      /** @var EntityFormDisplay $entity_form_display */
-      $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
-      $widget = $entity_form_display->getRenderer($field_name);
-      $value_latest = $orig_entity->get($field_name);
-      $patched_value = $field_patch_plugin->patchFieldValue($value_latest->getValue(), $field_patch);
-      try {
-        $value_latest->setValue($patched_value['result']);
-      } catch (\Exception $e) {
-        if ($e instanceof \InvalidArgumentException) {}
-        if ($e instanceof ReadOnlyException) {}
+        // Right side. Latest value form element with patch applied.
+        $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
+        /** @var EntityFormDisplay $entity_form_display */
+        $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
+        $widget = $entity_form_display->getRenderer($field_name);
+        $value_latest = $orig_entity->get($field_name);
+        $patched_value = $field_patch_plugin->patchFieldValue($value_latest->getValue(), $field_patch);
+        try {
+          $value_latest->setValue($patched_value['result']);
+        } catch (\Exception $e) {
+          if ($e instanceof \InvalidArgumentException) {}
+          if ($e instanceof ReadOnlyException) {}
+        }
+        $orig_field_widget = $widget->form($value_latest, $form, $form_state);
+        $field_patch_plugin->setWidgetFeedback($orig_field_widget, $patched_value['feedback']);
+        $orig_field_widget['#access'] = $value_latest->access('edit');
+        $form[$field_name.'_group']['right'][$field_name] = $orig_field_widget;
+      } else {
+        drupal_set_message($this->t('FieldPatch plugin missing for field_type @field_type', [
+            '@field_type' => $field_type
+          ])
+        );
       }
-      $orig_field_widget = $widget->form($value_latest, $form, $form_state);
-      $field_patch_plugin->setWidgetFeedback($orig_field_widget, $patched_value['feedback']);
-      $orig_field_widget['#access'] = $value_latest->access('edit');
-      $form[$field_name.'_group']['right'][$field_name] = $orig_field_widget;
 
     }
 
