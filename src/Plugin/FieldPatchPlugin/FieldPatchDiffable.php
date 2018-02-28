@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by:
- * User: jfeltkamp
- * Date: 09.03.16
- * Time: 22:24
- */
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
@@ -59,7 +53,7 @@ class FieldPatchDiffable extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function processPatchFieldValue($value, $patch) {
+  public function processPatchFieldValue($property, $value, $patch) {
     $dmp = new DiffMatchPatch();
     try {
       $patches = $dmp->patch_fromText($patch);
@@ -103,7 +97,7 @@ class FieldPatchDiffable extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchStringFormatter($patch, $value_old) {
+  public function patchStringFormatter($property, $patch, $value_old) {
     $dmp = new DiffMatchPatch();
     $patches = $dmp->patch_fromText($patch);
     $value_new = $dmp->patch_apply($patches, $value_old);

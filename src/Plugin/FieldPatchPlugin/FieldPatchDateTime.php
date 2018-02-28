@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by:
- * User: jfeltkamp
- * Date: 09.03.16
- * Time: 22:24
- */
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 

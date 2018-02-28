@@ -14,7 +14,6 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\Exception\ReadOnlyException;
-use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Events\PatchRevision;
@@ -75,14 +74,7 @@ class PatchApplyForm extends ContentEntityForm {
   protected $constants;
 
   /**
-   * Constructs a ContentEntityForm object.
-   *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   *   The entity type bundle service.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
-   *   The time service.
+   * {@inheritdoc}
    */
   public function __construct(
     EntityManagerInterface $entity_manager,
@@ -147,7 +139,9 @@ class PatchApplyForm extends ContentEntityForm {
           '@active' => $this->constants->getStatusLiteral(1),
         ]), 'warning');
 
-      $form_state->setRedirectUrl($this->entity->toUrl());
+      /** @var \Drupal\Core\Url $url */
+      $url = $this->entity->toUrl();
+      $form_state->setRedirectUrl($url);
       return;
     }
 

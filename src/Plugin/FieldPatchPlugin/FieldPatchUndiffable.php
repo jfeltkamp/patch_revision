@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by:
- * User: jfeltkamp
- * Date: 09.03.16
- * Time: 22:24
- */
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
@@ -45,7 +39,7 @@ class FieldPatchUndiffable extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  function patchStringFormatter($patch, $value_old) {
+  public function patchStringFormatter($property, $patch, $value_old) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [
@@ -64,7 +58,7 @@ class FieldPatchUndiffable extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  function processPatchFieldValue($value, $patch) {
+  function processPatchFieldValue($property, $value, $patch) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [

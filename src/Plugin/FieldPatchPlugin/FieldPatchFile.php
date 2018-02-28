@@ -3,26 +3,31 @@
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+use Drupal\file\Entity\File;
 use Drupal\patch_revision\Annotation\FieldPatchPlugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
- * Plugin implementation of the 'promote' actions.
+ * FieldPatchPlugin for field type image.
  *
  * @FieldPatchPlugin(
- *   id = "entity_reference",
- *   label = @Translation("FieldPatchPlugin for field type entity_reference"),
+ *   id = "file",
+ *   label = @Translation("FieldPatchPlugin for field type file"),
  *   field_types = {
- *     "entity_reference",
+ *     "file",
  *   },
  *   properties = {
  *     "target_id" = "",
+ *     "display" = "1",
+ *     "description" = "",
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchReference extends FieldPatchPluginBase {
+class FieldPatchFile extends FieldPatchPluginBase {
 
   /**
    * @var EntityStorageInterface
@@ -33,16 +38,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'entity_reference';
-  }
-
-  /**
-   * Getter for entity_type property.
-   *
-   * @return string|bool
-   */
-  protected function getEntityType() {
-    return $this->configuration['entity_type'] ?: FALSE;
+    return 'file';
   }
 
   /**
@@ -52,9 +48,8 @@ class FieldPatchReference extends FieldPatchPluginBase {
    *   The storage.
    */
   protected function getEntityStorage() {
-    $entity_type = $this->getEntityType();
-    if ($entity_type && !$this->entityStorage) {
-      $this->entityStorage = \Drupal::service('entity_type.manager')->getStorage($entity_type);
+    if (!$this->entityStorage) {
+      $this->entityStorage = \Drupal::service('entity_type.manager')->getStorage('file');
     }
     return $this->entityStorage ?: FALSE;
   }
@@ -64,13 +59,15 @@ class FieldPatchReference extends FieldPatchPluginBase {
    */
   public function patchStringFormatter($property, $patch, $value_old) {
     $patch = json_decode($patch, true);
+    $method = $this->camCase($property);
+    $has_method = method_exists($this , $method);
     if (empty($patch)) {
       return [
-        '#markup' => $this->getEntityLabel((int) $value_old)
+        '#markup' => ($has_method) ? $this->{$method}($value_old) : $value_old,
       ];
     } else {
-      $old = $this->getEntityLabel((int) $patch['old']);
-      $new = $this->getEntityLabel((int) $patch['new']);
+      $old = ($has_method) ? $this->{$method}($patch['old']) : $patch['old'];
+      $new = ($has_method) ? $this->{$method}($patch['new']) : $patch['new'];
       return [
         '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
           '@old' => $old,
@@ -89,15 +86,19 @@ class FieldPatchReference extends FieldPatchPluginBase {
    * @return \Drupal\Core\GeneratedLink|\Drupal\Core\StringTranslation\TranslatableMarkup|string
    *   The label used for patch view.
    */
-  protected function getEntityLabel($entity_id) {
+  protected function getTargetId($entity_id) {
     if (!$entity_id) {
       return $this->t('none');
     }
-    $entity = $this->getEntityStorage()->load($entity_id);
+    /** @var File $entity */
+    $entity = $this->getEntityStorage()->load((int) $entity_id);
     if (!$entity) {
       return $this->t('ID: @id was not found.', ['@id' => $entity_id]);
     }
-    return $entity->toLink(NULL, 'canonical', ['attributes' => ['target' => '_blank']])->toString();
+    $name = $entity->getFileName();
+    $url = Url::fromUri(file_create_url($entity->getFileUri()));
+    $link = Link::fromTextAndUrl($name, $url)->toString();
+    return $link;
   }
 
   /**
@@ -114,8 +115,13 @@ class FieldPatchReference extends FieldPatchPluginBase {
         ],
       ];
     } elseif ($patch['old'] != $value) {
-      $label = $this->getEntityLabel((int) $patch['old']);
-      drupal_set_message($this->t('Expected old value to be: @label', ['@label' => $label]), 'error');
+      $method = $this->camCase($property);
+      $has_method = method_exists($this , $method);
+      $label = ($has_method) ? $this->{$method}($patch['old']) : $patch['old'];
+      drupal_set_message($this->t('Expected old value for @property to be: @label', [
+          '@label' => $label,
+          '@property' => $property,
+        ]), 'error');
       return [
         'result' => $value,
         'feedback' => [

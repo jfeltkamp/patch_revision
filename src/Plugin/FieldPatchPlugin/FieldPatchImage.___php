@@ -8,21 +8,25 @@ use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
- * Plugin implementation of the 'promote' actions.
+ * FieldPatchPlugin for field type image.
  *
  * @FieldPatchPlugin(
- *   id = "entity_reference",
- *   label = @Translation("FieldPatchPlugin for field type entity_reference"),
+ *   id = "image",
+ *   label = @Translation("FieldPatchPlugin for field type image"),
  *   field_types = {
- *     "entity_reference",
+ *     "image",
  *   },
  *   properties = {
  *     "target_id" = "",
+ *     "alt" = "",
+ *     "title" = "",
+ *     "width" = "",
+ *     "height" = "",
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchReference extends FieldPatchPluginBase {
+class FieldPatchImage extends FieldPatchPluginBase {
 
   /**
    * @var EntityStorageInterface
@@ -33,7 +37,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'entity_reference';
+    return 'image';
   }
 
   /**
@@ -54,7 +58,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
   protected function getEntityStorage() {
     $entity_type = $this->getEntityType();
     if ($entity_type && !$this->entityStorage) {
-      $this->entityStorage = \Drupal::service('entity_type.manager')->getStorage($entity_type);
+      $this->entityStorage = \Drupal::service('entity_type.manager')->getStorage('file');
     }
     return $this->entityStorage ?: FALSE;
   }
@@ -62,7 +66,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchStringFormatter($property, $patch, $value_old) {
+  public function patchStringFormatter($patch, $value_old) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [
@@ -103,7 +107,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function processPatchFieldValue($property, $value, $patch) {
+  public function processPatchFieldValue($value, $patch) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [

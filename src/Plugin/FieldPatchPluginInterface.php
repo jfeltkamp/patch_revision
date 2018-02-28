@@ -39,7 +39,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *
    * @return mixed
    */
-  function processPatchFieldValue($value, $patch);
+  function processPatchFieldValue($property, $value, $patch);
 
   /**
    * Main feature that process the diff command and returns the patch.
@@ -67,9 +67,10 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
   /**
    * Returns a render array with formatted markup.
    *
+   * @param string $property
    * @param string $patch
    * @param string $value_old
    * @return array
    */
-  function patchStringFormatter($patch, $value_old);
+  function patchStringFormatter($property, $patch, $value_old);
 }

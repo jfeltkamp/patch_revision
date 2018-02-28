@@ -147,7 +147,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
         $value_item = isset($value[$i]) ? $value[$i][$key] : $default_value;
         $patch_item = isset($patch[$i]) ? $patch[$i][$key] : FALSE;
 
-        $result_container = $this->processPatchFieldValue($value_item, $patch_item);
+        $result_container = $this->processPatchFieldValue($key, $value_item, $patch_item);
 
         $result['result'][$i][$key] = $result_container['result'];
         $result['feedback'][$i][$key] = $result_container['feedback'];
@@ -170,7 +170,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $result['#items']["item_{$field->getName()}"] = [];
       foreach($this->getFieldProperties() as $key => $default_value) {
         $old_value = isset($field_value[$item][$key]) ? $field_value[$item][$key] : $default_value;
-        $patch = $this->patchStringFormatter($value[$key], $old_value);
+        $patch = $this->patchStringFormatter($key, $value[$key], $old_value);
         $result['#items'][$item][$key] = [
           '#theme' => 'field_patch',
           '#col' => $key,
@@ -210,4 +210,20 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   public function prepareData($data) {
     return $data;
   }
+
+  /**
+   * Returns name for a getter of properties.
+   *
+   * @param $property
+   *   Property name.
+   * @param string $separator
+   * @return string
+   */
+  protected function camCase($property, $separator = '_') {
+    $array = explode($separator, $property);
+    $parts = array_map('ucwords', $array);
+    $string = implode('', $parts);
+    return 'get'.$string;
+  }
+
 }
