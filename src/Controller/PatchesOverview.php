@@ -5,11 +5,11 @@ namespace Drupal\patch_revision\Controller;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\Entity\Patch;
+use Drupal\patch_revision\Events\PatchRevision;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -63,6 +63,12 @@ class PatchesOverview extends ControllerBase {
   protected $dateFormatter;
 
   /**
+   * DateFormatterInterface definition.
+   * @var PatchRevision;
+   */
+  protected $constants;
+
+  /**
    * Constructs a new DefaultController object.
    */
   public function __construct(EntityTypeManager $entity_type_manager, DateFormatterInterface $date_formatter) {
@@ -70,6 +76,7 @@ class PatchesOverview extends ControllerBase {
     $this->entityType = $this->entityTypeManager->getDefinition('patch');
     $this->entityStorage = $this->entityTypeManager->getStorage('patch');
     $this->dateFormatter = $date_formatter;
+    $this->constants = new PatchRevision();
   }
 
   /**
@@ -116,6 +123,7 @@ class PatchesOverview extends ControllerBase {
     $header['created'] = $this->t('Time created');
     $header['user'] = $this->t('By user');
     $header['message'] = $this->t('Log message');
+    $header['status'] = $this->t('Status');
     $header['operations'] = $this->t('Operations');
     return $header;
   }
@@ -135,6 +143,7 @@ class PatchesOverview extends ControllerBase {
     );
 
     $row['message']['data'] = $entity->get('message')->getString();
+    $row['status']['data'] = $this->getStatus($entity->get('status')->getString());
     $row['operations']['data'] = $this->buildOperations($entity);
     return $row;
   }
@@ -151,7 +160,7 @@ class PatchesOverview extends ControllerBase {
     $build['table'] = [
       '#type' => 'table',
       '#header' => $this->buildHeader(),
-      '#title' => $this->t('Patches for "@title"', ['@title' => $this->node->label()]),
+      '#title' => $this->t('Improvements for "@title"', ['@title' => $this->node->label()]),
       '#rows' => [],
       '#empty' => $this->t('There is no @label yet.', ['@label' => $this->entityType->getLabel()]),
       '#cache' => [
@@ -159,6 +168,11 @@ class PatchesOverview extends ControllerBase {
         'tags' => ['patch_list:node:'.$this->nid],
         'max-age' => Cache::PERMANENT,
       ],
+      '#attached' => [
+        'library' => [
+          'patch_revision/patch_revision.pr-status'
+        ],
+      ]
     ];
     foreach ($this->load() as $entity) {
       /** @var Patch $entity */
@@ -185,7 +199,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * Gets this list's default operations.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param Patch $entity
    *   The entity the operations are for.
    *
    * @return array
@@ -263,4 +277,22 @@ class PatchesOverview extends ControllerBase {
     return $date;
   }
 
+  /**
+   * Returns formatted
+   * @param int|string $value
+   *   The integer status ID.
+   *
+   * @return array
+   *   The formatted string for List overview.
+   */
+  protected function getStatus($value) {
+    $value = (int) $value;
+    $literal =$this->constants->getStatusLiteral($value);
+    $class = $this->constants->getStatus($value);
+    return [
+      '#markup' => $literal,
+      '#prefix' => "<span class=\"status {$class}\">",
+      '#suffix' => '</span>',
+    ];
+  }
 }

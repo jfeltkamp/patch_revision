@@ -3,13 +3,18 @@
 namespace Drupal\patch_revision\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for Field patch plugin plugins.
  */
-abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPluginInterface {
+abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPluginInterface, ContainerFactoryPluginInterface {
 
   use StringTranslationTrait;
 
@@ -18,7 +23,83 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    */
   protected $mergeConflictMessage;
 
+  /**
+   * @var EntityTypeManager
+   */
+  protected $entityTypeManager;
 
+  /**
+   * @var EntityFieldManager
+   */
+  protected $entityFieldManager;
+
+  /**
+   * @var ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
+   * @var array
+   */
+  protected $moduleConfig;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    EntityTypeManager $entityTypeManager,
+    EntityFieldManager $entityFieldManager,
+    ConfigFactory $configFactory
+  ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->entityTypeManager = $entityTypeManager;
+    $this->entityFieldManager = $entityFieldManager;
+    $this->configFactory = $configFactory;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('entity_field.manager'),
+      $container->get('config.factory')
+    );
+  }
+
+  /**
+   * @param string|null $param
+   *   The config parameter to return.
+   * @param mixed $default
+   *   The default value .
+   * @return mixed|null
+   */
+  protected function getModuleConfig($param = NULL, $default = NULL) {
+    if (!$this->moduleConfig) {
+      $this->moduleConfig = $this->configFactory->get('patch_revision.config');
+    }
+    if (!$param) {
+      return $this->moduleConfig;
+    } else {
+      return ($value = $this->moduleConfig->get($param))
+        ? $value
+        : $default;
+    }
+  }
+
+  /**
+   * Returns current field type.
+   *
+   * @return mixed
+   *   The field type.
+   */
   protected function getFieldType() {
     return $this->configuration['field_type'];
   }
@@ -170,7 +251,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $result['#items']["item_{$field->getName()}"] = [];
       foreach($this->getFieldProperties() as $key => $default_value) {
         $old_value = isset($field_value[$item][$key]) ? $field_value[$item][$key] : $default_value;
-        $patch = $this->patchStringFormatter($key, $value[$key], $old_value);
+        $patch = $this->patchFormatter($key, $value[$key], $old_value);
         $result['#items'][$item][$key] = [
           '#theme' => 'field_patch',
           '#col' => $key,
@@ -205,25 +286,29 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    *   Data as they are received from $form_state object.
    *
    * @return mixed
-   *   data writable to database.
+   *   Data writable to database.
    */
-  public function prepareData($data) {
+  public function prepareDataDb($data) {
     return $data;
   }
 
   /**
-   * Returns name for a getter of properties.
+   * Returns name for a getter of properties if exists in self context, else returns false.
    *
    * @param $property
    *   Property name.
    * @param string $separator
-   * @return string
+   *   Separator.
+   *
+   * @return string|FALSE
+   *   The getter name.
    */
-  protected function camCase($property, $separator = '_') {
+  protected function getterName($property, $separator = '_') {
     $array = explode($separator, $property);
     $parts = array_map('ucwords', $array);
     $string = implode('', $parts);
-    return 'get'.$string;
+    $string = 'get'.$string;
+    return method_exists($this, $string) ? $string : FALSE;
   }
 
 }

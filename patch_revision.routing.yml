@@ -1,26 +1,8 @@
 
-patch_revision.patch_revision_config:
-  path: '/admin/config/patch_revision'
-  defaults:
-    _form: '\Drupal\patch_revision\Form\PatchRevisionConfig'
-    _title: 'Patch Revision Config'
-  requirements:
-    _permission: 'access administration pages'
-  options:
-    _admin_route: TRUE
-
 patch_revision.patches_overview:
   path: '/node/{node}/patches'
   defaults:
-    _title: 'Patches Overview'
-    _controller: '\Drupal\patch_revision\Controller\PatchesOverview::overview'
-  requirements:
-    _permission: 'view patch entities'
-
-patch_revision.patches_overview:
-  path: '/node/{node}/patches'
-  defaults:
-    _title: 'Patches Overview'
+    _title: 'Improvements Overview'
     _controller: '\Drupal\patch_revision\Controller\PatchesOverview::overview'
   requirements:
     _permission: 'view patch entities'

@@ -3,6 +3,7 @@
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\file\Entity\File;
@@ -14,20 +15,22 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * FieldPatchPlugin for field type image.
  *
  * @FieldPatchPlugin(
- *   id = "file",
- *   label = @Translation("FieldPatchPlugin for field type file"),
+ *   id = "image",
+ *   label = @Translation("FieldPatchPlugin for field type image"),
  *   field_types = {
- *     "file",
+ *     "image",
  *   },
  *   properties = {
  *     "target_id" = "",
- *     "display" = "1",
- *     "description" = "",
+ *     "alt" = "",
+ *     "title" = "",
+ *     "width" = "",
+ *     "height" = "",
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchFile extends FieldPatchPluginBase {
+class FieldPatchImage extends FieldPatchPluginBase {
 
   /**
    * @var EntityStorageInterface
@@ -38,7 +41,7 @@ class FieldPatchFile extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'file';
+    return 'image';
   }
 
   /**
@@ -67,12 +70,21 @@ class FieldPatchFile extends FieldPatchPluginBase {
     } else {
       $old = ($method) ? $this->{$method}($patch['old']) : $patch['old'];
       $new = ($method) ? $this->{$method}($patch['new']) : $patch['new'];
-      return [
-        '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
-          '@old' => $old,
-          '@new' => $new,
-        ])
-      ];
+
+      if ($property == 'target_id') {
+        return [
+          '#theme' => 'pr_view_image',
+          '#left' => $old,
+          '#right' => $new,
+        ];
+      } else {
+        return [
+          '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
+            '@old' => $old,
+            '@new' => $new,
+          ])
+        ];
+      }
     }
   }
 
@@ -82,22 +94,46 @@ class FieldPatchFile extends FieldPatchPluginBase {
    * @param $entity_id
    *   The entity id.
    *
-   * @return \Drupal\Core\GeneratedLink|\Drupal\Core\StringTranslation\TranslatableMarkup|string
+   * @return array|string
    *   The label used for patch view.
    */
   protected function getTargetId($entity_id) {
     if (!$entity_id) {
-      return $this->t('none');
+      return [
+        '#type' => 'container',
+        '#attributes' => ['class'=> ['pr-no-img']],
+        'content' => ['#markup' => $this->t('No image')],
+      ];
     }
     /** @var File $entity */
     $entity = $this->getEntityStorage()->load((int) $entity_id);
     if (!$entity) {
       return $this->t('ID: @id was not found.', ['@id' => $entity_id]);
     }
+
+    $uri = $entity->getFileUri();
     $name = $entity->getFileName();
     $url = Url::fromUri(file_create_url($entity->getFileUri()));
-    $link = Link::fromTextAndUrl($name, $url)->toString();
-    return $link;
+    $link = Link::fromTextAndUrl($name, $url)->toRenderable();
+    if ($uri) {
+      $style = $this->getModuleConfig('image_style', 'thumbnail');
+      return [
+        '#type' => 'container',
+        'image' => [
+          '#theme' => 'image_style',
+          '#style_name' => $style,
+          '#uri' => $uri,
+        ],
+        'name' => $link,
+        '#attached' => ['library' => ['patch_revision/patch_revision.pr-view-image']]
+      ];
+    } else {
+      return [
+        '#type' => 'container',
+        '#attributes' => ['class'=> ['pr-no-img']],
+        'content' => ['#markup' => $this->t('Image not found')],
+      ];
+    }
   }
 
   /**
@@ -117,9 +153,9 @@ class FieldPatchFile extends FieldPatchPluginBase {
       $method = $this->getterName($property);
       $label = ($method) ? $this->{$method}($patch['old']) : $patch['old'];
       drupal_set_message($this->t('Expected old value for @property to be: @label', [
-          '@label' => $label,
-          '@property' => $property,
-        ]), 'error');
+        '@label' => $label,
+        '@property' => $property,
+      ]), 'error');
       return [
         'result' => $value,
         'feedback' => [
@@ -149,4 +185,32 @@ class FieldPatchFile extends FieldPatchPluginBase {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function prepareDataDb($values) {
+    // Cloned code from Drupal\file\Plugin\Field\FieldWidget::massageFormValues.
+    $new_values = [];
+    foreach ($values as &$value) {
+      foreach ($value['fids'] as $fid) {
+        $new_value = $value;
+        $new_value['target_id'] = $fid;
+        unset($new_value['fids']);
+        $new_values[] = $new_value;
+      }
+    }
+
+    return $new_values;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateDataIntegrity($value) {
+    if (!is_array($value)) {
+      return FALSE;
+    }
+    $properties = $this->getFieldProperties();
+    return count(array_intersect_key($properties, $value)) == count($properties);
+  }
 }

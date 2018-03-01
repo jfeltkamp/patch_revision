@@ -1,9 +1,4 @@
 # Patch routing definition
-patch.settings_tab:
-  route_name: patch.settings
-  title: 'Settings'
-  base_route: patch.settings
-
 entity.patch.canonical:
   route_name: entity.patch.canonical
   base_route: entity.patch.canonical

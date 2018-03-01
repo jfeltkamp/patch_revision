@@ -1,0 +1,32 @@
+
+span.status {
+  display: inline-block;
+  border: 1px solid #000;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  line-height: 1.4em;
+  padding: 0 .5em;
+}
+
+span.status.applied {
+  color: #008000;
+  border-color: #008000;
+}
+
+
+span.status.proposed {
+  color: #0000FF;
+  border-color: #0000FF;
+}
+
+
+span.status.conflicted {
+  color: #FF0000;
+  border-color: #FF0000;
+}
+
+span.status.disabled {
+  color: #666666;
+  border-color: #666666;
+}

@@ -4,9 +4,3 @@ patch_revision.patch_revision_config:
   description: 'Config patchable revisions.'
   parent: system.admin_config_content
   weight: 99
-
-patch.admin.structure.settings:
-  title: Patch settings
-  description: 'Configure Patch entities'
-  route_name: patch.settings
-  parent: system.admin_config_content

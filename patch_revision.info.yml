@@ -6,3 +6,4 @@ package: Argue
 dependencies:
   - diff
   - changed_fields
+configure: patch_revision.patch_revision_config

@@ -54,7 +54,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
   protected function getEntityStorage() {
     $entity_type = $this->getEntityType();
     if ($entity_type && !$this->entityStorage) {
-      $this->entityStorage = \Drupal::service('entity_type.manager')->getStorage($entity_type);
+      $this->entityStorage = $this->entityTypeManager->getStorage($entity_type);
     }
     return $this->entityStorage ?: FALSE;
   }
@@ -62,7 +62,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchStringFormatter($property, $patch, $value_old) {
+  public function patchFormatter($property, $patch, $value_old) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [

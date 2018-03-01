@@ -39,7 +39,7 @@ class FieldPatchUndiffable extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchStringFormatter($property, $patch, $value_old) {
+  public function patchFormatter($property, $patch, $value_old) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [

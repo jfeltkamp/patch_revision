@@ -97,7 +97,7 @@ class FieldPatchDiffable extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchStringFormatter($property, $patch, $value_old) {
+  public function patchFormatter($property, $patch, $value_old) {
     $dmp = new DiffMatchPatch();
     $patches = $dmp->patch_fromText($patch);
     $value_new = $dmp->patch_apply($patches, $value_old);

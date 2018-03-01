@@ -18,7 +18,7 @@ final class PatchRevision {
    *   Stored value for pro argument.
    */
   const PR_STATUS_ACTIVE = 1;
-  const PR_STATUS_ACTIVE_TXT = 'active';
+  const PR_STATUS_ACTIVE_TXT = 'proposed';
 
   /**
    * @var integer
@@ -58,7 +58,7 @@ final class PatchRevision {
   const CODE_PATCH_EMPTY = 1001;
 
   /**
-   * @param $status
+   * @param int $status
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup|string
    */
   public function getStatusLiteral($status) {
@@ -79,5 +79,18 @@ final class PatchRevision {
         return $this->t('undefined');
     }
     return $label;
+  }
+
+  /**
+   * Returns machine readable string for status.
+   *
+   * @param int $id
+   *   The integer status ID.
+   *
+   * @return string
+   *   The string status ID.
+   */
+  public function getStatus($id) {
+    return self::PR_STATUS[$id];
   }
 }

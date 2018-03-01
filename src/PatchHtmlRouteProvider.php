@@ -20,10 +20,8 @@ class PatchHtmlRouteProvider extends AdminHtmlRouteProvider {
   public function getRoutes(EntityTypeInterface $entity_type) {
     $collection = parent::getRoutes($entity_type);
 
-    $entity_type_id = $entity_type->id();
-
     if ($settings_form_route = $this->getSettingsFormRoute($entity_type)) {
-      $collection->add("$entity_type_id.settings", $settings_form_route);
+      $collection->add("patch_revision.patch_revision_config", $settings_form_route);
     }
 
     return $collection;
@@ -40,11 +38,11 @@ class PatchHtmlRouteProvider extends AdminHtmlRouteProvider {
    */
   protected function getSettingsFormRoute(EntityTypeInterface $entity_type) {
     if (!$entity_type->getBundleEntityType()) {
-      $route = new Route("/admin/structure/{$entity_type->id()}/settings");
+      $route = new Route("/admin/config/content/patch_revision");
       $route
         ->setDefaults([
-          '_form' => 'Drupal\patch_revision\Form\PatchSettingsForm',
-          '_title' => "{$entity_type->getLabel()} settings",
+          '_form' => 'Drupal\patch_revision\Form\PatchRevisionConfig',
+          '_title' => 'Patch Revision Config',
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())
         ->setOption('_admin_route', TRUE);

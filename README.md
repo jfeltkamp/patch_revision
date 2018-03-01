@@ -30,9 +30,13 @@
 | ____________               |     |
 | *References*               |     |
 | entity_reference           | YES |
+| image                      | YES |
+| file                       | YES |
+| ____________               |     |
+| *From contrib Modules*     |     |
 | entity_reference_revisions | no  |
-| image                      | no  |
-| file                       | no  |
+| media_entity               | no  |
+| cronpub                    | no  |
 | ____________               |     |
 | *Thinking what to do*      |     |
 | uri                        | ??? |

@@ -72,5 +72,5 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    * @param string $value_old
    * @return array
    */
-  function patchStringFormatter($property, $patch, $value_old);
+  function patchFormatter($property, $patch, $value_old);
 }

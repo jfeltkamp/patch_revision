@@ -23,10 +23,9 @@ use Drupal\Core\Annotation\Translation;
  *
  * @ContentEntityType(
  *   id = "patch",
- *   label = @Translation("Patch"),
+ *   label = @Translation("Improvement"),
  *   handlers = {
  *     "view_builder" = "Drupal\patch_revision\PatchViewBuilder",
- *     "list_builder" = "Drupal\patch_revision\PatchListBuilder",
  *     "views_data" = "Drupal\patch_revision\Entity\PatchViewsData",
  *
  *     "form" = {
@@ -66,7 +65,6 @@ use Drupal\Core\Annotation\Translation;
  *     "apply-form" = "/patch/{patch}/apply",
  *     "edit-form" = "/patch/{patch}/edit",
  *     "delete-form" = "/patch/{patch}/delete",
- *     "collection" = "/patch",
  *   }
  * )
  */

@@ -51,6 +51,12 @@ function patch_revision_theme($existing, $type, $theme, $path) {
         'message' => NULL,
       ],
     ],
+    'pr_view_image' => [
+      'variables' => [
+        'left' => NULL,
+        'right' => NULL,
+      ],
+    ],
   ];
 }
 

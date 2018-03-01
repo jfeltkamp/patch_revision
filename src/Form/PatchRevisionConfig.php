@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeTypeInterface;
 use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -39,14 +38,14 @@ class PatchRevisionConfig extends ConfigFormBase {
   protected $pluginManager;
 
   /**
-   * Constructs a new PatchRevisionConfig object.
+   * {@inheritdoc}
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
-      EntityTypeManager $entity_type_manager,
-      EntityFieldManager $entity_field_manager,
-      FieldPatchPluginManager $plugin_manager
-    ) {
+    EntityTypeManager $entity_type_manager,
+    EntityFieldManager $entity_field_manager,
+    FieldPatchPluginManager $plugin_manager
+  ) {
     parent::__construct($config_factory);
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
@@ -60,6 +59,13 @@ class PatchRevisionConfig extends ConfigFormBase {
       $container->get('entity_field.manager'),
       $container->get('plugin.manager.field_patch_plugin')
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'patch_revision_config';
   }
 
   /**
@@ -88,15 +94,6 @@ class PatchRevisionConfig extends ConfigFormBase {
     return $options;
   }
 
-
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'patch_revision_config';
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -116,20 +113,21 @@ class PatchRevisionConfig extends ConfigFormBase {
       $form[] = $this->getBundleSelector($node_type, (0 === $default_values[$node_type->id()]));
     }
 
-    $form['node_types'] = [
+    $form['tab_general'] = [
+      '#type' => 'details',
+      '#title' => $this->t('General settings'),
+      '#description' => $this->t('<h3>General settings</h3>'),
+      '#group' => 'bundle_select',
+      '#weight' => -10,
+    ];
+
+    $form['tab_general']['node_types'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Node Types'),
       '#description' => $this->t('Check node types where to provide a patch functionality.'),
       '#options' => $options,
       '#default_value' => $default_values,
       '#weight' => -1,
-    ];
-
-    $form['tab_general'] = [
-      '#type' => 'details',
-      '#title' => $this->t('General settings'),
-      '#description' => $this->t('<h3>General settings</h3>'),
-      '#group' => 'bundle_select',
     ];
 
     $form['tab_general']['general_excluded_fields'] = [
@@ -165,6 +163,19 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#maxlength' => 128,
     ];
 
+    $image_styles = $this->entityTypeManager->getStorage('image_style')->loadMultiple();
+    $options = [];
+    foreach ($image_styles as $id => $image_style) {
+      $options[$id] = $image_style->label();
+    }
+    $form['tab_general']['image_style'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Image style'),
+      '#description' => $this->t('Image style to use in patch detail view and apply form.'),
+      '#options' => $options,
+      '#default_value' => $config->get('image_style') ?: 'thumbnail',
+      '#weight' => -1,
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -187,6 +198,7 @@ class PatchRevisionConfig extends ConfigFormBase {
     $config->set('enable_checkbox_node_form', $form_state->getValue('enable_checkbox_node_form'));
     $config->set('log_message_required', $form_state->getValue('log_message_required'));
     $config->set('log_message_title', $form_state->getValue('log_message_title'));
+    $config->set('image_style', $form_state->getValue('image_style'));
 
     foreach ($form_state->getValues() as $key => $value) {
       if (preg_match('/^bundle_[a-z_]+_fields$/', $key)) {
@@ -226,7 +238,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#default_value' => $config->get('bundle_' . $node_type->id() . '_fields'),
       '#disabled' => $disabled,
       '#description' => $disabled
-        ? $this->t('<div class="messages messages--warning">Enable the node type above and save - before you can change field configuration here.</div>')
+        ? $this->t('<div class="messages messages--warning">Enable the node type in "General settengs" and save - before you can change field configuration here.</div>')
         : $this->t('Select fields you want to exclude from patches. Changes in excluded fields will not be saved in the patch.') ,
     ];
 

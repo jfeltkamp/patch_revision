@@ -9,3 +9,13 @@ patch_revision.patch_view:
     theme:
       assets/css/patch_view.css: {}
       assets/css/diff.css: {}
+
+patch_revision.pr-view-image:
+  css:
+    theme:
+      assets/css/pr-view-image.css: {}
+
+patch_revision.pr-status:
+  css:
+    theme:
+      assets/css/pr-status.css: {}

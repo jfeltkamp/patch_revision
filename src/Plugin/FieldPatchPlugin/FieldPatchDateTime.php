@@ -35,7 +35,7 @@ class FieldPatchDateTime extends FieldPatchUndiffable {
   /**
    * {@inheritdoc}
    */
-  public function prepareData($data) {
+  public function prepareDataDb($data) {
 
     switch ($this->getFieldType()) {
       case 'timestamp':
@@ -49,6 +49,8 @@ class FieldPatchDateTime extends FieldPatchUndiffable {
       foreach ($this->getFieldProperties() as $name => $default) {
         if ($value[$name] instanceof DrupalDateTime) {
           $data[$key][$name] = $value[$name]->format($format);
+        } else {
+          $data[$key][$name] = (string) $value[$name];
         }
       }
     }
