@@ -38,6 +38,13 @@ final class PatchRevision {
    * @var integer
    *   Stored value for con argument.
    */
+  const PR_STATUS_DECLINED = 4;
+  const PR_STATUS_DECLINED_TXT = 'declined';
+
+  /**
+   * @var integer
+   *   Stored value for con argument.
+   */
   const PR_STATUS_DISABLED = 0;
   const PR_STATUS_DISABLED_TXT = 'disabled';
 
@@ -51,6 +58,7 @@ final class PatchRevision {
     self::PR_STATUS_ACTIVE => self::PR_STATUS_ACTIVE_TXT,
     self::PR_STATUS_CONFLICTED => self::PR_STATUS_CONFLICTED_TXT,
     self::PR_STATUS_PATCHED => self::PR_STATUS_PATCHED_TXT,
+    self::PR_STATUS_DECLINED => self::PR_STATUS_DECLINED_TXT,
     self::PR_STATUS_DISABLED => self::PR_STATUS_DISABLED_TXT,
   ];
 
@@ -74,6 +82,9 @@ final class PatchRevision {
         break;
       case 3:
         $label =  $this->t(self::PR_STATUS_PATCHED_TXT);
+        break;
+      case 4:
+        $label =  $this->t(self::PR_STATUS_DECLINED_TXT);
         break;
       default:
         return $this->t('undefined');

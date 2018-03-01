@@ -1,5 +1,5 @@
 
-span.status {
+span.pr-status {
   display: inline-block;
   border: 1px solid #000;
   -webkit-border-radius: 2px;
@@ -9,24 +9,29 @@ span.status {
   padding: 0 .5em;
 }
 
-span.status.applied {
+span.pr-status.applied {
   color: #008000;
   border-color: #008000;
 }
 
 
-span.status.proposed {
+span.pr-status.proposed {
   color: #0000FF;
   border-color: #0000FF;
 }
 
 
-span.status.conflicted {
+span.pr-status.declined {
   color: #FF0000;
   border-color: #FF0000;
 }
 
-span.status.disabled {
+span.pr-status.conflicted {
+  color: #ffaa00;
+  border-color: #ffaa00;
+}
+
+span.pr-status.disabled {
   color: #666666;
   border-color: #666666;
 }

@@ -291,7 +291,7 @@ class PatchesOverview extends ControllerBase {
     $class = $this->constants->getStatus($value);
     return [
       '#markup' => $literal,
-      '#prefix' => "<span class=\"status {$class}\">",
+      '#prefix' => "<span class=\"pr-status {$class}\">",
       '#suffix' => '</span>',
     ];
   }
