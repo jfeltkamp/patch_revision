@@ -13,6 +13,8 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\patch_revision\Entity\Patch;
 use Drupal\patch_revision\Events\PatchRevision;
 use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 use SplSubject;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -36,12 +38,18 @@ class NodeObserver implements ObserverInterface {
    */
   private $config;
 
+  /**
+   * @var UserInterface|NULL
+   */
+  private $currentUser;
+
 
   function __construct() {
     $container = \Drupal::getContainer();
     $this->entity_type_manager = $container->get('entity_type.manager');
     $this->plugin_manager = $container->get('plugin.manager.field_patch_plugin');
     $this->config = $container->get('config.manager')->getConfigFactory()->get('patch_revision.config');
+    $this->currentUser = $container->get('current_user');
   }
 
   /**
@@ -70,7 +78,7 @@ class NodeObserver implements ObserverInterface {
         ->set('rvid', $node->original->getRevisionId())
         ->set('patch', $diff)
         ->set('message', $node->getRevisionLogMessage() ?: ' ')
-        ->set('uid', \Drupal::currentUser()->id());
+        ->set('uid', $this->currentUser->id());
       $patch->save();
 
       drupal_set_message(t('Thanks. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);

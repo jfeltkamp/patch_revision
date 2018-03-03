@@ -19,6 +19,7 @@
   align-items: stretch;
 }
 
+.pr-view-image--center,
 .pr-view-image--left,
 .pr-view-image--right {
   -webkit-flex: 1 1 50%;
@@ -67,12 +68,17 @@
   border: 6px solid #fff;
 }
 
+.pr-view-image--center img,
 .pr-view-image--left img,
 .pr-view-image--right img {
   display: block;
   margin: 0 auto;
   border: 6px solid #fff;
   border-radius: 3px;
+}
+.pr-view-image--center img,
+.pr-view-image--center .pr-no-img {
+  border-color: #ccf;
 }
 .pr-view-image--left img,
 .pr-view-image--left .pr-no-img {

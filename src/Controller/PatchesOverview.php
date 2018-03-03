@@ -2,6 +2,7 @@
 
 namespace Drupal\patch_revision\Controller;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
@@ -69,13 +70,24 @@ class PatchesOverview extends ControllerBase {
   protected $constants;
 
   /**
-   * Constructs a new DefaultController object.
+   * DateFormatterInterface definition.
+   * @var TimeInterface;
    */
-  public function __construct(EntityTypeManager $entity_type_manager, DateFormatterInterface $date_formatter) {
+  protected $time;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+    EntityTypeManager $entity_type_manager,
+    DateFormatterInterface $date_formatter,
+    TimeInterface $time
+  ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityType = $this->entityTypeManager->getDefinition('patch');
     $this->entityStorage = $this->entityTypeManager->getStorage('patch');
     $this->dateFormatter = $date_formatter;
+    $this->time = $time;
     $this->constants = new PatchRevision();
   }
 
@@ -85,7 +97,8 @@ class PatchesOverview extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('datetime.time')
     );
   }
 
@@ -269,7 +282,7 @@ class PatchesOverview extends ControllerBase {
    */
   protected function getDate(Patch $entity, $mode = 'created') {
     $timestamp = (int)$entity->get($mode)->getString();
-    $interval = \Drupal::time()->getRequestTime() - $timestamp;
+    $interval = $this->time->getRequestTime() - $timestamp;
 
     $date = $interval < (60*60*12)
       ? $this->t('@time ago', ['@time' => $this->dateFormatter->formatInterval($interval, 2)])

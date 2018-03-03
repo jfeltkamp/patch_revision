@@ -32,14 +32,18 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
   /**
    * Apply patch to an field value.
    *
+   * @param string $key
+   *   The data column to work on.
    * @param mixed $value
    *   Array with previous saved field data.
    * @param mixed $patch
    *   Array with overwritten field data.
+   * @param bool $strict
+   *   If true check matching old and current value or ignore if false.
    *
    * @return mixed
    */
-  function processPatchFieldValue($property, $value, $patch);
+  function applyPatchDefault($key, $value, $patch, $strict);
 
   /**
    * Main feature that process the diff command and returns the patch.
@@ -49,7 +53,22 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *
    * @return mixed
    */
-  function processValueDiff($str_src, $str_target);
+  function getDiffDefault($str_src, $str_target);
+
+  /**
+   * Returns a render array with formatted markup.
+   *
+   * @param string $key
+   *   The data column to work on.
+   * @param string $patch
+   *   The patch to apply
+   * @param string $value_old
+   *   The old value to apply patch on.
+   *
+   * @return array
+   *   The patch result array
+   */
+  function patchFormatterDefault($key, $patch, $value_old);
 
   /**
    * Returns a formatted view for the complete Patch.
@@ -63,14 +82,4 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    */
   function getFieldPatchView($patch_value, $field);
 
-
-  /**
-   * Returns a render array with formatted markup.
-   *
-   * @param string $property
-   * @param string $patch
-   * @param string $value_old
-   * @return array
-   */
-  function patchFormatter($property, $patch, $value_old);
 }

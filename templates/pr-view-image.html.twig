@@ -1,4 +1,11 @@
 <div class="pr-view-image">
-  <div class="pr-view-image--left">{{ left }}</div>
-  <div class="pr-view-image--right">{{ right }}</div>
+  {% if center %}
+    <div class="pr-view-image--center">{{ center }}</div>
+  {% endif %}
+  {% if left %}
+    <div class="pr-view-image--left">{{ left }}</div>
+  {% endif %}
+  {% if right %}
+    <div class="pr-view-image--right">{{ right }}</div>
+  {% endif %}
 </div>

@@ -21,11 +21,31 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  *     "image",
  *   },
  *   properties = {
- *     "target_id" = "",
- *     "alt" = "",
- *     "title" = "",
- *     "width" = "",
- *     "height" = "",
+ *     "target_id" = {
+ *       "label" = @Translation("Referred image"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
+ *     "alt" = {
+ *       "label" = @Translation("Alternative text"),
+ *       "default_value" = "",
+ *       "patch_type" = "diff",
+ *     },
+ *     "title" = {
+ *       "label" = @Translation("Title"),
+ *       "default_value" = "",
+ *       "patch_type" = "diff",
+ *     },
+ *     "width" = {
+ *       "label" = @Translation("Width"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
+ *     "height" = {
+ *       "label" = @Translation("Height"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
@@ -57,34 +77,68 @@ class FieldPatchImage extends FieldPatchPluginBase {
     return $this->entityStorage ?: FALSE;
   }
 
+
   /**
    * {@inheritdoc}
    */
-  public function patchFormatter($property, $patch, $value_old) {
+  public function getDiffAlt($str_src, $str_target) {
+    return $this->diff->getTextDiff($str_src, $str_target);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applyPatchAlt($value, $patch) {
+    return $this->diff->applyPatchText($value, $patch, $this->t('alternative text'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function patchFormatterAlt($patch, $value_old) {
+    return $this->diff->patchView($patch, $value_old);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDiffTitle($str_src, $str_target) {
+    return $this->diff->getTextDiff($str_src, $str_target);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applyPatchTitle($value, $patch) {
+    return $this->diff->applyPatchText($value, $patch, $this->t('title'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function patchFormatterTitle($patch, $value_old) {
+    return $this->diff->patchView($patch, $value_old);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function patchFormatterTargetId($patch, $value_old) {
     $patch = json_decode($patch, true);
-    $method = $this->getterName($property);
     if (empty($patch)) {
-      return [
-        '#markup' => ($method) ? $this->{$method}($value_old) : $value_old,
+     return [
+        '#theme' => 'pr_view_image',
+        '#center' => $this->getTargetId($value_old),
       ];
     } else {
-      $old = ($method) ? $this->{$method}($patch['old']) : $patch['old'];
-      $new = ($method) ? $this->{$method}($patch['new']) : $patch['new'];
+      $old = $this->getTargetId($patch['old']);
+      $new = $this->getTargetId($patch['new']);
 
-      if ($property == 'target_id') {
-        return [
-          '#theme' => 'pr_view_image',
-          '#left' => $old,
-          '#right' => $new,
-        ];
-      } else {
-        return [
-          '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
-            '@old' => $old,
-            '@new' => $new,
-          ])
-        ];
-      }
+      return [
+        '#theme' => 'pr_view_image',
+        '#left' => $old,
+        '#right' => $new,
+      ];
     }
   }
 
@@ -139,7 +193,7 @@ class FieldPatchImage extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function processPatchFieldValue($property, $value, $patch) {
+  public function applyPatchTargetId($value, $patch) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [
@@ -149,18 +203,17 @@ class FieldPatchImage extends FieldPatchPluginBase {
           'applied' => TRUE
         ],
       ];
-    } elseif ($patch['old'] != $value) {
-      $method = $this->getterName($property);
-      $label = ($method) ? $this->{$method}($patch['old']) : $patch['old'];
-      drupal_set_message($this->t('Expected old value for @property to be: @label', [
+    } elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
+      $label = $this->getTargetId($patch['old']);
+      $message = $this->t('Expected old value for image to be: @label', [
         '@label' => $label,
-        '@property' => $property,
-      ]), 'error');
+      ]);
       return [
         'result' => $value,
         'feedback' => [
           'code' => 0,
           'applied' => FALSE,
+          'message' => $message
         ],
       ];
     } else {
@@ -171,17 +224,6 @@ class FieldPatchImage extends FieldPatchPluginBase {
           'applied' => TRUE
         ],
       ];
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processValueDiff($str_src, $str_target) {
-    if ($str_src === $str_target) {
-      return json_encode([]);
-    } else {
-      return json_encode(['old' => $str_src, 'new' => $str_target]);
     }
   }
 
