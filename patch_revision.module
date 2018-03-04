@@ -45,10 +45,11 @@ function patch_revision_theme($existing, $type, $theme, $path) {
         'patch' => NULL,
       ],
     ],
-    'log_message' => [
+    'pr_patch_header' => [
       'variables' => [
-        'label' => NULL,
-        'message' => NULL,
+        'created' => NULL,
+        'creator' => NULL,
+        'log_message' => NULL,
       ],
     ],
     'pr_view_image' => [

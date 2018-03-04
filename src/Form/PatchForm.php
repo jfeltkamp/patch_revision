@@ -43,6 +43,22 @@ class PatchForm extends ContentEntityForm {
     /* @var $entity \Drupal\patch_revision\Entity\Patch */
     $form = parent::buildForm($form, $form_state);
 
+    $header_data = $this->entity->getViewHeaderData();
+    $form['#title'] = $this->t('Edit improvement for @type: @title', [
+      '@type' => $header_data['orig_type'],
+      '@title' => $header_data['orig_title'],
+    ]);
+
+    $form['header'] = [
+      '#theme' => 'pr_patch_header',
+      '#created' => $header_data['created'],
+      '#creator' => $header_data['creator'],
+      '#log_message' => $header_data['log_message'],
+      '#attached' => [
+        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+      ]
+    ];
+
     if (\Drupal::currentUser()->hasPermission('change status of patch entities')) {
       $form['status'] = [
         '#type' => 'select',

@@ -1,0 +1,17 @@
+<div class="pr-patch-header">
+  <div class="pr-patch-header--by">
+    <span class="pr-patch-header--label">{% trans %}Created by:{% endtrans %}</span>
+    <span property="author">{{ creator }}</span>
+  </div>
+  <div class="pr-patch-header--on">
+    <span class="pr-patch-header--label">{% trans %}Created on:{% endtrans %}</span>
+    <time datetime="{{ created|format_date('Y-m-d') }}" property="datePublished">{{ created|format_date('medium') }}</time>
+  </div>
+</div>
+
+{% if log_message %}
+<div class="pr-log-message">
+  <div class="pr-log-message--label">{% trans %}Log message from creator:{% endtrans %}</div>
+  <h2 class="pr-log-message--log-message">"{{ log_message }}"</h2>
+</div>
+{% endif %}

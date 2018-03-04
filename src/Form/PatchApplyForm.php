@@ -222,6 +222,24 @@ class PatchApplyForm extends ContentEntityForm {
     /** @var NodeInterface $orig_entity_old */
     $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
+    $header_data = $this->entity->getViewHeaderData();
+    $form['#title'] = $this->t('Apply improvement for @type: @title', [
+      '@type' => $header_data['orig_type'],
+      '@title' => $header_data['orig_title'],
+    ]);
+
+    $form['header'] = [
+      '#theme' => 'pr_patch_header',
+      '#created' => $header_data['created'],
+      '#creator' => $header_data['creator'],
+      '#log_message' => $header_data['log_message'],
+      '#attached' => [
+        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+      ]
+    ];
+
+
+    // Load entity form (default) with latest revision to pick the Form widgets from it.
     $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
     /** @var EntityFormDisplay $entity_form_display */
     $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);

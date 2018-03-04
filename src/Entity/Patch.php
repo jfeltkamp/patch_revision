@@ -10,11 +10,14 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
 use Drupal\user\Entity\User;
 use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Annotation\Translation;
+use Drupal\user\UserInterface;
 
 /**
  * Defines the Patch entity.
@@ -362,7 +365,6 @@ class Patch extends ContentEntityBase {
     }
   }
 
-
   /**
    * Returns a revision referred entity or FALSE if none exists.
    *
@@ -380,8 +382,8 @@ class Patch extends ContentEntityBase {
   public function getCreator() {
     if (!isset($this->creator)) {
       /** @var \Drupal\user\Entity\User[] $creator */
-      $creator = $this->get('uid')->referencedEntities();
-      $this->creator = reset($creator);
+      $creators = $this->get('uid')->referencedEntities();
+      $this->creator = reset($creators) ?: '';
     }
     return $this->creator;
   }
@@ -398,6 +400,25 @@ class Patch extends ContentEntityBase {
     else {
       return ucfirst(str_replace('_', ' ', $field_name));
     }
+  }
+
+  /**
+   * Returns a collection of important data to display in head of a patch entity.
+   *
+   * @return array
+   */
+  public function getViewHeaderData() {
+    $creator = $this->getCreator();
+    $orig_entity = $this->originalEntity();
+    $created = reset($this->get('created')->getValue());
+    return [
+      'created' => ($created) ? $created['value'] : NULL,
+      'creator' => ($creator) ? $creator->toLink()->toString() : FALSE,
+      'log_message' => $this->get('message')->getString() ?: FALSE,
+      'orig_id' => $this->get('rid')->getString(),
+      'orig_type' => ($orig_entity) ? $orig_entity->type->entity->label() : FALSE,
+      'orig_title' => ($orig_entity) ? $orig_entity->toLink()->toString() : FALSE,
+    ];
   }
 
 }
