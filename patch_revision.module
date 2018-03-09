@@ -128,6 +128,9 @@ function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormState
  *   Current route name.
  */
 function patch_revision_menu_local_tasks_alter(&$data, $route_name) {
+  /** @var \Drupal\patch_revision\AccessService $access_service */
+  $access_service = \Drupal::service('patch_revision.access_service');
+
   if (isset($data['tabs'][0]) && array_key_exists('patch.overview_page', $data['tabs'][0])) {
     $node = \Drupal::request()->get('node');
     $node_type = ($node instanceof NodeInterface) ? $node->bundle() : '<none>';

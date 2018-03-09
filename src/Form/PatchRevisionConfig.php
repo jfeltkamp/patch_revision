@@ -142,7 +142,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#description' => $this->t('Check node types where to provide a patch functionality.'),
       '#options' => $options,
       '#default_value' => $default_values,
-      '#weight' => -1,
+      '#weight' => 5,
     ];
 
     $form['tab_general']['general_excluded_fields'] = [
@@ -150,7 +150,8 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#title' => $this->t('General excluded fields.'),
       '#default_value' => implode(PHP_EOL, $config->get('general_excluded_fields')),
       '#description' => $this->t('Insert machine readable field_names one-per-line to exclude from patching. In particular, fields are excluded here that are not contents, but are valuable for the information processing and presentation logic.'),
-    ];
+      '#weight' => 10,
+      ];
 
     $form['tab_general']['enable_checkbox_node_form'] = [
       '#type' => 'checkbox',
@@ -158,6 +159,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#default_value' => $config->get('enable_checkbox_node_form'),
       '#group' => 'tab_general',
       '#description' => t('Let user decide, if he wants to create a patch or save the node regular.'),
+      '#weight' => 15,
     ];
 
     $form['tab_general']['log_message_required'] = [
@@ -166,6 +168,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#default_value' => $config->get('log_message_required'),
       '#group' => 'tab_general',
       '#description' => t('If checked user can not submit the node form without a log message.'),
+      '#weight' => 20,
     ];
 
     $form['tab_general']['log_message_title'] = [
@@ -176,6 +179,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#description' => t('The default title of log message ist "Revision log message" what is a bit confusing, because it is also used for patch log messages.'),
       '#size' => 60,
       '#maxlength' => 128,
+      '#weight' => 25,
     ];
 
     $image_styles = $this->entityTypeManager->getStorage('image_style')->loadMultiple();
@@ -189,7 +193,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#description' => $this->t('Image style to use in patch detail view and apply form.'),
       '#options' => $options,
       '#default_value' => $config->get('image_style') ?: 'thumbnail',
-      '#weight' => -1,
+      '#weight' => 30,
     ];
 
     return parent::buildForm($form, $form_state);

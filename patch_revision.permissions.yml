@@ -1,25 +1,29 @@
-add patch entities:
-  title: 'Create new Patch entities'
-
 administer patch entities:
   title: 'Administer Patch entities'
   description: 'Allow to access the administration form to configure Patch entities.'
   restrict access: true
 
-delete patch entities:
-  title: 'Delete Patch entities'
-
-edit patch entities:
-  title: 'Edit Patch entities'
+add patch entities:
+  title: 'Create new improvements'
 
 view patch entities:
-  title: 'View published Patch entities'
+  title: 'View improvements'
 
 view unpublished patch entities:
-  title: 'View unpublished Patch entities'
+  title: 'View unpublished improvements'
+
+edit patch entities:
+  title: 'Edit improvements'
 
 apply patch entities:
-  title: 'Apply patch entities to original entity'
+  title: 'Apply improvements to original entity'
+  description: 'Write improvements into the original node.'
+  restrict access: true
 
 change status of patch entities:
-  title: 'Apply patch entities to original entity'
+  title: 'Change status of improvements'
+  restrict access: true
+
+delete patch entities:
+  title: 'Delete improvements'
+  restrict access: true
