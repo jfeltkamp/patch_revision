@@ -175,7 +175,7 @@ class PatchesOverview extends ControllerBase {
       '#header' => $this->buildHeader(),
       '#title' => $this->t('Improvements for "@title"', ['@title' => $this->node->label()]),
       '#rows' => [],
-      '#empty' => $this->t('There is no @label yet.', ['@label' => $this->entityType->getLabel()]),
+      '#empty' => $this->t('There is no @label yet.', ['@label' => strtolower($this->entityType->getLabel())]),
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
         'tags' => ['patch_list:node:'.$this->nid],

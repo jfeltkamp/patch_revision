@@ -91,8 +91,7 @@ function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormState
 
   // Insert checkbox create patch to node form.
   /** @var NodeInterface $node */
-  $node = $form_state->getFormObject()->getEntity();
-  if ($access_service->displayCheckboxCreatePatch($node->getType())) {
+  if ($access_service->allowDisplayCheckboxCreatePatch()) {
     $form['create_patch'] = [
       '#type' => 'checkbox',
       '#title' => t('Create improvement proposal from changes.'),
@@ -106,14 +105,14 @@ function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormState
   }
 
   // Set log message required.
-  if ($access_service->logMessageRequired()) {
+  if ($access_service->isLogMessageRequired()) {
     if (isset($form['revision_log']['widget'][0]['value']['#required'])) {
       $form['revision_log']['widget'][0]['value']['#required'] = TRUE;
     }
   }
 
   // Set title of log message textarea.
-  if ($title = $access_service->overrideLogMessageTitle()) {
+  if ($title = $access_service->allowOverrideLogMessageTitle()) {
     $form['revision_log']['widget'][0]['value']['#title'] = t($title);
   }
 }

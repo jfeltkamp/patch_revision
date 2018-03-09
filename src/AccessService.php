@@ -4,6 +4,7 @@ namespace Drupal\patch_revision;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Session\AccountProxy;
+use Drupal\node\NodeInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -58,6 +59,17 @@ class AccessService {
   }
 
   /**
+   * Get node_type of current request.
+   *
+   * @return string
+   *   Returns the node_type (page, article) or 'none'.
+   */
+  protected function getNodeType() {
+    $node = $this->currentRequest->get('node');
+    return ($node instanceof NodeInterface) ? $node->bundle() : '<none>';
+  }
+
+  /**
    * Check finally if checkbox "Create patch from changes" to be displayed.
    *
    * @param string $node_type
@@ -66,19 +78,19 @@ class AccessService {
    * @return bool
    *   The result.
    */
-  public function displayCheckboxCreatePatch($node_type) {
+  public function allowDisplayCheckboxCreatePatch() {
     // Check user has permission.
     if (!$this->currentUser->hasPermission('add patch entities')) {
       return FALSE;
     }
 
-    // Check if "Display create-patch-checkbox on node forms" is enabled.
-    if(!$this->moduleConfig->get('enable_checkbox_node_form')) {
+    // Check module config if node_type enabled.
+    if($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
       return FALSE;
     }
 
-    // Check if node type is enabled for patch_revision.
-    if(!in_array($node_type, $this->moduleConfig->get('node_types'))) {
+    // Check if "Display create-patch-checkbox on node forms" is enabled.
+    if(!$this->moduleConfig->get('enable_checkbox_node_form')) {
       return FALSE;
     }
 
@@ -91,8 +103,13 @@ class AccessService {
    * @return bool
    *   Restult.
    */
-  public function logMessageRequired() {
+  public function isLogMessageRequired() {
     if (!$this->moduleConfig->get('log_message_required')) {
+      return FALSE;
+    }
+
+    // Check module config if node_type enabled.
+    if($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
       return FALSE;
     }
 
@@ -106,7 +123,6 @@ class AccessService {
     if (!$this->currentRequest->get('_route') == 'entity.node.edit_form') {
       return FALSE;
     }
-
     if ($this->currentRequest->get('create_patch') !== "1") {
       return FALSE;
     }
@@ -121,7 +137,13 @@ class AccessService {
   /**
    *
    */
-  public function overrideLogMessageTitle() {
+  public function allowOverrideLogMessageTitle() {
+
+    // Check module config if node_type enabled.
+    if($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
+      return FALSE;
+    }
+
     if ($log_message_title = $this->moduleConfig->get('log_message_title')) {
       return $log_message_title;
     }
