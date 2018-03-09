@@ -13,6 +13,10 @@
   border-bottom: 1px solid #c0c0c0;
 }
 
+dl.field_patch_items {
+  margin: 30px 0;
+}
+
 .pr_apply_group > .fieldset-wrapper {
   display: -webkit-box;
   display: -moz-box;
@@ -32,22 +36,22 @@ strong.pr-success-message {
   font-weight: normal;
 }
 strong.pr-success-message.warning {
-  border-color: #ff8800;
-  color: #ff8800;
+  border-color: #e09600;
+  color: #734c00;
 }
 strong.pr-success-message.error {
-  border-color: #bb0000;
-  color: #bb0000;
+  border-color: #e62600;
+  color: #a51b00;
 }
 
 
 .patch-summary-failed textarea.text-summary {
-  border: 1px solid #ff8800;
+  border: 1px solid #e09600;
 }
 
 .patch-value-failed  textarea.text-full,
 .patch-value-failed  input.text-full {
-  border: 1px solid #ff8800;
+  border: 1px solid #e09600;
 }
 
 .pr_apply_group .group_left,

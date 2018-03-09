@@ -15,19 +15,48 @@ use Drupal\Core\Annotation\Translation;
  *     "link",
  *   },
  *   properties = {
- *     "uri" = "",
- *     "title" = "",
+ *     "uri" = {
+ *       "label" = @Translation("Url"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
+ *     "title" = {
+ *       "label" = @Translation("Link text"),
+ *       "default_value" = "",
+ *       "patch_type" = "diff",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchLink extends FieldPatchUndiffable {
+class FieldPatchLink extends FieldPatchData {
 
   /**
    * {@inheritdoc}
    */
   public function getPluginId() {
     return 'link';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDiffTitle($str_src, $str_target) {
+    return $this->diff->getTextDiff($str_src, $str_target);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applyPatchTitle($value, $patch) {
+    return $this->diff->applyPatchText($value, $patch, $this->t('link text'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function patchFormatterTitle($patch, $value_old) {
+    return $this->diff->patchView($patch, $value_old);
   }
 
   /**

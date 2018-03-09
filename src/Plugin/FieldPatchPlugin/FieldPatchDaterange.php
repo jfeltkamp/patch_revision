@@ -17,19 +17,43 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  *     "daterange",
  *   },
  *   properties = {
- *     "value" = "",
- *     "end_value" = "",
+ *     "value" = {
+ *       "label" = @Translation("Start"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
+ *     "end_value" = {
+ *       "label" = @Translation("End"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchDaterange extends FieldPatchDateTime {
+class FieldPatchDaterange extends FieldPatchPluginBase {
 
   /**
    * {@inheritdoc}
    */
   public function getPluginId() {
     return 'daterange';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function prepareDataDb($data) {
+    foreach ($data as $key => $value) {
+      foreach ($this->getFieldProperties() as $name => $default) {
+        if ($value[$name] instanceof DrupalDateTime) {
+          $data[$key][$name] = $value[$name]->format('Y-m-d\TH:i:s');
+        } else {
+          $data[$key][$name] = (string) $value[$name];
+        }
+      }
+    }
+    return $data;
   }
 
 }

@@ -1,0 +1,60 @@
+.pr-patch-header {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-content: flex-start;
+  -ms-flex-line-pack: start;
+  align-content: flex-start;
+  -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+
+  border-top: 1px solid #c0c0c0;
+  margin: 2em 0;
+}
+
+.pr-patch-header--by,
+.pr-patch-header--on {
+  -webkit-flex: 1 1 50%;
+  -ms-flex: 1 1 50%;
+  flex: 1 1 50%;
+  -webkit-align-self: auto;
+  -ms-flex-item-align: auto;
+  align-self: auto;
+  position: relative;
+
+  font-size: 1.125em;
+  line-height: 2em;
+  padding: 0 18px 0 0;
+}
+
+.pr-patch-header--on {
+  text-align: right;
+}
+
+.pr-patch-header--label {
+  font-weight: 700;
+}
+
+.pr-log-message {
+  margin-bottom: 2em;
+}
+
+.pr-log-message--label {
+  font-size: 1.125em;
+  line-height: 1.5em;
+}
+.pr-log-message--log-message {
+  padding-left: 18px;
+  margin-top: .25em;
+}

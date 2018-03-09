@@ -17,7 +17,11 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  *     "entity_reference",
  *   },
  *   properties = {
- *     "target_id" = "",
+ *     "target_id" = {
+ *       "label" = @Translation("Referred entity"),
+ *       "default_value" = "",
+ *       "patch_type" = "ref",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
@@ -60,27 +64,6 @@ class FieldPatchReference extends FieldPatchPluginBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function patchFormatter($property, $patch, $value_old) {
-    $patch = json_decode($patch, true);
-    if (empty($patch)) {
-      return [
-        '#markup' => $this->getEntityLabel((int) $value_old)
-      ];
-    } else {
-      $old = $this->getEntityLabel((int) $patch['old']);
-      $new = $this->getEntityLabel((int) $patch['new']);
-      return [
-        '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
-          '@old' => $old,
-          '@new' => $new,
-        ])
-      ];
-    }
-  }
-
-  /**
    * Returns ready to use linked field label.
    *
    * @param $entity_id
@@ -89,7 +72,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
    * @return \Drupal\Core\GeneratedLink|\Drupal\Core\StringTranslation\TranslatableMarkup|string
    *   The label used for patch view.
    */
-  protected function getEntityLabel($entity_id) {
+  protected function getFormattedTargetId($entity_id) {
     if (!$entity_id) {
       return $this->t('none');
     }
@@ -103,46 +86,8 @@ class FieldPatchReference extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function processPatchFieldValue($property, $value, $patch) {
-    $patch = json_decode($patch, true);
-    if (empty($patch)) {
-      return [
-        'result' => $value,
-        'feedback' => [
-          'code' => 100,
-          'applied' => TRUE
-        ],
-      ];
-    } elseif ($patch['old'] != $value) {
-      $label = $this->getEntityLabel((int) $patch['old']);
-      drupal_set_message($this->t('Expected old value to be: @label', ['@label' => $label]), 'error');
-      return [
-        'result' => $value,
-        'feedback' => [
-          'code' => 0,
-          'applied' => FALSE,
-        ],
-      ];
-    } else {
-      return [
-        'result' => $patch['new'],
-        'feedback' => [
-          'code' => 100,
-          'applied' => TRUE
-        ],
-      ];
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processValueDiff($str_src, $str_target) {
-    if ($str_src === $str_target) {
-      return json_encode([]);
-    } else {
-      return json_encode(['old' => $str_src, 'new' => $str_target]);
-    }
+  public function applyPatchTargetId($value, $patch) {
+    return parent::applyPatchDefault('target_id', $value, $patch, TRUE);
   }
 
 }

@@ -4,6 +4,7 @@ namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
 use Drupal\patch_revision\Annotation\FieldPatchPlugin;
 use Drupal\Core\Annotation\Translation;
+use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
  * Plugin implementation of the 'promote' actions.
@@ -15,12 +16,16 @@ use Drupal\Core\Annotation\Translation;
  *     "boolean",
  *   },
  *   properties = {
- *     "value" = "",
+ *     "value" = {
+ *       "label" = @Translation("Value"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchBoolean extends FieldPatchUndiffable {
+class FieldPatchBoolean extends FieldPatchPluginBase {
 
   /**
    * {@inheritdoc}
@@ -29,13 +34,12 @@ class FieldPatchBoolean extends FieldPatchUndiffable {
     return 'boolean';
   }
 
+
   /**
    * {@inheritdoc}
    */
-  public function setWidgetFeedback(&$field, $feedback) {
-    $result = $this->mergeFeedback($feedback);
+  protected function setFeedbackClasses(&$field, $feedback) {
     $properties = array_keys($this->getFieldProperties());
-
     foreach ($feedback as $key => $col) {
       foreach ($properties as $property) {
         if(isset($col[$property]['applied'])) {
@@ -44,19 +48,6 @@ class FieldPatchBoolean extends FieldPatchUndiffable {
           }
         }
       }
-    }
-
-    $message = ($result['applied'])
-      ? $this->getMergeSuccessMessage($result['code'])
-      : $this->getMergeConflictMessage();
-
-    if (isset($field['#type']) && $field['#type'] == 'container') {
-      $field['patch_result'] = [
-        '#markup' => $message,
-        '#weight' => -50,
-        '#prefix' => "<strong class=\"pr-success-message {$result['type']}\">",
-        '#suffix' => "</strong>",
-      ];
     }
   }
 

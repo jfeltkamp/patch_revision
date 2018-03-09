@@ -18,12 +18,16 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  *     "timestamp",
  *   },
  *   properties = {
- *     "value" = "",
+ *     "value" = {
+ *       "label" = @Translation("Value"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
  */
-class FieldPatchDateTime extends FieldPatchUndiffable {
+class FieldPatchDateTime extends FieldPatchPluginBase {
 
   /**
    * {@inheritdoc}
@@ -32,11 +36,22 @@ class FieldPatchDateTime extends FieldPatchUndiffable {
     return 'datetime';
   }
 
+
+  public function getFormattedValue($value) {
+    // $value = "1519732604";
+    if (!preg_match('/^[0-9]*$/', $value)) {
+      $timezone = new \DateTimeZone('UTC');
+      $date_time = new DrupalDateTime($value, $timezone);
+      $value = $date_time->format('U');
+    }
+    $object = $this->dateFormatter->format($value,'medium');
+    return $object;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function prepareDataDb($data) {
-
     switch ($this->getFieldType()) {
       case 'timestamp':
         $format = 'U';
@@ -54,7 +69,6 @@ class FieldPatchDateTime extends FieldPatchUndiffable {
         }
       }
     }
-
     return $data;
   }
 

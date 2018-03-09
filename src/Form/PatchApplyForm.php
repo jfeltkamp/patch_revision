@@ -128,13 +128,9 @@ class PatchApplyForm extends ContentEntityForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // CHECK STATUS
-    if (($status = (int) $form_state->getValue('status')) !== PatchRevision::PR_STATUS_ACTIVE) {
-      if (\Drupal::currentUser()->hasPermission('change status of patch entities')) {
-        $this->entity->set('status', $status);
-        $this->entity->save();
-      }
+    if (($status = (int) $this->entity->get('status')->getString()) !== PatchRevision::PR_STATUS_ACTIVE) {
       drupal_set_message(
-        $this->t('Status was set to "@status". The status must be "@active" to apply improvements.', [
+        $this->t('Status is set to "@status". The status must be "@active" to apply improvements.', [
           '@status' => $this->constants->getStatusLiteral($status),
           '@active' => $this->constants->getStatusLiteral(1),
         ]), 'warning');
@@ -226,6 +222,28 @@ class PatchApplyForm extends ContentEntityForm {
     /** @var NodeInterface $orig_entity_old */
     $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
+    $header_data = $this->entity->getViewHeaderData();
+    $form['#title'] = $this->t('Apply improvement for @type: @title', [
+      '@type' => $header_data['orig_type'],
+      '@title' => $header_data['orig_title'],
+    ]);
+
+    $form['header'] = [
+      '#theme' => 'pr_patch_header',
+      '#created' => $header_data['created'],
+      '#creator' => $header_data['creator'],
+      '#log_message' => $header_data['log_message'],
+      '#attached' => [
+        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+      ]
+    ];
+
+
+    // Load entity form (default) with latest revision to pick the Form widgets from it.
+    $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
+    /** @var EntityFormDisplay $entity_form_display */
+    $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
+
     $patch = $this->entity->getPatchField();
     foreach ($patch as $field_name => $field_patch) {
 
@@ -265,15 +283,14 @@ class PatchApplyForm extends ContentEntityForm {
       $config = ($field_type == 'entity_reference')
         ? ['entity_type' => $field_old->getSetting('target_type')]
         : [];
+
       $field_patch_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_type, $config);
+
       if ($field_patch_plugin) {
         $result_old = $field_patch_plugin->getFieldPatchView($field_patch, $field_old);
         $form[$field_name.'_group']['left'][$field_name.'_patch'] = $result_old;
 
         // Right side. Latest value form element with patch applied.
-        $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
-        /** @var EntityFormDisplay $entity_form_display */
-        $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
         $widget = $entity_form_display->getRenderer($field_name);
         $value_latest = $orig_entity->get($field_name);
         $patched_value = $field_patch_plugin->patchFieldValue($value_latest->getValue(), $field_patch);
@@ -296,17 +313,6 @@ class PatchApplyForm extends ContentEntityForm {
 
     }
 
-    if (\Drupal::currentUser()->hasPermission('change status of patch entities')) {
-      $form['status'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Status'),
-        '#description' => $this->t('Status of the improvement. Set to "active" if improvement shall be applied to original entity.', [
-          '@status' => $this->constants->getStatusLiteral(1)
-        ]),
-        '#options' => PatchRevision::PR_STATUS,
-        '#default_value' => $this->entity->get('status')->getString(),
-      ];
-    }
 
     $form += parent::buildForm($form, $form_state);
     return $form;

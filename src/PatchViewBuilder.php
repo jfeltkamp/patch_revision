@@ -48,34 +48,30 @@ class PatchViewBuilder extends EntityViewBuilder {
     $view = parent::view($entity, $view_mode, $langcode);
     $original_entity = $entity->originalEntityRevision('origin');
 
-    if ($original_entity) {
-      $nid = $original_entity->id();
-      // Set page title.
-      $url = Url::fromRoute('entity.node.canonical', ['node' => $nid]);
-      $project_link = Link::fromTextAndUrl($entity->originalEntity()->label(), $url);
+    $header_data = $entity->getViewHeaderData();
+
+    if ($header_data['orig_title']) {
       $view['#title'] = $this->t('Improvement for <em>@type: @title</em>', [
-        '@type' => $original_entity->type->entity->label(),
-        '@title' => $project_link->toString()
+        '@type' => $header_data['orig_type'],
+        '@title' => $header_data['orig_title'],
       ]);
     } else {
       $view['#title'] = $this->t('Display patch for node/@id.', [
-        '@id' => $entity->get('rid')->getString(),
+        '@id' => $header_data['orig_id'],
       ]);
       drupal_set_message($this->t('The original entity, the patch refers to, could not be find.'), 'error');
     }
 
-    // Set Creator view.
-    $creator = $entity->getCreator();
-    $view['creator'] =  $creator
-      ? user_view($creator, 'compact')
-      : ['#markup' => ''];
-
-    // Set Log message.
-    $view['message'] = [
-      '#theme' => 'log_message',
-      '#label' => $this->t('Log message by patch editor:'),
-      '#message' => $entity->get('message')->getString() ?: '',
+    $view['header'] = [
+      '#theme' => 'pr_patch_header',
+      '#created' => $header_data['created'],
+      '#creator' => $header_data['creator'],
+      '#log_message' => $header_data['log_message'],
+      '#attached' => [
+        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+      ]
     ];
+
 
     // Build field patches views.
     /** @var NodeInterface[] $patches */

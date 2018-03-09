@@ -20,9 +20,21 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  *     "file",
  *   },
  *   properties = {
- *     "target_id" = "",
- *     "display" = "1",
- *     "description" = "",
+ *     "target_id" = {
+ *       "label" = @Translation("Referred file"),
+ *       "default_value" = "",
+ *       "patch_type" = "full",
+ *     },
+ *     "display" = {
+ *       "label" = @Translation("Display"),
+ *       "default_value" = "1",
+ *       "patch_type" = "full",
+ *     },
+ *     "description" = {
+ *       "label" = @Translation("Description"),
+ *       "default_value" = "",
+ *       "patch_type" = "diff",
+ *     },
  *   },
  *   permission = "administer nodes",
  * )
@@ -57,16 +69,36 @@ class FieldPatchFile extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function patchFormatter($property, $patch, $value_old) {
+  public function getDiffDescription($str_src, $str_target) {
+    return $this->diff->getTextDiff($str_src, $str_target);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applyPatchDescription($value, $patch) {
+    return $this->diff->applyPatchText($value, $patch, $this->t('description'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function patchFormatterDescription($patch, $value_old) {
+    return $this->diff->patchView($patch, $value_old);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function patchFormatterTargetId($patch, $value_old) {
     $patch = json_decode($patch, true);
-    $method = $this->getterName($property);
     if (empty($patch)) {
       return [
-        '#markup' => ($method) ? $this->{$method}($value_old) : $value_old,
+        '#markup' => $this->getTargetId($value_old),
       ];
     } else {
-      $old = ($method) ? $this->{$method}($patch['old']) : $patch['old'];
-      $new = ($method) ? $this->{$method}($patch['new']) : $patch['new'];
+      $old = $this->getTargetId($patch['old']);
+      $new = $this->getTargetId($patch['new']);
       return [
         '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
           '@old' => $old,
@@ -103,7 +135,7 @@ class FieldPatchFile extends FieldPatchPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function processPatchFieldValue($property, $value, $patch) {
+  public function applyPatchTargetId($value, $patch) {
     $patch = json_decode($patch, true);
     if (empty($patch)) {
       return [
@@ -113,18 +145,17 @@ class FieldPatchFile extends FieldPatchPluginBase {
           'applied' => TRUE
         ],
       ];
-    } elseif ($patch['old'] != $value) {
-      $method = $this->getterName($property);
-      $label = ($method) ? $this->{$method}($patch['old']) : $patch['old'];
-      drupal_set_message($this->t('Expected old value for @property to be: @label', [
+    } elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
+      $label = $this->getTargetId($patch['old']);
+      $message = $this->t('Expected old value for upload file to be: @label', [
           '@label' => $label,
-          '@property' => $property,
-        ]), 'error');
+        ]);
       return [
         'result' => $value,
         'feedback' => [
           'code' => 0,
           'applied' => FALSE,
+          'message' => $message
         ],
       ];
     } else {
@@ -135,17 +166,6 @@ class FieldPatchFile extends FieldPatchPluginBase {
           'applied' => TRUE
         ],
       ];
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function processValueDiff($str_src, $str_target) {
-    if ($str_src === $str_target) {
-      return json_encode([]);
-    } else {
-      return json_encode(['old' => $str_src, 'new' => $str_target]);
     }
   }
 

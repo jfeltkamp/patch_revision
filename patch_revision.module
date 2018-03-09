@@ -45,14 +45,16 @@ function patch_revision_theme($existing, $type, $theme, $path) {
         'patch' => NULL,
       ],
     ],
-    'log_message' => [
+    'pr_patch_header' => [
       'variables' => [
-        'label' => NULL,
-        'message' => NULL,
+        'created' => NULL,
+        'creator' => NULL,
+        'log_message' => NULL,
       ],
     ],
     'pr_view_image' => [
       'variables' => [
+        'center' => NULL,
         'left' => NULL,
         'right' => NULL,
       ],
@@ -93,12 +95,12 @@ function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormState
   if ($access_service->displayCheckboxCreatePatch($node->getType())) {
     $form['create_patch'] = [
       '#type' => 'checkbox',
-      '#title' => t('Create patch from changes.'),
+      '#title' => t('Create improvement proposal from changes.'),
       '#default_value' => true,
       '#access' => true,
       '#group' => 'revision_information',
       '#disabled' => false,
-      '#description' => t('A patch is an improvement suggestion and therefore less than a revision. It can be reviewed and submitted to a later revision.'),
+      '#description' => t('An improvement proposal and will not be assigned in the revision history of the content entity. It can be reviewed and submitted to a later revision.'),
       '#weight' => 19
     ];
   }
