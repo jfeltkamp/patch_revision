@@ -115,3 +115,27 @@ function patch_revision_form_node_form_alter(&$form, \Drupal\Core\Form\FormState
     $form['revision_log']['widget'][0]['value']['#title'] = t($title);
   }
 }
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ * Remove tab from node, if node_type not enabled in patch_revision.config.
+ *
+ * @param array $data
+ *   Array with tabs (for patch_revision configured in patch_revision.links.task.yml).
+ * @param $route_name
+ *   Current route name.
+ */
+function patch_revision_menu_local_tasks_alter(&$data, $route_name) {
+  if (isset($data['tabs'][0]) && array_key_exists('patch.overview_page', $data['tabs'][0])) {
+    $node = \Drupal::request()->get('node');
+    $node_type = ($node instanceof NodeInterface) ? $node->bundle() : '<none>';
+    $config = \Drupal::config('patch_revision.config')->get('node_types');
+    if(!isset($config[$node_type]) || $config[$node_type] === 0) {
+      unset($data['tabs'][0]['patch.overview_page']);
+    }
+    if ($data['cacheability'] instanceof \Drupal\Core\Cache\CacheableMetadata) {
+      $data['cacheability']->addCacheTags(['local-tasks-node-list-cache-tag']);
+    }
+  }
+}

@@ -2,6 +2,7 @@
 
 namespace Drupal\patch_revision\Form;
 
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -38,26 +39,40 @@ class PatchRevisionConfig extends ConfigFormBase {
   protected $pluginManager;
 
   /**
+   * FieldPatchPluginManager.
+   *
+   * @var CacheTagsInvalidatorInterface
+   */
+  protected $cacheInvalidator;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     EntityTypeManager $entity_type_manager,
     EntityFieldManager $entity_field_manager,
-    FieldPatchPluginManager $plugin_manager
+    FieldPatchPluginManager $plugin_manager,
+    CacheTagsInvalidatorInterface $cache_invalidator
   ) {
     parent::__construct($config_factory);
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->pluginManager = $plugin_manager;
+    $this->cacheInvalidator = $cache_invalidator;
   }
 
+  /**
+   * @param ContainerInterface $container
+   * @return static
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
-      $container->get('plugin.manager.field_patch_plugin')
+      $container->get('plugin.manager.field_patch_plugin'),
+      $container->get('cache_tags.invalidator')
     );
   }
 
@@ -206,6 +221,8 @@ class PatchRevisionConfig extends ConfigFormBase {
       }
     }
     $config->save();
+
+    $this->cacheInvalidator->invalidateTags(['local-tasks-node-list-cache-tag']);
   }
 
   /**
