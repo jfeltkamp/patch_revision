@@ -11,6 +11,7 @@
     "source": "http://cgit.drupalcode.org/patch_revision"
   },
   "require": {
+    "drupal/changed_fields": "^2.0",
     "yetanotherape/diff-match-patch": "^1.0"
   }
 }
