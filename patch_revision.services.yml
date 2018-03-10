@@ -10,3 +10,8 @@ services:
     class: Drupal\patch_revision\AccessService
     arguments: ['@config.factory', '@current_user', '@request_stack']
 
+  patch_revision.breadcrumb:
+    class: Drupal\patch_revision\PatchBreadcrumbBuilder
+    arguments: ['@request_stack']
+    tags:
+      - { name: breadcrumb_builder, priority: 100 }
