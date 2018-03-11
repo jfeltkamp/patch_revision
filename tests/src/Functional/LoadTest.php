@@ -17,7 +17,11 @@ class LoadTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['patch_revision'];
+  public static $modules = [
+    'node_test',
+    'changed_fields',
+    'patch_revision',
+  ];
 
   /**
    * A user with permission to administer site configuration.
@@ -39,6 +43,7 @@ class LoadTest extends BrowserTestBase {
    * Tests that the home page loads with a 200 response.
    */
   public function testLoad() {
+    echo "lksjdfljsldkjflksjlfjk";
     $this->drupalGet(Url::fromRoute('<front>'));
     $this->assertResponse(200);
   }
