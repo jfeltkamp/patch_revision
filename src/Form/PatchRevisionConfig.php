@@ -120,12 +120,13 @@ class PatchRevisionConfig extends ConfigFormBase {
     $form['bundle_select'] = [
       '#type' => 'vertical_tabs',
       '#default_tab' => 'edit-publication',
-      ];
-    $default_values = $config->get('node_types');
+    ];
+    $default_values = $config->get('node_types') ?: [];
     foreach ($node_types as $name => $node_type) {
       $options[$name] = $node_type->label();
+      $disabled = (!isset($default_values[$node_type->id()]) || 0 === $default_values[$node_type->id()]);
 
-      $form[] = $this->getBundleSelector($node_type, (0 === $default_values[$node_type->id()]));
+      $form[] = $this->getBundleSelector($node_type, $disabled);
     }
 
     $form['tab_general'] = [
@@ -252,11 +253,12 @@ class PatchRevisionConfig extends ConfigFormBase {
         ]),
       '#group' => 'bundle_select',
     ];
+    $default_value = $config->get('bundle_' . $node_type->id() . '_fields') ?: [];
     $element['tab_' . $node_type->id()]['bundle_' . $node_type->id() . '_fields'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Excluded fields from Patch Revision in @type', ['@type' => $node_type->label()]),
       '#options' => $options,
-      '#default_value' => $config->get('bundle_' . $node_type->id() . '_fields'),
+      '#default_value' => $default_value,
       '#disabled' => $disabled,
       '#description' => $disabled
         ? $this->t('<div class="messages messages--warning">Enable the node type in "General settengs" and save - before you can change field configuration here.</div>')
