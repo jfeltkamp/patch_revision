@@ -57,7 +57,7 @@ class DiffService {
     try {
       $patches = $this->dmp->patch_fromText($patch);
     } catch(\Exception $e) {
-      drupal_set_message($e->getMessage(), 'error') ;
+      drupal_set_message($e->getMessage(), 'error');
     }
 
     if (isset($patches) && is_array($patches)) {
