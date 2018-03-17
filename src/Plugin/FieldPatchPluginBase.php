@@ -7,8 +7,10 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\file\FileUsage\FileUsageInterface;
 use Drupal\patch_revision\DiffService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -20,36 +22,50 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   use StringTranslationTrait;
 
   /**
+   * Contains the conflict message.
+   *
    * @var \Drupal\Core\StringTranslation\TranslatableMarkup|null
    */
   protected $mergeConflictMessage;
 
   /**
+   * The std. Drupal entity type manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManager
    */
   protected $entityTypeManager;
 
   /**
+   * The std. Drupal entity field manager.
+   *
    * @var \Drupal\Core\Entity\EntityFieldManager
    */
   protected $entityFieldManager;
 
   /**
+   * The config.factory service.
+   *
    * @var \Drupal\Core\Config\ConfigFactory
    */
   protected $configFactory;
 
   /**
+   * The patch_revision module config.
+   *
    * @var array
    */
   protected $moduleConfig;
 
   /**
+   * The patch_revision.diff service what is a diff_match_patch adapter.
+   *
    * @var \Drupal\patch_revision\DiffService
    */
   protected $diff;
 
   /**
+   * A date formatter.
+   *
    * @var \Drupal\patch_revision\DiffService
    */
   protected $dateFormatter;
@@ -65,7 +81,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     EntityFieldManager $entityFieldManager,
     ConfigFactory $configFactory,
     DiffService $diff,
-    DateFormatter $date_formatter
+    DateFormatter $date_formatter,
+    FileUsageInterface $file_usage
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entityTypeManager;
@@ -73,6 +90,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     $this->configFactory = $configFactory;
     $this->diff = $diff;
     $this->dateFormatter = $date_formatter;
+    $this->fileUsatge = $file_usage;
   }
 
   /**
@@ -87,16 +105,21 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $container->get('entity_field.manager'),
       $container->get('config.factory'),
       $container->get('patch_revision.diff'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('file.usage')
     );
   }
 
   /**
+   * Get module configs or the complete configuration.
+   *
    * @param string|null $param
    *   The config parameter to return.
    * @param mixed $default
-   *   The default value .
+   *   The default value.
+   *
    * @return mixed|null
+   *   Returns a given config or the complete module-config.
    */
   protected function getModuleConfig($param = NULL, $default = NULL) {
     if (!$this->moduleConfig) {
@@ -113,6 +136,21 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
+   *
+   */
+  protected function registerUsage($fid) {
+    $usage = (int) $fid;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDiffTargetId($str_src, $str_target) {
+    $this->registerUsage($str_target);
+    return $this->getDiffDefault($str_src, $str_target);
+  }
+
+  /**
    * Returns current field type.
    *
    * @return mixed
@@ -126,6 +164,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    * Get the conflict message.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   Returns a translated conflict message.
    */
   protected function getMergeConflictMessage() {
     if (!$this->mergeConflictMessage) {
@@ -139,6 +178,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    * Get the conflict message.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   Returns a translated success message.
    */
   protected function getMergeSuccessMessage($percent) {
     return $this->t('Field patch applied by %percent%.',
@@ -149,7 +189,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
-   *
+   * Returns the specific field properties given in plugin definition.
    */
   public function getFieldProperties() {
     $plugin_definition = $this->getPluginDefinition();
@@ -157,9 +197,15 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
+   * Merge all single feedback to one result.
    *
+   * @param array $feedback
+   *   The array with all field feedback.
+   *
+   * @return array
+   *   Returns result array.
    */
-  protected function mergeFeedback($feedback) {
+  protected function mergeFeedback(array $feedback) {
     $applied = [];
     $code = [];
     $messages = [];
@@ -185,10 +231,14 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
+   * Set the feedback inside the field widget.
+   *
    * @param array $field
+   *   Render array of field.
    * @param array $feedback
+   *   The feedback array.
    */
-  public function setWidgetFeedback(&$field, $feedback) {
+  public function setWidgetFeedback(array &$field, array $feedback) {
     $result = $this->mergeFeedback($feedback);
     $this->setFeedbackClasses($field, $feedback);
 
@@ -229,20 +279,19 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * Set classes to widget to get highlighted the conflicting field items.
    *
-   * @param $field
+   * @param array $field
    *   The field render array.
-   *
-   * @param $feedback
-   *   Te summed and calculated feedback.
+   * @param array $feedback
+   *   The summed and calculated feedback.
    */
-  protected function setFeedbackClasses(&$field, $feedback) {
+  protected function setFeedbackClasses(array &$field, array $feedback) {
     $properties = array_keys($this->getFieldProperties());
     $item = 0;
     while (isset($field['widget'][$item])) {
       foreach ($properties as $property) {
         if (isset($feedback[$item][$property]['applied'])) {
           if ($feedback[$item][$property]['applied'] === FALSE) {
-            if ($field['widget']['#cardinality'] > 1) {
+            if (isset($field['widget']['#cardinality']) && $field['widget']['#cardinality'] > 1) {
               $field['widget'][$item]['#attributes']['class'][] = "pr-apply-{$property}-failed";
             }
             else {
@@ -301,7 +350,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * {@inheritdoc}
    */
-  public function getFieldPatchView($values, $field, $label = '') {
+  public function getFieldPatchView(array $values, FieldItemListInterface $field, $label = '') {
     $result = [
       '#theme' => 'field_patches',
       '#title' => $label,
@@ -332,7 +381,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * Data integrity test before writing data to entity.
    *
-   * @param $value
+   * @param mixed $value
    *   The value from patch entity to write into original entity.
    *
    * @return bool
@@ -347,7 +396,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
-   * Some date don't come from $form_state->getValue() in as they are used to write in database.
+   * Some date don't come from $form_state->getValue() as written in database.
    *
    * @param mixed $data
    *   Data as they are received from $form_state object.
@@ -409,7 +458,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       ];
     }
     elseif ($strict && ($patch['old'] !== $value) && ($patch['new'] !== $value)) {
-      // Strict means that the old value (to be removed) must be the same as the current.
+      // Strict means that the old value must be the same as the current.
       // Except the case that the new value is already set.
       $message = $this->t('Expected old value to be "@expected" but found "@found".', [
         '@expected' => ($value_formatter) ? $this->{$value_formatter}($patch['old']) : $patch['old'],
@@ -444,21 +493,21 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
-   * Returns name for a getter of properties if exists in self context, else returns false.
+   * Returns name for property getter if exists in context. Else returns false.
    *
-   * @param $property
+   * @param string $prefix
+   *   Prefix like "get" or "set".
+   * @param string $property
    *   Property name.
    * @param string $separator
    *   Separator.
-   * @param string $prefix
-   *   Prefix like "get" or "set".
    * @param string $suffix
    *   Separator.
    *
    * @return string|false
    *   The getter name.
    */
-  protected function methodName($prefix = 'get', $property, $separator = '_', $suffix = '') {
+  protected function methodName($prefix, $property, $separator = '_', $suffix = '') {
     $array = explode($separator, $property);
     $parts = array_map('ucwords', $array);
     $string = implode('', $parts);

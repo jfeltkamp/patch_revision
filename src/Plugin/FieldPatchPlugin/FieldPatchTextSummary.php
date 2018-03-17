@@ -10,7 +10,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "text_with_summary",
  *   label = @Translation("FieldPatchPlugin for field type Texts with summary"),
- *   field_types = {
+ *   fieldTypes = {
  *     "text_with_summary",
  *   },
  *   properties = {

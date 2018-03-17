@@ -8,7 +8,7 @@ namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
  * @FieldPatchPlugin(
  *   id = "link",
  *   label = @Translation("FieldPatchPlugin for all field types of link"),
- *   field_types = {
+ *   fieldTypes = {
  *     "link",
  *   },
  *   properties = {

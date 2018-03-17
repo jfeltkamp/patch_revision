@@ -3,6 +3,7 @@
 namespace Drupal\patch_revision\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 
 /**
  * Defines an interface for Field patch plugin plugins.
@@ -26,6 +27,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *   Array with overwritten field data.
    *
    * @return mixed
+   *   Returns a plugin specific diff.
    */
   public function getFieldDiff(array $old, array $new);
 
@@ -42,6 +44,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *   If true check matching old and current value or ignore if false.
    *
    * @return mixed
+   *   Returns patched value.
    */
   public function applyPatchDefault($key, $value, $patch, $strict);
 
@@ -49,9 +52,12 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    * Main feature that process the diff command and returns the patch.
    *
    * @param mixed $str_src
+   *   Original value.
    * @param mixed $str_target
+   *   Overwritten value.
    *
    * @return mixed
+   *   The diff created from the input values.
    */
   public function getDiffDefault($str_src, $str_target);
 
@@ -75,11 +81,12 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *
    * @param array $patch_value
    *   The patch for this field.
-   * @param \Drupal\Core\Field\FieldItemList $field
+   * @param \Drupal\Core\Field\FieldItemListInterface $field
    *   FieldItemList .
    *
    * @return mixed
+   *   Returns a renderable patch view for field.
    */
-  public function getFieldPatchView($patch_value, $field);
+  public function getFieldPatchView(array $patch_value, FieldItemListInterface $field);
 
 }

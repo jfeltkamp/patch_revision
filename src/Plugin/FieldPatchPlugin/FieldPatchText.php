@@ -10,7 +10,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "text",
  *   label = @Translation("Improvements by diff."),
- *   field_types = {
+ *   fieldTypes = {
  *     "string",
  *     "string_long",
  *     "text",

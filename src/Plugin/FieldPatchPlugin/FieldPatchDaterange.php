@@ -11,7 +11,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "daterange",
  *   label = @Translation("FieldPatchPlugin for field type daterange."),
- *   field_types = {
+ *   fieldTypes = {
  *     "daterange",
  *   },
  *   properties = {

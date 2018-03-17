@@ -60,11 +60,15 @@ class PatchApplyForm extends ContentEntityForm {
   protected $diffService;
 
   /**
+   * The form builder.
+   *
    * @var \Drupal\Core\Form\FormBuilder
    */
   protected $formBuilder;
 
   /**
+   * Constants for environment.
+   *
    * @var \Drupal\patch_revision\Events\PatchRevision
    */
   protected $constants;
@@ -121,6 +125,9 @@ class PatchApplyForm extends ContentEntityForm {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException|\Drupal\Core\Entity\EntityStorageException
+   *   There are things don't understand.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // CHECK STATUS.
@@ -148,7 +155,8 @@ class PatchApplyForm extends ContentEntityForm {
     $field_defs = $orig_entity->getFieldDefinitions();
     foreach ($this->entity->getPatchField() as $name => $patch) {
       if (isset($field_defs[$name])) {
-        // We must filter values because smt. $form_state->getValue() returns widget elements as btn "Add more items".
+        // We must filter values because smt. $form_state->getValue() returns
+        // widget elements as btn "Add more items".
         $field_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_defs[$name]->getType());
         $form_value = ($field_plugin)
           ? $field_plugin->prepareDataDb($form_state->getValue($name))
@@ -183,7 +191,6 @@ class PatchApplyForm extends ContentEntityForm {
     drupal_set_message($message);
 
     $form_state->setRedirectUrl($orig_entity->toUrl());
-    return;
   }
 
   /**
@@ -196,6 +203,8 @@ class PatchApplyForm extends ContentEntityForm {
    *
    * @return array|RedirectResponse
    *   Form definition array.
+   *
+   * @throws EntityMalformedException
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
@@ -235,8 +244,12 @@ class PatchApplyForm extends ContentEntityForm {
       ],
     ];
 
-    // Load entity form (default) with latest revision to pick the Form widgets from it.
-    $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
+    // Load entity form with latest revision to pick the Form widgets from it.
+    $form_id = implode('.', [
+      $orig_entity->getEntityTypeId(),
+      $orig_entity->bundle(),
+      'default',
+    ]);
     /** @var \Drupal\Core\Entity\Entity\EntityFormDisplay $entity_form_display */
     $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
 

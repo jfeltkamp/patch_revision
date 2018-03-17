@@ -108,9 +108,9 @@ class DiffService {
   /**
    * Patch formatter to display the patch in pretty HTML.
    *
-   * @param $patch
+   * @param string $patch
    *   The patch to apply.
-   * @param $value_old
+   * @param string $value_old
    *   The value (!) that was $src_string when patch was created.
    *
    * @return array

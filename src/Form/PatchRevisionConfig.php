@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\node\NodeTypeInterface;
 use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManager;
@@ -62,8 +63,7 @@ class PatchRevisionConfig extends ConfigFormBase {
   }
 
   /**
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   * @return static
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -103,7 +103,7 @@ class PatchRevisionConfig extends ConfigFormBase {
   protected function getFieldOptions($patchable_fields) {
     $options = [];
     foreach ($patchable_fields as $name => $field_definition) {
-      /** @var $field_definition \Drupal\Core\Field\FieldDefinitionInterface */
+      /* @var $field_definition \Drupal\Core\Field\FieldDefinitionInterface */
       $options[$name] = $field_definition->getLabel();
     }
     return $options;
@@ -114,7 +114,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('patch_revision.config');
-    /** @var \Drupal\node\NodeTypeInterface[] $node_types */
+    /* @var \Drupal\node\NodeTypeInterface[] $node_types */
     $node_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     $options = [];
     $form['bundle_select'] = [
@@ -203,13 +203,6 @@ class PatchRevisionConfig extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
     $config = $this->config('patch_revision.config');
@@ -241,7 +234,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    * @return array
    *   The form elements to insert into the form.
    */
-  protected function getBundleSelector($node_type, $disabled = TRUE) {
+  protected function getBundleSelector(NodeTypeInterface $node_type, $disabled = TRUE) {
     $config = $this->config('patch_revision.config');
     $options = $this->getFieldOptions($this->pluginManager->getPatchableFields($node_type->id(), TRUE));
     $element['tab_' . $node_type->id()] = [

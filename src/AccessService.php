@@ -72,11 +72,8 @@ class AccessService {
   /**
    * Check finally if checkbox "Create patch from changes" to be displayed.
    *
-   * @param string $node_type
-   *   The node bundle to check for, if it is configured.
-   *
    * @return bool
-   *   The result.
+   *   TRUE if checkbox is to be displayed.
    */
   public function allowDisplayCheckboxCreatePatch() {
     // Check user has permission.
@@ -117,7 +114,10 @@ class AccessService {
   }
 
   /**
+   * Allow starting of patch creation.
    *
+   * @return bool
+   *   TRUE if patch creation can be started.
    */
   public function startPatchCreateProcess() {
     if (!$this->currentRequest->get('_route') == 'entity.node.edit_form') {
@@ -135,7 +135,10 @@ class AccessService {
   }
 
   /**
+   * Checks all conditions for overwrite the title of Log message field.
    *
+   * @return string|false
+   *   Returns title if overriding is allowed.
    */
   public function allowOverrideLogMessageTitle() {
 
@@ -145,7 +148,7 @@ class AccessService {
     }
 
     if ($log_message_title = $this->moduleConfig->get('log_message_title')) {
-      return $log_message_title;
+      return (string) $log_message_title;
     }
 
     return FALSE;

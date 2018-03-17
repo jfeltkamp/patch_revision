@@ -10,7 +10,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "list",
  *   label = @Translation("FieldPatchPlugin for all field types of numbers"),
- *   field_types = {
+ *   fieldTypes = {
  *     "list_string",
  *     "list_float",
  *     "list_integer",

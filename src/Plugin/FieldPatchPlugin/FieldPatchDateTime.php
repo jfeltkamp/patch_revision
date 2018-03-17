@@ -11,7 +11,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "datetime",
  *   label = @Translation("FieldPatchPlugin for all field types of numbers"),
- *   field_types = {
+ *   fieldTypes = {
  *     "datetime",
  *     "timestamp",
  *   },
@@ -35,7 +35,13 @@ class FieldPatchDateTime extends FieldPatchPluginBase {
   }
 
   /**
+   * Get a formatted date value.
    *
+   * @param int|string $value
+   *   A unix time stamp.
+   *
+   * @return string
+   *   A formatted date string.
    */
   public function getFormattedValue($value) {
     // $value = "1519732604";.

@@ -2,45 +2,76 @@
 
 namespace Drupal\patch_revision;
 
+use Drupal\changed_fields\NodeSubject;
 use Drupal\changed_fields\ObserverInterface;
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\patch_revision\Events\PatchRevision;
+use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+use Drupal\Core\Session\AccountProxy;
 use SplSubject;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Class BasicUsageObserver.
  */
-class NodeObserver implements ObserverInterface {
+class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
 
   /**
+   * The Drupal entity type manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManager|null
    */
-  private $entity_type_manager;
+  private $entityTypeManager;
 
   /**
+   * The patch_revision plugin manager.
+   *
    * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager|null
    */
-  private $plugin_manager;
+  private $pluginManager;
 
   /**
-   * @var \Drupal\Core\Config\ConfigManagerInterface|null
+   * The Drupal config manager.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig|null
    */
   private $config;
 
   /**
-   * @var \Drupal\user\Entity\UserInterface|null
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxy|null
    */
   private $currentUser;
 
   /**
-   *
+   * {@inheritdoc}
    */
-  public function __construct() {
-    $container = \Drupal::getContainer();
-    $this->entity_type_manager = $container->get('entity_type.manager');
-    $this->plugin_manager = $container->get('plugin.manager.field_patch_plugin');
-    $this->config = $container->get('config.manager')->getConfigFactory()->get('patch_revision.config');
-    $this->currentUser = $container->get('current_user');
+  public function __construct(
+    EntityTypeManager $entity_type_manager,
+    FieldPatchPluginManager $plugin_manager,
+    ImmutableConfig $config,
+    AccountProxy $currentUser
+  ) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->pluginManager = $plugin_manager;
+    $this->config = $config;
+    $this->currentUser = $currentUser;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('plugin.manager.field_patch_plugin'),
+      $container->get('config.manager')->getConfigFactory()->get('patch_revision.config'),
+      $container->get('current_user')
+    );
   }
 
   /**
@@ -49,7 +80,7 @@ class NodeObserver implements ObserverInterface {
   public function getInfo() {
     $info = [];
     foreach ($this->config->get('node_types') as $node_type) {
-      $info[$node_type] = array_keys($this->plugin_manager->getPatchableFields($node_type));
+      $info[$node_type] = array_keys($this->pluginManager->getPatchableFields($node_type));
     }
     return $info;
   }
@@ -72,7 +103,7 @@ class NodeObserver implements ObserverInterface {
         ->set('uid', $this->currentUser->id());
       $patch->save();
 
-      drupal_set_message(t('Thanks. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);
+      drupal_set_message(t('Thank you. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);
 
       $response = new RedirectResponse($patch->url());
       $response->send();
@@ -89,13 +120,13 @@ class NodeObserver implements ObserverInterface {
    * @return array
    *   The result diff.
    */
-  protected function getNodeDiff($nodeSubject) {
+  protected function getNodeDiff(NodeSubject $nodeSubject) {
     $diff = [];
     $changedFields = $nodeSubject->getChangedFields();
     $node = $nodeSubject->getNode();
     foreach ($changedFields as $name => $values) {
       $field_type = $node->getFieldDefinition($name)->getType();
-      $diff[$name] = $this->plugin_manager->getDiff($field_type, $values['old_value'], $values['new_value']);
+      $diff[$name] = $this->pluginManager->getDiff($field_type, $values['old_value'], $values['new_value']);
     }
     return $diff;
   }
@@ -110,11 +141,11 @@ class NodeObserver implements ObserverInterface {
    * @param string $bundle
    *   Bundle ID if exists.
    *
-   * @return \Drupal\patch_revision\Entity\Patch
+   * @return \Drupal\core\Entity\EntityInterface
    *   Patch entity prepared with node and version IDs.
    */
   protected function getPatch($nid, $type, $bundle = '') {
-    $storage = $this->entity_type_manager->getStorage('patch');
+    $storage = $this->entityTypeManager->getStorage('patch');
     $params = [
       'status' => PatchRevision::PR_STATUS_ACTIVE,
       'rtype' => $type,

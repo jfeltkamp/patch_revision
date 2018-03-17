@@ -10,7 +10,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "entity_reference",
  *   label = @Translation("FieldPatchPlugin for field type entity_reference"),
- *   field_types = {
+ *   fieldTypes = {
  *     "entity_reference",
  *   },
  *   properties = {
@@ -26,6 +26,8 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 class FieldPatchReference extends FieldPatchPluginBase {
 
   /**
+   * The store of the referred entity.
+   *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $entityStorage;
@@ -41,6 +43,7 @@ class FieldPatchReference extends FieldPatchPluginBase {
    * Getter for entity_type property.
    *
    * @return string|bool
+   *   Returns the entity type of the referred entity.
    */
   protected function getEntityType() {
     return $this->configuration['entity_type'] ?: FALSE;
@@ -63,8 +66,10 @@ class FieldPatchReference extends FieldPatchPluginBase {
   /**
    * Returns ready to use linked field label.
    *
-   * @param $entity_id
+   * @param int|mixed $entity_id
    *   The entity id.
+   *
+   * @throws \Exception
    *
    * @return \Drupal\Core\GeneratedLink|\Drupal\Core\StringTranslation\TranslatableMarkup|string
    *   The label used for patch view.

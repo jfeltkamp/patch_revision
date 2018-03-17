@@ -65,7 +65,9 @@ function patch_revision_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_node_presave().
  *
+ * Start patch creation with changed fields api.
  */
 function patch_revision_node_presave(NodeInterface $node) {
   /** @var \Drupal\patch_revision\AccessService $access_service */
@@ -73,11 +75,11 @@ function patch_revision_node_presave(NodeInterface $node) {
 
   if ($access_service->startPatchCreateProcess()) {
 
-    // Create NodeSubject object that will check node fields by DefaultFieldComparator.
+    // Create NodeSubject that will check node fields by DefaultFieldComparator.
     $nodeSubject = new NodeSubject($node, 'default_field_comparator');
 
     // Add your observer object to NodeSubject.
-    $nodeSubject->attach(new NodeObserver());
+    $nodeSubject->attach(NodeObserver::create(\Drupal::getContainer()));
 
     // Check if node fields have been changed.
     $nodeSubject->notify();
@@ -116,7 +118,7 @@ function patch_revision_form_node_form_alter(&$form, FormStateInterface $form_st
 
   // Set title of log message textarea.
   if ($title = $access_service->allowOverrideLogMessageTitle()) {
-    $form['revision_log']['widget'][0]['value']['#title'] = t($title);
+    $form['revision_log']['widget'][0]['value']['#title'] = $title;
   }
 }
 
@@ -124,13 +126,11 @@ function patch_revision_form_node_form_alter(&$form, FormStateInterface $form_st
  * Implements hook_menu_local_tasks_alter().
  *
  * Remove tab from node, if node_type not enabled in patch_revision.config.
- *
- * @param array $data
- *   Array with tabs (for patch_revision configured in patch_revision.links.task.yml).
- * @param $route_name
- *   Current route name.
+ * $data
+ *   Array with tabs (for patch_revision
+ *   configed in patch_revision.links.task.yml).
  */
-function patch_revision_menu_local_tasks_alter(&$data, $route_name) {
+function patch_revision_menu_local_tasks_alter(array &$data, $route_name) {
   /** @var \Drupal\patch_revision\AccessService $access_service */
   $access_service = \Drupal::service('patch_revision.access_service');
 

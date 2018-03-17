@@ -30,7 +30,7 @@ class PatchBreadcrumbBuilder implements BreadcrumbBuilderInterface {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
     $route = $route_match->getRouteName();
@@ -44,7 +44,7 @@ class PatchBreadcrumbBuilder implements BreadcrumbBuilderInterface {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function build(RouteMatchInterface $route_match) {
 

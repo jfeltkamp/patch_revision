@@ -39,10 +39,9 @@ class PatchDeleteForm extends ContentEntityDeleteForm {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $header_data = $this->getEntity()->getViewHeaderData();
     $form['#title'] = $this->t('Delete improvement for @type: @title', [
       '@type' => $header_data['orig_type'],

@@ -17,6 +17,8 @@ use Drupal\patch_revision\Events\PatchRevision;
 class PatchForm extends ContentEntityForm {
 
   /**
+   * The patch_revision environment variables.
+   *
    * @var \Drupal\patch_revision\Events\PatchRevision
    */
   protected $constants;

@@ -19,11 +19,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PatchesOverview extends ControllerBase {
 
   /**
+   * The original node id.
+   *
    * @var int
    */
   private $nid;
 
   /**
+   * The original node itself.
+   *
    * @var \Drupal\node\NodeInterface
    */
   private $node;
@@ -121,7 +125,10 @@ class PatchesOverview extends ControllerBase {
   }
 
   /**
+   * Load the original entity.
    *
+   * @return \Drupal\node\NodeInterface
+   *   The original node, the patch is created from.
    */
   protected function load() {
     $result = $this->entityStorage->loadByProperties([
@@ -257,7 +264,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * Builds a renderable list of operation links for the entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\patch_revision\Entity\Patch $entity
    *   The entity on which the linked operations will be performed.
    *
    * @return array
@@ -275,11 +282,15 @@ class PatchesOverview extends ControllerBase {
   }
 
   /**
+   * Get the creation or recent change date.
+   *
    * @param \Drupal\patch_revision\Entity\Patch $entity
    *   The patch entity.
    * @param string $mode
    *   Created or changed time.
+   *
    * @return string
+   *   A date formatted date string.
    */
   protected function getDate(Patch $entity, $mode = 'created') {
     $timestamp = (int) $entity->get($mode)->getString();

@@ -5,48 +5,46 @@ namespace Drupal\patch_revision\Events;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- *
+ * Contains global constants for status management.
  */
 final class PatchRevision {
   use StringTranslationTrait;
 
-  /**
-   * @var integer
+  /* @var integer
    *   Stored value for pro argument.
    */
   const PR_STATUS_ACTIVE = 1;
+
+  /* @var string
+   *   Stored value for pro argument.
+   */
   const PR_STATUS_ACTIVE_TXT = 'proposed';
 
-  /**
-   * @var integer
+  /* @var integer
    *   Stored value for con argument.
    */
   const PR_STATUS_CONFLICTED = 2;
   const PR_STATUS_CONFLICTED_TXT = 'conflicted';
 
-  /**
-   * @var integer
+  /* @var integer
    *   Stored value for con argument.
    */
   const PR_STATUS_PATCHED = 3;
   const PR_STATUS_PATCHED_TXT = 'applied';
 
-  /**
-   * @var integer
+  /* @var integer
    *   Stored value for con argument.
    */
   const PR_STATUS_DECLINED = 4;
   const PR_STATUS_DECLINED_TXT = 'declined';
 
-  /**
-   * @var integer
+  /* @var integer
    *   Stored value for con argument.
    */
   const PR_STATUS_DISABLED = 0;
   const PR_STATUS_DISABLED_TXT = 'disabled';
 
-  /**
-   * @var integer
+  /* @var integer
    *   The default value for argument type.
    */
   const PR_STATUS_DEFAULT = self::PR_STATUS_ACTIVE;
@@ -63,29 +61,34 @@ final class PatchRevision {
   const CODE_PATCH_EMPTY = 1001;
 
   /**
+   * Returns a literal from id.
+   *
    * @param int $status
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|string
+   *   The status id.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   A translatable string for status.
    */
   public function getStatusLiteral($status) {
     switch ((int) $status) {
       case 0:
-        $label = $this->t(self::PR_STATUS_DISABLED_TXT);
+        $label = $this->t('disabled');
         break;
 
       case 1:
-        $label = $this->t(self::PR_STATUS_ACTIVE_TXT);
+        $label = $this->t('active');;
         break;
 
       case 2:
-        $label = $this->t(self::PR_STATUS_CONFLICTED_TXT);
+        $label = $this->t('conflicted');
         break;
 
       case 3:
-        $label = $this->t(self::PR_STATUS_PATCHED_TXT);
+        $label = $this->t('patched');
         break;
 
       case 4:
-        $label = $this->t(self::PR_STATUS_DECLINED_TXT);
+        $label = $this->t('declined');
         break;
 
       default:

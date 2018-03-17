@@ -12,7 +12,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "file",
  *   label = @Translation("FieldPatchPlugin for field type file"),
- *   field_types = {
+ *   fieldTypes = {
  *     "file",
  *   },
  *   properties = {
@@ -38,6 +38,8 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 class FieldPatchFile extends FieldPatchPluginBase {
 
   /**
+   * The entity storage.
+   *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $entityStorage;
@@ -108,7 +110,7 @@ class FieldPatchFile extends FieldPatchPluginBase {
   /**
    * Returns ready to use linked field label.
    *
-   * @param $entity_id
+   * @param int $entity_id
    *   The entity id.
    *
    * @return \Drupal\Core\GeneratedLink|\Drupal\Core\StringTranslation\TranslatableMarkup|string

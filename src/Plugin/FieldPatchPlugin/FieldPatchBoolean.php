@@ -10,7 +10,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "boolean",
  *   label = @Translation("FieldPatchPlugin for all field type boolean."),
- *   field_types = {
+ *   fieldTypes = {
  *     "boolean",
  *   },
  *   properties = {

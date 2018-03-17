@@ -13,11 +13,15 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 class FieldPatchPluginManager extends DefaultPluginManager {
 
   /**
+   * The Drupal entity field manager.
+   *
    * @var \Drupal\Core\Entity\EntityFieldManager
    */
   private $entityFieldManager;
 
   /**
+   * The module config.
+   *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   private $config;
@@ -43,6 +47,8 @@ class FieldPatchPluginManager extends DefaultPluginManager {
   }
 
   /**
+   * Returns a list of patchable field types.
+   *
    * @return array
    *   Array with all field types a FieldPatchPlugin exists.
    */
@@ -50,18 +56,21 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     $plugins = $this->getDefinitions();
     $collector = [];
     foreach ($plugins as $plugin) {
-      $collector = array_merge($collector, $plugin['field_types']);
+      $collector = array_merge($collector, $plugin['fieldTypes']);
     }
     return $collector;
   }
 
   /**
+   * Returns list of patchable fields and their definitions for a node type.
+   *
    * @param string $node_type_id
    *   The node type id.
    * @param bool $bypass_explicit
    *   Bypass explicit check i.e. when form for explicit exclusion is build.
    *
    * @return \Drupal\Core\Field\FieldDefinitionInterface[]|mixed
+   *   List of field definitions.
    */
   public function getPatchableFields($node_type_id, $bypass_explicit = FALSE) {
     $fields = $this->entityFieldManager->getFieldDefinitions('node', $node_type_id);
@@ -71,7 +80,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     $explicit_excluded_fields = $this->config->get('bundle_' . $node_type_id . '_fields') ?: [];
 
     foreach ($fields as $name => $field) {
-      /** @var $field \Drupal\Core\Field\FieldDefinitionInterface */
+      /* @var $field \Drupal\Core\Field\FieldDefinitionInterface */
       $type = $field->getType();
       if (
         // NOT included because no field_type plugin exists.
@@ -91,6 +100,8 @@ class FieldPatchPluginManager extends DefaultPluginManager {
   }
 
   /**
+   * Returns a plugin instance from field type.
+   *
    * @param string $field_type
    *   The FieldType for what correct plugin is needed.
    * @param array $config
@@ -99,7 +110,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    * @return \Drupal\patch_revision\Plugin\FieldPatchPluginBase|false
    *   The FieldPatchPlugin belongs to FieldType.
    */
-  public function getPluginFromFieldType($field_type, $config = []) {
+  public function getPluginFromFieldType($field_type, array $config = []) {
     $config = is_array($config) ? $config : [];
     $config = array_merge($config, ['field_type' => $field_type]);
 
@@ -108,7 +119,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     }
     else {
       foreach ($this->getDefinitions() as $key => $definition) {
-        if (in_array($field_type, $definition['field_types'])) {
+        if (in_array($field_type, $definition['fieldTypes'])) {
           return $this->createInstance($key, $config);
         }
       }
@@ -129,7 +140,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    * @return array|false
    *   The git diff.
    */
-  public function getDiff($field_type, $old, $new) {
+  public function getDiff($field_type, array $old, array $new) {
     $plugin = $this->getPluginFromFieldType($field_type);
     if ($plugin instanceof FieldPatchPluginInterface) {
       return $plugin->getFieldDiff($old, $new);
@@ -150,7 +161,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    * @return array|false
    *   The git diff.
    */
-  public function patchField($field_type, $value, $patch) {
+  public function patchField($field_type, array $value, array $patch) {
     $plugin = $this->getPluginFromFieldType($field_type);
     if ($plugin instanceof FieldPatchPluginInterface) {
       return $plugin->patchFieldValue($value, $patch);

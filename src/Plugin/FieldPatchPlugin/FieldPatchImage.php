@@ -13,7 +13,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
  * @FieldPatchPlugin(
  *   id = "image",
  *   label = @Translation("FieldPatchPlugin for field type image"),
- *   field_types = {
+ *   fieldTypes = {
  *     "image",
  *   },
  *   properties = {
@@ -49,6 +49,8 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 class FieldPatchImage extends FieldPatchPluginBase {
 
   /**
+   * The file storage used for image fields.
+   *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $entityStorage;
@@ -141,7 +143,7 @@ class FieldPatchImage extends FieldPatchPluginBase {
   /**
    * Returns ready to use linked field label.
    *
-   * @param $entity_id
+   * @param int $entity_id
    *   The entity id.
    *
    * @return array|string
@@ -202,9 +204,8 @@ class FieldPatchImage extends FieldPatchPluginBase {
       ];
     }
     elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
-      $label = $this->getTargetId($patch['old']);
       $message = $this->t('Expected old value for image to be: @label', [
-        '@label' => $label,
+        '@label' => $patch['old'],
       ]);
       return [
         'result' => $value,

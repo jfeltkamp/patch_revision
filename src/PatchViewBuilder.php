@@ -2,7 +2,6 @@
 
 namespace Drupal\patch_revision;
 
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
 
@@ -19,21 +18,6 @@ class PatchViewBuilder extends EntityViewBuilder {
       return;
     }
     parent::buildComponents($build, $entities, $displays, $view_mode);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getBuildDefaults(EntityInterface $entity, $view_mode) {
-    $defaults = parent::getBuildDefaults($entity, $view_mode);
-    return $defaults;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function alterBuild(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
-    parent::alterBuild($build, $entity, $display, $view_mode);
   }
 
   /**
