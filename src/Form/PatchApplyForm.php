@@ -127,7 +127,7 @@ class PatchApplyForm extends ContentEntityForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // CHECK STATUS
+    // CHECK STATUS.
     if (($status = (int) $this->entity->get('status')->getString()) !== PatchRevision::PR_STATUS_ACTIVE) {
       drupal_set_message(
         $this->t('Status is set to "@status". The status must be "@active" to apply improvements.', [
@@ -141,7 +141,7 @@ class PatchApplyForm extends ContentEntityForm {
       return;
     }
 
-    // CHECK ORIGINAL ENTITY
+    // CHECK ORIGINAL ENTITY.
     if (!$orig_entity = $this->entity->originalEntityRevision('latest')) {
       drupal_set_message($this->t('Original entity could not be loaded. Seems as Improvement is obsolet.'), 'error');
       return;

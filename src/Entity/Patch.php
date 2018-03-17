@@ -410,7 +410,8 @@ class Patch extends ContentEntityBase {
   public function getViewHeaderData() {
     $creator = $this->getCreator();
     $orig_entity = $this->originalEntity();
-    $created = reset($this->get('created')->getValue());
+    $created = $this->get('created')->getValue();
+    $created = reset($created);
     return [
       'created' => ($created) ? $created['value'] : NULL,
       'creator' => ($creator) ? $creator->toLink()->toString() : FALSE,

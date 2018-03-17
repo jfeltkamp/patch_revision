@@ -13,6 +13,8 @@ class DiffService {
   use StringTranslationTrait;
 
   /**
+   * DiffMatchPatch instance.
+   *
    * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
    */
   protected $dmp;
@@ -20,9 +22,9 @@ class DiffService {
   /**
    * Get a text diff.
    *
-   * @param $str_src
+   * @param string $str_src
    *   The old value.
-   * @param $str_target
+   * @param string $str_target
    *   The old value.
    *
    * @return bool|string
@@ -34,7 +36,8 @@ class DiffService {
       $patch = $this->dmp->patch_make($str_src, $str_target);
       $output = $this->dmp->patch_toText($patch);
       return $output;
-    } else {
+    }
+    else {
       return FALSE;
     }
   }
