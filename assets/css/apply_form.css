@@ -1,4 +1,3 @@
-
 .pr_apply_group {
   padding-top: 3.25em;
 }
@@ -28,11 +27,11 @@ dl.field_patch_items {
 
 strong.pr-success-message {
   display: block;
-  border-top: 1px solid #66AA00;
+  border-top: 1px solid #66aa00;
   position: relative;
   top: -1px;
   text-align: center;
-  color: #66AA00;
+  color: #66aa00;
   font-weight: normal;
 }
 strong.pr-success-message.warning {

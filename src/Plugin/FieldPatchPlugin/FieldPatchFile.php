@@ -2,12 +2,8 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\file\Entity\File;
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -42,7 +38,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 class FieldPatchFile extends FieldPatchPluginBase {
 
   /**
-   * @var EntityStorageInterface
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $entityStorage;
 
@@ -54,9 +50,9 @@ class FieldPatchFile extends FieldPatchPluginBase {
   }
 
   /**
-   * Returns the storage interface
+   * Returns the storage interface.
    *
-   * @return EntityStorageInterface|FALSE
+   * @return \Drupal\Core\Entity\EntityStorageInterface|false
    *   The storage.
    */
   protected function getEntityStorage() {
@@ -91,19 +87,20 @@ class FieldPatchFile extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function patchFormatterTargetId($patch, $value_old) {
-    $patch = json_decode($patch, true);
+    $patch = json_decode($patch, TRUE);
     if (empty($patch)) {
       return [
         '#markup' => $this->getTargetId($value_old),
       ];
-    } else {
+    }
+    else {
       $old = $this->getTargetId($patch['old']);
       $new = $this->getTargetId($patch['new']);
       return [
         '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
           '@old' => $old,
           '@new' => $new,
-        ])
+        ]),
       ];
     }
   }
@@ -121,7 +118,7 @@ class FieldPatchFile extends FieldPatchPluginBase {
     if (!$entity_id) {
       return $this->t('none');
     }
-    /** @var File $entity */
+    /** @var \Drupal\file\Entity\File $entity */
     $entity = $this->getEntityStorage()->load((int) $entity_id);
     if (!$entity) {
       return $this->t('ID: @id was not found.', ['@id' => $entity_id]);
@@ -136,34 +133,36 @@ class FieldPatchFile extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function applyPatchTargetId($value, $patch) {
-    $patch = json_decode($patch, true);
+    $patch = json_decode($patch, TRUE);
     if (empty($patch)) {
       return [
         'result' => $value,
         'feedback' => [
           'code' => 100,
-          'applied' => TRUE
+          'applied' => TRUE,
         ],
       ];
-    } elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
+    }
+    elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
       $label = $this->getTargetId($patch['old']);
       $message = $this->t('Expected old value for upload file to be: @label', [
-          '@label' => $label,
-        ]);
+        '@label' => $label,
+      ]);
       return [
         'result' => $value,
         'feedback' => [
           'code' => 0,
           'applied' => FALSE,
-          'message' => $message
+          'message' => $message,
         ],
       ];
-    } else {
+    }
+    else {
       return [
         'result' => $patch['new'],
         'feedback' => [
           'code' => 100,
-          'applied' => TRUE
+          'applied' => TRUE,
         ],
       ];
     }

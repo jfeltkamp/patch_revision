@@ -11,7 +11,6 @@ use Drupal\Core\Link;
 use Drupal\node\NodeInterface;
 use Drupal\patch_revision\Entity\Patch;
 use Drupal\patch_revision\Events\PatchRevision;
-use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,12 +19,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PatchesOverview extends ControllerBase {
 
   /**
-   * @var integer
+   * @var int
    */
   private $nid;
 
   /**
-   * @var NodeInterface
+   * @var \Drupal\node\NodeInterface
    */
   private $node;
 
@@ -59,19 +58,22 @@ class PatchesOverview extends ControllerBase {
 
   /**
    * DateFormatterInterface definition.
-   * @var \Drupal\Core\Datetime\DateFormatterInterface;
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
    */
   protected $dateFormatter;
 
   /**
    * DateFormatterInterface definition.
-   * @var PatchRevision;
+   *
+   * @var \Drupal\patch_revision\Entity\PatchRevision
    */
   protected $constants;
 
   /**
    * DateFormatterInterface definition.
-   * @var TimeInterface;
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
    */
   protected $time;
 
@@ -101,7 +103,6 @@ class PatchesOverview extends ControllerBase {
       $container->get('datetime.time')
     );
   }
-
 
   /**
    * Display list of existing patches.
@@ -147,7 +148,7 @@ class PatchesOverview extends ControllerBase {
   public function buildRow(Patch $entity) {
     /* @var $entity \Drupal\patch_revision\Entity\Patch */
     $row['created']['data'] = $this->getDate($entity);
-    /** @var UserInterface $user */
+    /** @var \Drupal\user\UserInterface $user */
     $user = $entity->get('uid')->entity;
     $row['user'] = Link::createFromRoute(
       $user->label(),
@@ -178,17 +179,17 @@ class PatchesOverview extends ControllerBase {
       '#empty' => $this->t('There is no @label yet.', ['@label' => strtolower($this->entityType->getLabel())]),
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
-        'tags' => ['patch_list:node:'.$this->nid],
+        'tags' => ['patch_list:node:' . $this->nid],
         'max-age' => Cache::PERMANENT,
       ],
       '#attached' => [
         'library' => [
-          'patch_revision/patch_revision.pr-status'
+          'patch_revision/patch_revision.pr-status',
         ],
-      ]
+      ],
     ];
     foreach ($this->load() as $entity) {
-      /** @var Patch $entity */
+      /** @var \Drupal\patch_revision\Entity\Patch $entity */
       if ($row = $this->buildRow($entity)) {
         $build['table']['#rows'][$entity->id()] = $row;
       }
@@ -212,7 +213,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * Gets this list's default operations.
    *
-   * @param Patch $entity
+   * @param \Drupal\patch_revision\Entity\Patch $entity
    *   The entity the operations are for.
    *
    * @return array
@@ -274,24 +275,25 @@ class PatchesOverview extends ControllerBase {
   }
 
   /**
-   * @param Patch $entity
+   * @param \Drupal\patch_revision\Entity\Patch $entity
    *   The patch entity.
    * @param string $mode
    *   Created or changed time.
    * @return string
    */
   protected function getDate(Patch $entity, $mode = 'created') {
-    $timestamp = (int)$entity->get($mode)->getString();
+    $timestamp = (int) $entity->get($mode)->getString();
     $interval = $this->time->getRequestTime() - $timestamp;
 
-    $date = $interval < (60*60*12)
+    $date = $interval < (60 * 60 * 12)
       ? $this->t('@time ago', ['@time' => $this->dateFormatter->formatInterval($interval, 2)])
       : $this->dateFormatter->format($timestamp, 'short');
     return $date;
   }
 
   /**
-   * Returns formatted
+   * Returns formatted.
+   *
    * @param int|string $value
    *   The integer status ID.
    *
@@ -300,7 +302,7 @@ class PatchesOverview extends ControllerBase {
    */
   protected function getStatus($value) {
     $value = (int) $value;
-    $literal =$this->constants->getStatusLiteral($value);
+    $literal = $this->constants->getStatusLiteral($value);
     $class = $this->constants->getStatus($value);
     return [
       '#markup' => $literal,
@@ -308,4 +310,5 @@ class PatchesOverview extends ControllerBase {
       '#suffix' => '</span>',
     ];
   }
+
 }

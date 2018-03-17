@@ -85,12 +85,12 @@ class AccessService {
     }
 
     // Check module config if node_type enabled.
-    if($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
+    if ($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
       return FALSE;
     }
 
     // Check if "Display create-patch-checkbox on node forms" is enabled.
-    if(!$this->moduleConfig->get('enable_checkbox_node_form')) {
+    if (!$this->moduleConfig->get('enable_checkbox_node_form')) {
       return FALSE;
     }
 
@@ -109,7 +109,7 @@ class AccessService {
     }
 
     // Check module config if node_type enabled.
-    if($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
+    if ($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
       return FALSE;
     }
 
@@ -140,7 +140,7 @@ class AccessService {
   public function allowOverrideLogMessageTitle() {
 
     // Check module config if node_type enabled.
-    if($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
+    if ($this->moduleConfig->get('node_types')[$this->getNodeType()] === 0) {
       return FALSE;
     }
 
@@ -150,6 +150,5 @@ class AccessService {
 
     return FALSE;
   }
-
 
 }

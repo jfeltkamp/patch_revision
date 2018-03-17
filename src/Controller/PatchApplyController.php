@@ -4,7 +4,6 @@ namespace Drupal\patch_revision\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
 use Drupal\patch_revision\Entity\Patch;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManager;
@@ -40,14 +39,14 @@ class PatchApplyController extends ControllerBase {
   /**
    * Drupal\patch_revision\Entity\Patch definition.
    *
-   * @var \Drupal\patch_revision\Entity\Patch|FALSE
+   * @var \Drupal\patch_revision\Entity\Patch|false
    */
   protected $patch;
 
   /**
    * Drupal\node\NodeInterface definition.
    *
-   * @var \Drupal\node\NodeInterface|FALSE
+   * @var \Drupal\node\NodeInterface|false
    */
   protected $node;
 
@@ -72,9 +71,9 @@ class PatchApplyController extends ControllerBase {
   }
 
   /**
-   * Apply patch
+   * Apply patch.
    *
-   * @param $patch int
+   * @param int $patch
    *   The patch ID.
    *
    * @return array
@@ -83,12 +82,12 @@ class PatchApplyController extends ControllerBase {
   public function apply($patch) {
     // Set patch or die.
     $this->patch = $this->entityTypeManager->getStorage('patch')->load($patch);
-    if(!$this->patch) {
+    if (!$this->patch) {
       drupal_set_message($this->t('Patch with ID: @id could not be found.', ['@id' => $patch]), 'warning');
       return [];
     }
     $this->node = $this->patch->originalEntity();
-    if(!$this->node) {
+    if (!$this->node) {
       drupal_set_message($this->t('The original node for this patch does not exist anymore.'), 'warning');
       return [];
     }

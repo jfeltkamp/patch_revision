@@ -13,7 +13,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    * Get the plugin id.
    *
    * @return string
-   *    The id of the plugin.
+   *   The id of the plugin.
    */
   public function getPluginId();
 
@@ -27,7 +27,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *
    * @return mixed
    */
-  function getFieldDiff(array $old, array $new);
+  public function getFieldDiff(array $old, array $new);
 
   /**
    * Apply patch to an field value.
@@ -43,7 +43,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *
    * @return mixed
    */
-  function applyPatchDefault($key, $value, $patch, $strict);
+  public function applyPatchDefault($key, $value, $patch, $strict);
 
   /**
    * Main feature that process the diff command and returns the patch.
@@ -53,7 +53,7 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    *
    * @return mixed
    */
-  function getDiffDefault($str_src, $str_target);
+  public function getDiffDefault($str_src, $str_target);
 
   /**
    * Returns a render array with formatted markup.
@@ -61,25 +61,25 @@ interface FieldPatchPluginInterface extends PluginInspectionInterface {
    * @param string $key
    *   The data column to work on.
    * @param string $patch
-   *   The patch to apply
+   *   The patch to apply.
    * @param string $value_old
    *   The old value to apply patch on.
    *
    * @return array
    *   The patch result array
    */
-  function patchFormatterDefault($key, $patch, $value_old);
+  public function patchFormatterDefault($key, $patch, $value_old);
 
   /**
    * Returns a formatted view for the complete Patch.
    *
    * @param array $patch_value
-   *   The patch for this field
+   *   The patch for this field.
    * @param \Drupal\Core\Field\FieldItemList $field
    *   FieldItemList .
    *
    * @return mixed
    */
-  function getFieldPatchView($patch_value, $field);
+  public function getFieldPatchView($patch_value, $field);
 
 }

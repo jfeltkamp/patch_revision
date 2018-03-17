@@ -17,7 +17,7 @@ use Drupal\patch_revision\Events\PatchRevision;
 class PatchForm extends ContentEntityForm {
 
   /**
-   * @var PatchRevision
+   * @var \Drupal\patch_revision\Events\PatchRevision
    */
   protected $constants;
 
@@ -56,7 +56,7 @@ class PatchForm extends ContentEntityForm {
       '#log_message' => $header_data['log_message'],
       '#attached' => [
         'library' => ['patch_revision/patch_revision.pr_patch_header'],
-      ]
+      ],
     ];
 
     if (\Drupal::currentUser()->hasPermission('change status of patch entities')) {
@@ -64,7 +64,7 @@ class PatchForm extends ContentEntityForm {
         '#type' => 'select',
         '#title' => $this->t('Status'),
         '#description' => $this->t('Status of the improvement. Set to "active" if improvement shall be applied to original entity.', [
-          '@status' => $this->constants->getStatusLiteral(1)
+          '@status' => $this->constants->getStatusLiteral(1),
         ]),
         '#options' => PatchRevision::PR_STATUS,
         '#default_value' => $this->entity->get('status')->getString(),

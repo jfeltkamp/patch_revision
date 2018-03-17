@@ -1,20 +1,9 @@
 <?php
-/**
- * @file
- * Contains BasicUsageObserver.php.
- */
 
 namespace Drupal\patch_revision;
 
-use Drupal\changed_fields\NodeSubject;
 use Drupal\changed_fields\ObserverInterface;
-use Drupal\Core\Config\ConfigManagerInterface;
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\patch_revision\Entity\Patch;
 use Drupal\patch_revision\Events\PatchRevision;
-use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
-use Drupal\user\Entity\User;
-use Drupal\user\UserInterface;
 use SplSubject;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -24,27 +13,29 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class NodeObserver implements ObserverInterface {
 
   /**
-   * @var EntityTypeManager|NULL
+   * @var \Drupal\Core\Entity\EntityTypeManager|null
    */
   private $entity_type_manager;
 
   /**
-   * @var FieldPatchPluginManager|NULL
+   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager|null
    */
   private $plugin_manager;
 
   /**
-   * @var ConfigManagerInterface|NULL
+   * @var \Drupal\Core\Config\ConfigManagerInterface|null
    */
   private $config;
 
   /**
-   * @var UserInterface|NULL
+   * @var \Drupal\user\Entity\UserInterface|null
    */
   private $currentUser;
 
-
-  function __construct() {
+  /**
+   *
+   */
+  public function __construct() {
     $container = \Drupal::getContainer();
     $this->entity_type_manager = $container->get('entity_type.manager');
     $this->plugin_manager = $container->get('plugin.manager.field_patch_plugin');
@@ -71,7 +62,7 @@ class NodeObserver implements ObserverInterface {
     $node = $nodeSubject->getNode();
     if ($node->isNewRevision()) {
       $diff = $this->getNodeDiff($nodeSubject);
-      /** @var Patch $patch */
+      /** @var \Drupal\patch_revision\Entity\Patch $patch */
       $patch = $this->getPatch($node->id(), $node->getEntityTypeId(), $node->bundle());
 
       $patch
@@ -82,7 +73,6 @@ class NodeObserver implements ObserverInterface {
       $patch->save();
 
       drupal_set_message(t('Thanks. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);
-
 
       $response = new RedirectResponse($patch->url());
       $response->send();
@@ -130,7 +120,7 @@ class NodeObserver implements ObserverInterface {
       'rtype' => $type,
       'rbundle' => $bundle,
       'rid' => $nid,
-      'rvid' => 0
+      'rvid' => 0,
     ];
     $patch = $storage->create($params);
     return $patch;

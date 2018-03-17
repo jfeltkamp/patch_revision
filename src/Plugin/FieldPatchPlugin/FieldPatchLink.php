@@ -2,9 +2,6 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
-
 /**
  * Plugin implementation of the 'promote' actions.
  *

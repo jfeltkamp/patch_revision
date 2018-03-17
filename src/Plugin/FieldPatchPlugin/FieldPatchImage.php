@@ -2,13 +2,9 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\file\Entity\File;
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -53,7 +49,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 class FieldPatchImage extends FieldPatchPluginBase {
 
   /**
-   * @var EntityStorageInterface
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $entityStorage;
 
@@ -65,9 +61,9 @@ class FieldPatchImage extends FieldPatchPluginBase {
   }
 
   /**
-   * Returns the storage interface
+   * Returns the storage interface.
    *
-   * @return EntityStorageInterface|FALSE
+   * @return \Drupal\Core\Entity\EntityStorageInterface|false
    *   The storage.
    */
   protected function getEntityStorage() {
@@ -76,7 +72,6 @@ class FieldPatchImage extends FieldPatchPluginBase {
     }
     return $this->entityStorage ?: FALSE;
   }
-
 
   /**
    * {@inheritdoc}
@@ -124,13 +119,14 @@ class FieldPatchImage extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function patchFormatterTargetId($patch, $value_old) {
-    $patch = json_decode($patch, true);
+    $patch = json_decode($patch, TRUE);
     if (empty($patch)) {
-     return [
+      return [
         '#theme' => 'pr_view_image',
         '#center' => $this->getTargetId($value_old),
       ];
-    } else {
+    }
+    else {
       $old = $this->getTargetId($patch['old']);
       $new = $this->getTargetId($patch['new']);
 
@@ -155,11 +151,11 @@ class FieldPatchImage extends FieldPatchPluginBase {
     if (!$entity_id) {
       return [
         '#type' => 'container',
-        '#attributes' => ['class'=> ['pr-no-img']],
+        '#attributes' => ['class' => ['pr-no-img']],
         'content' => ['#markup' => $this->t('No image')],
       ];
     }
-    /** @var File $entity */
+    /** @var \Drupal\file\Entity\File $entity */
     $entity = $this->getEntityStorage()->load((int) $entity_id);
     if (!$entity) {
       return $this->t('ID: @id was not found.', ['@id' => $entity_id]);
@@ -179,12 +175,13 @@ class FieldPatchImage extends FieldPatchPluginBase {
           '#uri' => $uri,
         ],
         'name' => $link,
-        '#attached' => ['library' => ['patch_revision/patch_revision.pr-view-image']]
+        '#attached' => ['library' => ['patch_revision/patch_revision.pr-view-image']],
       ];
-    } else {
+    }
+    else {
       return [
         '#type' => 'container',
-        '#attributes' => ['class'=> ['pr-no-img']],
+        '#attributes' => ['class' => ['pr-no-img']],
         'content' => ['#markup' => $this->t('Image not found')],
       ];
     }
@@ -194,16 +191,17 @@ class FieldPatchImage extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function applyPatchTargetId($value, $patch) {
-    $patch = json_decode($patch, true);
+    $patch = json_decode($patch, TRUE);
     if (empty($patch)) {
       return [
         'result' => $value,
         'feedback' => [
           'code' => 100,
-          'applied' => TRUE
+          'applied' => TRUE,
         ],
       ];
-    } elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
+    }
+    elseif (($patch['old'] !== $value) && ($patch['new'] !== $value)) {
       $label = $this->getTargetId($patch['old']);
       $message = $this->t('Expected old value for image to be: @label', [
         '@label' => $label,
@@ -213,15 +211,16 @@ class FieldPatchImage extends FieldPatchPluginBase {
         'feedback' => [
           'code' => 0,
           'applied' => FALSE,
-          'message' => $message
+          'message' => $message,
         ],
       ];
-    } else {
+    }
+    else {
       return [
         'result' => $patch['new'],
         'feedback' => [
           'code' => 100,
-          'applied' => TRUE
+          'applied' => TRUE,
         ],
       ];
     }
@@ -255,4 +254,5 @@ class FieldPatchImage extends FieldPatchPluginBase {
     $properties = $this->getFieldProperties();
     return count(array_intersect_key($properties, $value)) == count($properties);
   }
+
 }

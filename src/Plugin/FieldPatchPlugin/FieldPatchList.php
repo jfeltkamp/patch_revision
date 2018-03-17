@@ -2,8 +2,6 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -43,7 +41,7 @@ class FieldPatchList extends FieldPatchPluginBase {
     $properties = array_keys($this->getFieldProperties());
     foreach ($feedback as $key => $col) {
       foreach ($properties as $property) {
-        if(isset($col[$property]['applied'])) {
+        if (isset($col[$property]['applied'])) {
           if ($col[$property]['applied'] === FALSE) {
             $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
           }

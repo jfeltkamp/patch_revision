@@ -7,8 +7,6 @@ use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\node\NodeInterface;
-use Drupal\patch_revision\Entity\Patch;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -53,10 +51,10 @@ class PatchBreadcrumbBuilder implements BreadcrumbBuilderInterface {
     $breadcrumb = new Breadcrumb();
     $breadcrumb->addCacheContexts(['route', 'url.query_args']);
     $breadcrumb->addLink(Link::createFromRoute(t('Home'), '<front>'));
-    /** @var Patch $patch_entity */
+    /** @var \Drupal\patch_revision\Entity\Patch $patch_entity */
     $patch_entity = $route_match->getParameter('patch');
 
-    /** @var NodeInterface $orig_entity */
+    /** @var \Drupal\node\NodeInterface $orig_entity */
     $orig_entity = $patch_entity->originalEntity();
     if ($orig_entity) {
       // Orig node link.

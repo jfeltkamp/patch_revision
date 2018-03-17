@@ -13,7 +13,6 @@ use Drupal\Core\Url;
  */
 class PatchDeleteForm extends ContentEntityDeleteForm {
 
-
   /**
    * {@inheritdoc}
    */
@@ -39,6 +38,9 @@ class PatchDeleteForm extends ContentEntityDeleteForm {
     $this->logDeletionMessage();
   }
 
+  /**
+   *
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $header_data = $this->getEntity()->getViewHeaderData();
@@ -54,10 +56,11 @@ class PatchDeleteForm extends ContentEntityDeleteForm {
       '#log_message' => $header_data['log_message'],
       '#attached' => [
         'library' => ['patch_revision/patch_revision.pr_patch_header'],
-      ]
+      ],
     ];
 
     $form += parent::buildForm($form, $form_state);
     return $form;
   }
+
 }

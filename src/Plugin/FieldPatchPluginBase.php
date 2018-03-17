@@ -8,7 +8,6 @@ use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\patch_revision\DiffService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -21,22 +20,22 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   use StringTranslationTrait;
 
   /**
-   * @var TranslatableMarkup|NULL
+   * @var \Drupal\Core\StringTranslation\TranslatableMarkup|null
    */
   protected $mergeConflictMessage;
 
   /**
-   * @var EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManager
    */
   protected $entityTypeManager;
 
   /**
-   * @var EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManager
    */
   protected $entityFieldManager;
 
   /**
-   * @var ConfigFactory
+   * @var \Drupal\Core\Config\ConfigFactory
    */
   protected $configFactory;
 
@@ -105,7 +104,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     }
     if (!$param) {
       return $this->moduleConfig;
-    } else {
+    }
+    else {
       return ($value = $this->moduleConfig->get($param))
         ? $value
         : $default;
@@ -125,7 +125,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * Get the conflict message.
    *
-   * @return TranslatableMarkup
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    */
   protected function getMergeConflictMessage() {
     if (!$this->mergeConflictMessage) {
@@ -138,7 +138,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * Get the conflict message.
    *
-   * @return TranslatableMarkup
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    */
   protected function getMergeSuccessMessage($percent) {
     return $this->t('Field patch applied by %percent%.',
@@ -148,12 +148,17 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     );
   }
 
+  /**
+   *
+   */
   public function getFieldProperties() {
     $plugin_definition = $this->getPluginDefinition();
     return ($plugin_definition['properties']);
   }
 
-
+  /**
+   *
+   */
   protected function mergeFeedback($feedback) {
     $applied = [];
     $code = [];
@@ -162,7 +167,9 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       foreach ($fb as $property => $result) {
         $applied[] = $result['applied'];
         $code[] = $result['code'];
-        if (isset($result['message'])) { $messages[] = $result['message']; }
+        if (isset($result['message'])) {
+          $messages[] = $result['message'];
+        }
       }
     }
     $code = round(array_sum($code) / count($code));
@@ -178,8 +185,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   }
 
   /**
-   * @param $field array
-   * @param $feedback array
+   * @param array $field
+   * @param array $feedback
    */
   public function setWidgetFeedback(&$field, $feedback) {
     $result = $this->mergeFeedback($feedback);
@@ -205,8 +212,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
             'class' => [
               'messages',
               "messages--{$result['type']}",
-            ]
-          ]
+            ],
+          ],
         ];
         foreach ($result['messages'] as $key => $message) {
           $field['patch_messages'][$key] = [
@@ -237,7 +244,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
           if ($feedback[$item][$property]['applied'] === FALSE) {
             if ($field['widget']['#cardinality'] > 1) {
               $field['widget'][$item]['#attributes']['class'][] = "pr-apply-{$property}-failed";
-            } else {
+            }
+            else {
               $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
             }
           }
@@ -254,7 +262,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     $result = [];
     $counts = max([count($old), count($new)]) - 1;
     for ($i = 0; $i <= $counts; $i++) {
-      foreach($this->getFieldProperties() as $key => $definition) {
+      foreach ($this->getFieldProperties() as $key => $definition) {
 
         $str_source = isset($old[$i][$key]) ? $old[$i][$key] : $definition['default_value'];
         $str_target = isset($new[$i][$key]) ? $new[$i][$key] : $definition['default_value'];
@@ -275,7 +283,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     $result = [];
     $counts = max([count($value), count($patch)]) - 1;
     for ($i = 0; $i <= $counts; $i++) {
-      foreach($this->getFieldProperties() as $key => $definition) {
+      foreach ($this->getFieldProperties() as $key => $definition) {
         $value_item = isset($value[$i]) ? $value[$i][$key] : $definition['default_value'];
         $patch_item = isset($patch[$i]) ? $patch[$i][$key] : FALSE;
 
@@ -302,7 +310,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     $field_value = $field->getValue();
     foreach ($values as $item => $value) {
       $result['#items']["item_{$field->getName()}"] = [];
-      foreach($this->getFieldProperties() as $key => $definition) {
+      foreach ($this->getFieldProperties() as $key => $definition) {
         $old_value = isset($field_value[$item][$key])
           ? $field_value[$item][$key]
           : $definition['default_value'];
@@ -354,10 +362,11 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * {@inheritdoc}
    */
-  function getDiffDefault($str_src, $str_target) {
+  public function getDiffDefault($str_src, $str_target) {
     if ($str_src === $str_target) {
       return json_encode([]);
-    } else {
+    }
+    else {
       return json_encode(['old' => $str_src, 'new' => $str_target]);
     }
   }
@@ -366,18 +375,19 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    * {@inheritdoc}
    */
   public function patchFormatterDefault($key, $patch, $value_old) {
-    $patch = json_decode($patch, true);
+    $patch = json_decode($patch, TRUE);
     $value_formatter = $this->methodName('getFormatted', $key);
     if (empty($patch)) {
       return [
         '#markup' => ($value_formatter) ? $this->{$value_formatter}($value_old) : $value_old,
       ];
-    } else {
+    }
+    else {
       return [
         '#markup' => $this->t('Old: <del>@old</del><br>New: <ins>@new</ins>', [
           '@old' => ($value_formatter) ? $this->{$value_formatter}($patch['old']) : $patch['old'],
           '@new' => ($value_formatter) ? $this->{$value_formatter}($patch['new']) : $patch['new'],
-        ])
+        ]),
       ];
     }
   }
@@ -385,8 +395,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   /**
    * {@inheritdoc}
    */
-  function applyPatchDefault($key, $value, $patch, $strict = FALSE) {
-    $patch = json_decode($patch, true);
+  public function applyPatchDefault($key, $value, $patch, $strict = FALSE) {
+    $patch = json_decode($patch, TRUE);
     $value_formatter = $this->methodName('getFormatted', $key);
 
     if (empty($patch)) {
@@ -397,7 +407,8 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
           'applied' => TRUE,
         ],
       ];
-    } elseif ($strict && ($patch['old'] !== $value) && ($patch['new'] !== $value)) {
+    }
+    elseif ($strict && ($patch['old'] !== $value) && ($patch['new'] !== $value)) {
       // Strict means that the old value (to be removed) must be the same as the current.
       // Except the case that the new value is already set.
       $message = $this->t('Expected old value to be "@expected" but found "@found".', [
@@ -409,10 +420,11 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
         'feedback' => [
           'code' => 0,
           'applied' => FALSE,
-          'message' => $message
+          'message' => $message,
         ],
       ];
-    } else {
+    }
+    else {
       $code = (($patch['old'] !== $value) && ($patch['new'] !== $value)) ? 50 : 100;
       $result = [
         'result' => $patch['new'],
@@ -443,7 +455,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    * @param string $suffix
    *   Separator.
    *
-   * @return string|FALSE
+   * @return string|false
    *   The getter name.
    */
   protected function methodName($prefix = 'get', $property, $separator = '_', $suffix = '') {
@@ -451,7 +463,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
     $parts = array_map('ucwords', $array);
     $string = implode('', $parts);
     $suffix = ucfirst($suffix);
-    $string = $prefix.$string.$suffix;
+    $string = $prefix . $string . $suffix;
     return method_exists($this, $string) ? $string : FALSE;
   }
 

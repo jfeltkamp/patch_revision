@@ -51,7 +51,6 @@ class DiffServiceTest extends UnitTestCase {
     $this->assertTrue($patched["feedback"]["code"] == 100);
   }
 
-
   /**
    * @covers ::applyPatchText
    */
@@ -72,6 +71,5 @@ class DiffServiceTest extends UnitTestCase {
     $this->assertEquals(1, $crawler->filter('span')->count());
     $this->assertEquals(1, $crawler->filter('ins')->count());
   }
-
 
 }

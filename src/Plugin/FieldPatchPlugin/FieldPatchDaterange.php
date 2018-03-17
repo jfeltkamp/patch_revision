@@ -3,8 +3,6 @@
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -48,7 +46,8 @@ class FieldPatchDaterange extends FieldPatchPluginBase {
       foreach ($this->getFieldProperties() as $name => $default) {
         if ($value[$name] instanceof DrupalDateTime) {
           $data[$key][$name] = $value[$name]->format('Y-m-d\TH:i:s');
-        } else {
+        }
+        else {
           $data[$key][$name] = (string) $value[$name];
         }
       }

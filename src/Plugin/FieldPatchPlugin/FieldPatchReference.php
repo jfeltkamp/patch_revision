@@ -2,9 +2,6 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -29,7 +26,7 @@ use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 class FieldPatchReference extends FieldPatchPluginBase {
 
   /**
-   * @var EntityStorageInterface
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $entityStorage;
 
@@ -50,9 +47,9 @@ class FieldPatchReference extends FieldPatchPluginBase {
   }
 
   /**
-   * Returns the storage interface
+   * Returns the storage interface.
    *
-   * @return EntityStorageInterface|FALSE
+   * @return \Drupal\Core\Entity\EntityStorageInterface|false
    *   The storage.
    */
   protected function getEntityStorage() {

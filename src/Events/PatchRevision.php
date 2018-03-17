@@ -1,15 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jfeltkamp
- * Date: 25.09.17
- * Time: 16:15
- */
-namespace Drupal\patch_revision\Events;
 
+namespace Drupal\patch_revision\Events;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
+/**
+ *
+ */
 final class PatchRevision {
   use StringTranslationTrait;
 
@@ -74,18 +71,23 @@ final class PatchRevision {
       case 0:
         $label = $this->t(self::PR_STATUS_DISABLED_TXT);
         break;
+
       case 1:
         $label = $this->t(self::PR_STATUS_ACTIVE_TXT);
         break;
+
       case 2:
         $label = $this->t(self::PR_STATUS_CONFLICTED_TXT);
         break;
+
       case 3:
-        $label =  $this->t(self::PR_STATUS_PATCHED_TXT);
+        $label = $this->t(self::PR_STATUS_PATCHED_TXT);
         break;
+
       case 4:
-        $label =  $this->t(self::PR_STATUS_DECLINED_TXT);
+        $label = $this->t(self::PR_STATUS_DECLINED_TXT);
         break;
+
       default:
         return $this->t('undefined');
     }
@@ -104,4 +106,5 @@ final class PatchRevision {
   public function getStatus($id) {
     return self::PR_STATUS[$id];
   }
+
 }

@@ -3,9 +3,6 @@
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
-use DiffMatchPatch\DiffMatchPatch;
 
 /**
  * Plugin implementation of the 'promote' actions.

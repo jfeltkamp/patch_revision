@@ -2,8 +2,6 @@
 
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -34,7 +32,6 @@ class FieldPatchBoolean extends FieldPatchPluginBase {
     return 'boolean';
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -42,7 +39,7 @@ class FieldPatchBoolean extends FieldPatchPluginBase {
     $properties = array_keys($this->getFieldProperties());
     foreach ($feedback as $key => $col) {
       foreach ($properties as $property) {
-        if(isset($col[$property]['applied'])) {
+        if (isset($col[$property]['applied'])) {
           if ($col[$property]['applied'] === FALSE) {
             $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
           }
@@ -55,6 +52,7 @@ class FieldPatchBoolean extends FieldPatchPluginBase {
    * {@inheritdoc}
    */
   public function validateDataIntegrity($value) {
-    return in_array($value, [0,1]);
+    return in_array($value, [0, 1]);
   }
+
 }

@@ -3,9 +3,7 @@
 namespace Drupal\patch_revision\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -14,10 +12,8 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\Exception\ReadOnlyException;
-use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
 use Drupal\patch_revision\Events\PatchRevision;
-use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -38,7 +34,7 @@ class PatchApplyForm extends ContentEntityForm {
   /**
    * Drupal\Core\Entity\EntityTypeManager definition.
    *
-   * @var ConfigFactory
+   * @var \Drupal\Core\Config\ConfigFactory
    */
   protected $configFactory;
 
@@ -64,12 +60,12 @@ class PatchApplyForm extends ContentEntityForm {
   protected $diffService;
 
   /**
-   * @var FormBuilder
+   * @var \Drupal\Core\Form\FormBuilder
    */
   protected $formBuilder;
 
   /**
-   * @var PatchRevision
+   * @var \Drupal\patch_revision\Events\PatchRevision
    */
   protected $constants;
 
@@ -85,7 +81,7 @@ class PatchApplyForm extends ContentEntityForm {
     DiffService $diff_service,
     FormBuilder $form_builder
   ) {
-    parent::__construct( $entity_manager, $entity_type_bundle_info,$time);
+    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->diffService = $diff_service;
@@ -147,22 +143,23 @@ class PatchApplyForm extends ContentEntityForm {
       return;
     }
 
-    // APPLY SUCCEEDED
+    // APPLY SUCCEEDED.
     /** @var \Drupal\field\Entity\FieldConfig[] $field_defs */
     $field_defs = $orig_entity->getFieldDefinitions();
     foreach ($this->entity->getPatchField() as $name => $patch) {
-      if(isset($field_defs[$name])) {
+      if (isset($field_defs[$name])) {
         // We must filter values because smt. $form_state->getValue() returns widget elements as btn "Add more items".
         $field_plugin = $this->entity->getPluginManager()->getPluginFromFieldType($field_defs[$name]->getType());
         $form_value = ($field_plugin)
           ? $field_plugin->prepareDataDb($form_state->getValue($name))
           : $form_state->getValue($name);
-        $new_value = array_filter($form_value, function($val, $key) use($field_plugin) {
+        $new_value = array_filter($form_value, function ($val, $key) use ($field_plugin) {
           return $field_plugin->validateDataIntegrity($val);
-        },ARRAY_FILTER_USE_BOTH);
+        }, ARRAY_FILTER_USE_BOTH);
 
         $orig_entity->set($name, $new_value);
-      } else {
+      }
+      else {
         drupal_set_message($this->t('Field "@field" is not defined and can not be patched.', [
           '@field' => $name,
         ]), 'warning');
@@ -170,7 +167,7 @@ class PatchApplyForm extends ContentEntityForm {
     }
     // Set revision information.
     $orig_entity->setNewRevision(TRUE);
-    /** @var UserInterface|FALSE $patch_creator */
+    /** @var \Drupal\user\UserInterface|FALSE $patch_creator */
     $users = $this->entity->get('uid')->referencedEntities();
     $patch_creator = reset($users);
     $message = $this->t('Applied improvement with id "@id" of user "@user" with message "@message".', [
@@ -217,9 +214,9 @@ class PatchApplyForm extends ContentEntityForm {
     $form['#parents'] = [];
     $form['#attached']['library'][] = 'patch_revision/patch_revision.apply_form';
 
-    /** @var NodeInterface $orig_entity */
+    /** @var \Drupal\node\NodeInterface $orig_entity */
     $orig_entity = $this->entity->originalEntityRevision('latest');
-    /** @var NodeInterface $orig_entity_old */
+    /** @var \Drupal\node\NodeInterface $orig_entity_old */
     $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
     $header_data = $this->entity->getViewHeaderData();
@@ -235,13 +232,12 @@ class PatchApplyForm extends ContentEntityForm {
       '#log_message' => $header_data['log_message'],
       '#attached' => [
         'library' => ['patch_revision/patch_revision.pr_patch_header'],
-      ]
+      ],
     ];
-
 
     // Load entity form (default) with latest revision to pick the Form widgets from it.
     $form_id = implode('.', [$orig_entity->getEntityTypeId(), $orig_entity->bundle(), 'default']);
-    /** @var EntityFormDisplay $entity_form_display */
+    /** @var \Drupal\Core\Entity\Entity\EntityFormDisplay $entity_form_display */
     $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load($form_id);
 
     $patch = $this->entity->getPatchField();
@@ -249,14 +245,16 @@ class PatchApplyForm extends ContentEntityForm {
 
       // Build frame for each field.
       $field_label = $this->entity->getOrigFieldLabel($field_name);
-      $form[$field_name.'_group'] = [
+      $form[$field_name . '_group'] = [
         '#type' => 'fieldset',
         '#title' => $field_label,
         '#open' => TRUE,
-        '#attributes' => ['class' => [
-          'pr_apply_group',
-          'pr_apply_' . $field_name,
-        ]],
+        '#attributes' => [
+          'class' => [
+            'pr_apply_group',
+            'pr_apply_' . $field_name,
+          ],
+        ],
         'left' => [
           '#type' => 'container',
           '#attributes' => ['class' => ['group_left']],
@@ -277,7 +275,7 @@ class PatchApplyForm extends ContentEntityForm {
         ],
       ];
 
-      // Left side content. Old Value with highlighted patch
+      // Left side content. Old Value with highlighted patch.
       $field_old = $orig_entity_old->get($field_name);
       $field_type = $this->entity->getEntityFieldType($field_name);
       $config = ($field_type == 'entity_reference')
@@ -288,7 +286,7 @@ class PatchApplyForm extends ContentEntityForm {
 
       if ($field_patch_plugin) {
         $result_old = $field_patch_plugin->getFieldPatchView($field_patch, $field_old);
-        $form[$field_name.'_group']['left'][$field_name.'_patch'] = $result_old;
+        $form[$field_name . '_group']['left'][$field_name . '_patch'] = $result_old;
 
         // Right side. Latest value form element with patch applied.
         $widget = $entity_form_display->getRenderer($field_name);
@@ -296,23 +294,26 @@ class PatchApplyForm extends ContentEntityForm {
         $patched_value = $field_patch_plugin->patchFieldValue($value_latest->getValue(), $field_patch);
         try {
           $value_latest->setValue($patched_value['result']);
-        } catch (\Exception $e) {
-          if ($e instanceof \InvalidArgumentException) {}
-          if ($e instanceof ReadOnlyException) {}
+        }
+        catch (\Exception $e) {
+          if ($e instanceof \InvalidArgumentException) {
+          }
+          if ($e instanceof ReadOnlyException) {
+          }
         }
         $orig_field_widget = $widget->form($value_latest, $form, $form_state);
         $field_patch_plugin->setWidgetFeedback($orig_field_widget, $patched_value['feedback']);
         $orig_field_widget['#access'] = $value_latest->access('edit');
-        $form[$field_name.'_group']['right'][$field_name] = $orig_field_widget;
-      } else {
+        $form[$field_name . '_group']['right'][$field_name] = $orig_field_widget;
+      }
+      else {
         drupal_set_message($this->t('FieldPatch plugin missing for field_type @field_type', [
-            '@field_type' => $field_type
-          ])
-        );
+          '@field_type' => $field_type,
+        ])
+              );
       }
 
     }
-
 
     $form += parent::buildForm($form, $form_state);
     return $form;

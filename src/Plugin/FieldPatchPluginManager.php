@@ -2,15 +2,10 @@
 
 namespace Drupal\patch_revision\Plugin;
 
-use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\node\NodeInterface;
-use Drupal\node\NodeTypeInterface;
 
 /**
  * Provides the Field patch plugin plugin manager.
@@ -18,12 +13,12 @@ use Drupal\node\NodeTypeInterface;
 class FieldPatchPluginManager extends DefaultPluginManager {
 
   /**
-   * @var EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManager
    */
   private $entityFieldManager;
 
   /**
-   * @var ImmutableConfig
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   private $config;
 
@@ -47,7 +42,6 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     $this->config = \Drupal::config('patch_revision.config');
   }
 
-
   /**
    * @return array
    *   Array with all field types a FieldPatchPlugin exists.
@@ -61,13 +55,11 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     return $collector;
   }
 
-
-
   /**
    * @param string $node_type_id
-   *    The node type id.
+   *   The node type id.
    * @param bool $bypass_explicit
-   *    Bypass explicit check i.e. when form for explicit exclusion is build.
+   *   Bypass explicit check i.e. when form for explicit exclusion is build.
    *
    * @return \Drupal\Core\Field\FieldDefinitionInterface[]|mixed
    */
@@ -98,14 +90,13 @@ class FieldPatchPluginManager extends DefaultPluginManager {
     return $fields;
   }
 
-
   /**
    * @param string $field_type
    *   The FieldType for what correct plugin is needed.
    * @param array $config
    *   The plugin configuration.
    *
-   * @return \Drupal\patch_revision\Plugin\FieldPatchPluginBase|FALSE
+   * @return \Drupal\patch_revision\Plugin\FieldPatchPluginBase|false
    *   The FieldPatchPlugin belongs to FieldType.
    */
   public function getPluginFromFieldType($field_type, $config = []) {
@@ -114,7 +105,8 @@ class FieldPatchPluginManager extends DefaultPluginManager {
 
     if ($this->hasDefinition($field_type)) {
       return $this->createInstance($field_type, $config);
-    } else {
+    }
+    else {
       foreach ($this->getDefinitions() as $key => $definition) {
         if (in_array($field_type, $definition['field_types'])) {
           return $this->createInstance($key, $config);
@@ -127,19 +119,19 @@ class FieldPatchPluginManager extends DefaultPluginManager {
   /**
    * Get a git-diff between two strings.
    *
-   * @param $field_type string
+   * @param string $field_type
    *   The field definition.
-   * @param $old array
+   * @param array $old
    *   The source array.
-   * @param $new array
+   * @param array $new
    *   The overridden array.
    *
-   * @return array|FALSE
+   * @return array|false
    *   The git diff.
    */
   public function getDiff($field_type, $old, $new) {
     $plugin = $this->getPluginFromFieldType($field_type);
-    if($plugin instanceof FieldPatchPluginInterface) {
+    if ($plugin instanceof FieldPatchPluginInterface) {
       return $plugin->getFieldDiff($old, $new);
     }
     return FALSE;
@@ -148,19 +140,19 @@ class FieldPatchPluginManager extends DefaultPluginManager {
   /**
    * Get a git-diff between two strings.
    *
-   * @param $field_type string
+   * @param string $field_type
    *   The field definition.
-   * @param $value array
+   * @param array $value
    *   The source array.
-   * @param $patch array
+   * @param array $patch
    *   The overridden array.
    *
-   * @return array|FALSE
+   * @return array|false
    *   The git diff.
    */
   public function patchField($field_type, $value, $patch) {
     $plugin = $this->getPluginFromFieldType($field_type);
-    if($plugin instanceof FieldPatchPluginInterface) {
+    if ($plugin instanceof FieldPatchPluginInterface) {
       return $plugin->patchFieldValue($value, $patch);
     }
     return FALSE;

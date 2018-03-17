@@ -4,20 +4,12 @@ namespace Drupal\patch_revision\Entity;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
 use Drupal\patch_revision\DiffService;
-use Drupal\patch_revision\Plugin\FieldPatchPluginInterface;
-use Drupal\user\Entity\User;
-use Drupal\Core\Entity\ContentEntityType;
-use Drupal\Core\Annotation\Translation;
-use Drupal\user\UserInterface;
 
 /**
  * Defines the Patch entity.
@@ -74,17 +66,17 @@ use Drupal\user\UserInterface;
 class Patch extends ContentEntityBase {
 
   /**
-   * @var EntityInterface
+   * @var \Drupal\Core\Entity\EntityInterface
    */
   protected $originalEntity;
 
   /**
-   * @var User
+   * @var \Drupal\user\Entity\User
    */
   protected $creator;
 
   /**
-   * @var EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManager
    */
   protected $entityFieldManager;
 
@@ -94,22 +86,22 @@ class Patch extends ContentEntityBase {
   protected $entityFieldMap;
 
   /**
-   * @var DiffService
+   * @var \Drupal\patch_revision\DiffService
    */
   public $diffService;
 
   /**
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
    */
   private $pluginManager;
 
   /**
-   * @var array;
+   * @var array
    */
   private $origRevisionIds;
 
   /**
-   * @var array;
+   * @var array
    */
   private $diff;
 
@@ -133,7 +125,7 @@ class Patch extends ContentEntityBase {
   /**
    * Returns the Diff entity.
    *
-   * @return DiffService
+   * @return \Drupal\patch_revision\DiffService
    */
   public function getDiffService() {
     if (!$this->diffService) {
@@ -144,7 +136,8 @@ class Patch extends ContentEntityBase {
 
   /**
    * Returns lazy Entity field manager.
-   * @return EntityFieldManager
+   *
+   * @return \Drupal\Core\Entity\EntityFieldManager
    */
   protected function getEntityFieldManager() {
     if (!$this->entityFieldManager) {
@@ -165,7 +158,6 @@ class Patch extends ContentEntityBase {
     }
     return $this->entityFieldMap;
   }
-
 
   /**
    * Field type property.
@@ -276,7 +268,7 @@ class Patch extends ContentEntityBase {
   /**
    * Returns patch for a single field.
    *
-   * @param $field_name string
+   * @param string $field_name
    *   The field name to return.
    *
    * @return array
@@ -286,14 +278,17 @@ class Patch extends ContentEntityBase {
     $patch = $this->getPatchField();
     if (isset($patch[$field_name])) {
       return $patch[$field_name];
-    } else
+    }
+    else {
       return [];
+    }
   }
 
   /**
    * Returns all revision_ids for an entity.
    *
    * @return array
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getOrigRevisionIds() {
@@ -312,7 +307,7 @@ class Patch extends ContentEntityBase {
    *   If method returns current or the latest (possibly unpublished) revision.
    *   Accepted values are 'current', 'latest' or a revision_id as '123'.
    *
-   * @return \Drupal\node\NodeInterface|FALSE
+   * @return \Drupal\node\NodeInterface|false
    */
   public function originalEntity() {
     if (!isset($this->originalEntity)) {
@@ -330,7 +325,7 @@ class Patch extends ContentEntityBase {
    *   If method returns current or the latest (possibly unpublished) revision.
    *   Accepted values are 'current', 'latest', 'origin' or a revision_id as '123'.
    *
-   * @return \Drupal\node\NodeInterface|FALSE
+   * @return \Drupal\node\NodeInterface|false
    */
   public function originalEntityRevision($revision = 'current') {
     $entity = $this->originalEntity();
@@ -339,13 +334,16 @@ class Patch extends ContentEntityBase {
     switch ($revision) {
       case 'current':
         return $entity;
-        break;
+
+      break;
       case 'latest':
         $revision_id = end($revision_ids);
         break;
+
       case 'origin':
         $revision_id = (int) $this->get('rvid')->getString();
         break;
+
       default:
         $revision_id = in_array((int) $revision, $revision_ids)
           ? (int) $revision
@@ -356,10 +354,12 @@ class Patch extends ContentEntityBase {
       if ($revision_id) {
         $entity_type = $entity->getEntityTypeId();
         return $this->entityTypeManager()->getStorage($entity_type)->loadRevision($revision_id);
-      } else {
+      }
+      else {
         return FALSE;
       }
-    } catch(InvalidPluginDefinitionException $e) {
+    }
+    catch (InvalidPluginDefinitionException $e) {
       drupal_set_message($e->getMessage(), 'error');
       return FALSE;
     }
@@ -368,7 +368,7 @@ class Patch extends ContentEntityBase {
   /**
    * Returns a revision referred entity or FALSE if none exists.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|FALSE
+   * @return \Drupal\Core\Entity\EntityInterface|false
    */
   public function originalEntityRevisionOld() {
     return $this->originalEntityRevision('origin');
@@ -377,7 +377,7 @@ class Patch extends ContentEntityBase {
   /**
    * Returns the Creator user.
    *
-   * @return \Drupal\user\Entity\User|FALSE
+   * @return \Drupal\user\Entity\User|false
    */
   public function getCreator() {
     if (!isset($this->creator)) {
@@ -391,7 +391,7 @@ class Patch extends ContentEntityBase {
   /**
    * Returns the label belongs to the field type.
    *
-   * @return TranslatableMarkup|string
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|string
    */
   public function getOrigFieldLabel($field_name) {
     if ($orig_entity = $this->originalEntity()) {

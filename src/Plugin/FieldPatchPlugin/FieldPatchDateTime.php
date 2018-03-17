@@ -3,8 +3,6 @@
 namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
 
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\patch_revision\Annotation\FieldPatchPlugin;
-use Drupal\Core\Annotation\Translation;
 use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
 
 /**
@@ -36,15 +34,17 @@ class FieldPatchDateTime extends FieldPatchPluginBase {
     return 'datetime';
   }
 
-
+  /**
+   *
+   */
   public function getFormattedValue($value) {
-    // $value = "1519732604";
+    // $value = "1519732604";.
     if (!preg_match('/^[0-9]*$/', $value)) {
       $timezone = new \DateTimeZone('UTC');
       $date_time = new DrupalDateTime($value, $timezone);
       $value = $date_time->format('U');
     }
-    $object = $this->dateFormatter->format($value,'medium');
+    $object = $this->dateFormatter->format($value, 'medium');
     return $object;
   }
 
@@ -56,6 +56,7 @@ class FieldPatchDateTime extends FieldPatchPluginBase {
       case 'timestamp':
         $format = 'U';
         break;
+
       default:
         $format = 'Y-m-d\TH:i:s';
     }
@@ -64,7 +65,8 @@ class FieldPatchDateTime extends FieldPatchPluginBase {
       foreach ($this->getFieldProperties() as $name => $default) {
         if ($value[$name] instanceof DrupalDateTime) {
           $data[$key][$name] = $value[$name]->format($format);
-        } else {
+        }
+        else {
           $data[$key][$name] = (string) $value[$name];
         }
       }

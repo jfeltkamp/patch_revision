@@ -5,9 +5,6 @@ namespace Drupal\patch_revision;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
-use Drupal\Core\Link;
-use Drupal\Core\Url;
-use Drupal\node\NodeInterface;
 
 /**
  * View builder handler for nodes.
@@ -32,7 +29,6 @@ class PatchViewBuilder extends EntityViewBuilder {
     return $defaults;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -55,7 +51,8 @@ class PatchViewBuilder extends EntityViewBuilder {
         '@type' => $header_data['orig_type'],
         '@title' => $header_data['orig_title'],
       ]);
-    } else {
+    }
+    else {
       $view['#title'] = $this->t('Display patch for node/@id.', [
         '@id' => $header_data['orig_id'],
       ]);
@@ -69,12 +66,11 @@ class PatchViewBuilder extends EntityViewBuilder {
       '#log_message' => $header_data['log_message'],
       '#attached' => [
         'library' => ['patch_revision/patch_revision.pr_patch_header'],
-      ]
+      ],
     ];
 
-
     // Build field patches views.
-    /** @var NodeInterface[] $patches */
+    /** @var \Drupal\node\NodeInterface[] $patches */
     $patch = $entity->getPatchField();
     foreach ($patch as $field_name => $value) {
       $field_type = $entity->getEntityFieldType($field_name);
@@ -93,7 +89,7 @@ class PatchViewBuilder extends EntityViewBuilder {
             'pr_field_view',
             'pr_field_view_name__' . $field_name,
             'pr_field_view_type__' . $field_type,
-          ]
+          ],
         ],
         'content' => $field_view,
       ];

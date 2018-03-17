@@ -59,7 +59,8 @@ class DiffService {
     $this->dmp = new DiffMatchPatch();
     try {
       $patches = $this->dmp->patch_fromText($patch);
-    } catch(\Exception $e) {
+    }
+    catch (\Exception $e) {
       drupal_set_message($e->getMessage(), 'error');
     }
 
@@ -67,7 +68,7 @@ class DiffService {
 
       $result = $this->dmp->patch_apply($patches, $value);
       $code = (count($patches))
-        ? ceil((count(array_filter($result[1]))/count($result[1])) * 100)
+        ? ceil((count(array_filter($result[1])) / count($result[1])) * 100)
         : 100;
 
       $feedback = ['code' => $code];
@@ -75,7 +76,8 @@ class DiffService {
         // debug: throw new ProcessFailedException($process);
         $result = $value;
         $feedback['applied'] = FALSE;
-      } else {
+      }
+      else {
         $result = $result[0];
         $feedback['applied'] = TRUE;
       }
@@ -90,7 +92,8 @@ class DiffService {
       }
       return $result;
 
-    } else {
+    }
+    else {
       return [
         'result' => $value,
         'feedback' => [
@@ -117,7 +120,8 @@ class DiffService {
     $this->dmp = new DiffMatchPatch();
     try {
       $patches = $this->dmp->patch_fromText($patch);
-    } catch(\Exception $e) {
+    }
+    catch (\Exception $e) {
       drupal_set_message($e->getMessage(), 'error');
       $patches = [];
     }
@@ -125,13 +129,13 @@ class DiffService {
       $value_new = $this->dmp->patch_apply($patches, $value_old);
       $diff = $this->dmp->diff_main($value_old, $value_new[0]);
       $string = $this->dmp->diff_prettyHtml($diff);
-    } else {
+    }
+    else {
       $string = $value_old;
     }
     return [
-      '#markup' => "{$string}"
+      '#markup' => "{$string}",
     ];
   }
 
 }
-

@@ -7,7 +7,6 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\node\NodeTypeInterface;
 use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManager;
@@ -41,7 +40,7 @@ class PatchRevisionConfig extends ConfigFormBase {
   /**
    * FieldPatchPluginManager.
    *
-   * @var CacheTagsInvalidatorInterface
+   * @var \Drupal\Core\Cache\CacheTagsInvalidatorInterface
    */
   protected $cacheInvalidator;
 
@@ -63,7 +62,7 @@ class PatchRevisionConfig extends ConfigFormBase {
   }
 
   /**
-   * @param ContainerInterface $container
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    * @return static
    */
   public static function create(ContainerInterface $container) {
@@ -97,6 +96,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    *
    * @var $patchable_fields \Drupal\Core\Field\FieldDefinitionInterface[]
    *   Array with pre selected field definitions.
+   *
    * @return array
    *   Default values for form select/checkboxes widget.
    */
@@ -114,7 +114,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('patch_revision.config');
-    /** @var NodeTypeInterface[] $node_types */
+    /** @var \Drupal\node\NodeTypeInterface[] $node_types */
     $node_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     $options = [];
     $form['bundle_select'] = [
@@ -152,7 +152,7 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#default_value' => implode(PHP_EOL, $config->get('general_excluded_fields')),
       '#description' => $this->t('Insert machine readable field_names one-per-line to exclude from patching. In particular, fields are excluded here that are not contents, but are valuable for the information processing and presentation logic.'),
       '#weight' => 10,
-      ];
+    ];
 
     $form['tab_general']['enable_checkbox_node_form'] = [
       '#type' => 'checkbox',
@@ -247,10 +247,10 @@ class PatchRevisionConfig extends ConfigFormBase {
     $element['tab_' . $node_type->id()] = [
       '#type' => 'details',
       '#title' => 'Node type: ' . $node_type->label(),
-      '#description' => $this->t('<h3>Patch config for node type "@type"</h3><p>@desc</p>' , [
+      '#description' => $this->t('<h3>Patch config for node type "@type"</h3><p>@desc</p>', [
         '@type' => $node_type->label(),
         '@desc' => $node_type->getDescription(),
-        ]),
+      ]),
       '#group' => 'bundle_select',
     ];
     $default_value = $config->get('bundle_' . $node_type->id() . '_fields') ?: [];
@@ -261,8 +261,8 @@ class PatchRevisionConfig extends ConfigFormBase {
       '#default_value' => $default_value,
       '#disabled' => $disabled,
       '#description' => $disabled
-        ? $this->t('<div class="messages messages--warning">Enable the node type in "General settengs" and save - before you can change field configuration here.</div>')
-        : $this->t('Select fields you want to exclude from patches. Changes in excluded fields will not be saved in the patch.') ,
+      ? $this->t('<div class="messages messages--warning">Enable the node type in "General settengs" and save - before you can change field configuration here.</div>')
+      : $this->t('Select fields you want to exclude from patches. Changes in excluded fields will not be saved in the patch.') ,
     ];
 
     return $element;
