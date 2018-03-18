@@ -139,6 +139,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    *
    */
   protected function registerUsage($fid) {
+    // @Todo File usage integration. Here?!
     $usage = (int) $fid;
   }
 
