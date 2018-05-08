@@ -48,18 +48,25 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
   private $currentUser;
 
   /**
+   * @var AttachService
+   */
+  private $attachTo;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
     EntityTypeManager $entity_type_manager,
     FieldPatchPluginManager $plugin_manager,
     ImmutableConfig $config,
-    AccountProxy $currentUser
+    AccountProxy $currentUser,
+    AttachService $attach_to
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->pluginManager = $plugin_manager;
     $this->config = $config;
     $this->currentUser = $currentUser;
+    $this->attachTo = $attach_to;
   }
 
   /**
@@ -70,7 +77,8 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.field_patch_plugin'),
       $container->get('config.manager')->getConfigFactory()->get('patch_revision.config'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('patch_revision.attach_service')
     );
   }
 
@@ -104,6 +112,10 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
       $patch->save();
 
       drupal_set_message(t('Thank you. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);
+
+      if ($attach_to = \Drupal::request()->get('attach_to')) {
+        $this->attachTo->attachPatchTo($attach_to, $patch->id());
+      }
 
       $response = new RedirectResponse($patch->url());
       $response->send();

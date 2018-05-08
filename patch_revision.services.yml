@@ -15,3 +15,6 @@ services:
     arguments: ['@request_stack']
     tags:
       - { name: breadcrumb_builder, priority: 100 }
+  patch_revision.attach_service:
+    class: Drupal\patch_revision\AttachService
+    arguments: ['@entity_type.manager', '@current_user']

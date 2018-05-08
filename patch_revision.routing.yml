@@ -14,3 +14,11 @@ entity.patch.apply_form:
     _title: 'Apply patch to original node.'
   requirements:
     _permission: 'view patch entities'
+
+patch_revision.patch_ajax_controller_getPatchAjax:
+  path: '/ajax/patch/{patch}'
+  defaults:
+    _controller: '\Drupal\patch_revision\Controller\PatchAjaxController::getPatchAjax'
+    _title: 'title'
+  requirements:
+    _permission: 'access content'

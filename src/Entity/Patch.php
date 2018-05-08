@@ -120,6 +120,13 @@ class Patch extends ContentEntityBase {
   private $diff;
 
   /**
+   * {@inheritdoc}
+   */
+  public function label() {
+    return $this->get('message')->getString();
+  }
+
+  /**
    * Returns lazy instance of field patch plugin manager.
    *
    * @return \Drupal\patch_revision\Plugin\FieldPatchPluginManager
