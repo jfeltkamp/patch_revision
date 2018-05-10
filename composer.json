@@ -1,5 +1,5 @@
 {
-  "name": "jfeltkamp/change_requests",
+  "name": "drupal/change_requests",
   "type": "drupal-module",
   "description": "Provides the possibility to patch changes from a entity revision into the current revision.",
   "keywords": ["Drupal"],
