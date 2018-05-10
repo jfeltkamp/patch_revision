@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin;
+namespace Drupal\change_requests\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Config\ConfigFactory;
@@ -11,7 +11,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\file\FileUsage\FileUsageInterface;
-use Drupal\patch_revision\DiffService;
+use Drupal\change_requests\DiffService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -50,23 +50,23 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
   protected $configFactory;
 
   /**
-   * The patch_revision module config.
+   * The change_requests module config.
    *
    * @var array
    */
   protected $moduleConfig;
 
   /**
-   * The patch_revision.diff service what is a diff_match_patch adapter.
+   * The change_requests.diff service what is a diff_match_patch adapter.
    *
-   * @var \Drupal\patch_revision\DiffService
+   * @var \Drupal\change_requests\DiffService
    */
   protected $diff;
 
   /**
    * A date formatter.
    *
-   * @var \Drupal\patch_revision\DiffService
+   * @var \Drupal\change_requests\DiffService
    */
   protected $dateFormatter;
 
@@ -104,7 +104,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
       $container->get('config.factory'),
-      $container->get('patch_revision.diff'),
+      $container->get('change_requests.diff'),
       $container->get('date.formatter'),
       $container->get('file.usage')
     );
@@ -123,7 +123,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
    */
   protected function getModuleConfig($param = NULL, $default = NULL) {
     if (!$this->moduleConfig) {
-      $this->moduleConfig = $this->configFactory->get('patch_revision.config');
+      $this->moduleConfig = $this->configFactory->get('change_requests.config');
     }
     if (!$param) {
       return $this->moduleConfig;
@@ -251,7 +251,7 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
       $field['patch_result'] = [
         '#markup' => $message,
         '#weight' => -50,
-        '#prefix' => "<strong class=\"pr-success-message {$result['type']}\">",
+        '#prefix' => "<strong class=\"cr-success-message {$result['type']}\">",
         '#suffix' => "</strong>",
       ];
 
@@ -293,10 +293,10 @@ abstract class FieldPatchPluginBase extends PluginBase implements FieldPatchPlug
         if (isset($feedback[$item][$property]['applied'])) {
           if ($feedback[$item][$property]['applied'] === FALSE) {
             if (isset($field['widget']['#cardinality']) && $field['widget']['#cardinality'] > 1) {
-              $field['widget'][$item]['#attributes']['class'][] = "pr-apply-{$property}-failed";
+              $field['widget'][$item]['#attributes']['class'][] = "cr-apply-{$property}-failed";
             }
             else {
-              $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
+              $field['#attributes']['class'][] = "cr-apply-{$property}-failed";
             }
           }
         }

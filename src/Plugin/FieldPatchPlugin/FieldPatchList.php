@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
+namespace Drupal\change_requests\Plugin\FieldPatchPlugin;
 
-use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
+use Drupal\change_requests\Plugin\FieldPatchPluginBase;
 
 /**
  * Plugin implementation of the 'promote' actions.
@@ -43,7 +43,7 @@ class FieldPatchList extends FieldPatchPluginBase {
       foreach ($properties as $property) {
         if (isset($col[$property]['applied'])) {
           if ($col[$property]['applied'] === FALSE) {
-            $field['#attributes']['class'][] = "pr-apply-{$property}-failed";
+            $field['#attributes']['class'][] = "cr-apply-{$property}-failed";
           }
         }
       }

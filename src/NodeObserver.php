@@ -1,14 +1,14 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\changed_fields\NodeSubject;
 use Drupal\changed_fields\ObserverInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\patch_revision\Events\PatchRevision;
-use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+use Drupal\change_requests\Events\ChangeRequests;
+use Drupal\change_requests\Plugin\FieldPatchPluginManager;
 use Drupal\Core\Session\AccountProxy;
 use SplSubject;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,9 +27,9 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
   private $entityTypeManager;
 
   /**
-   * The patch_revision plugin manager.
+   * The change_requests plugin manager.
    *
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager|null
+   * @var \Drupal\change_requests\Plugin\FieldPatchPluginManager|null
    */
   private $pluginManager;
 
@@ -76,9 +76,9 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.field_patch_plugin'),
-      $container->get('config.manager')->getConfigFactory()->get('patch_revision.config'),
+      $container->get('config.manager')->getConfigFactory()->get('change_requests.config'),
       $container->get('current_user'),
-      $container->get('patch_revision.attach_service')
+      $container->get('change_requests.attach_service')
     );
   }
 
@@ -101,7 +101,7 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
     $node = $nodeSubject->getNode();
     if ($node->isNewRevision()) {
       $diff = $this->getNodeDiff($nodeSubject);
-      /** @var \Drupal\patch_revision\Entity\Patch $patch */
+      /** @var \Drupal\change_requests\Entity\Patch $patch */
       $patch = $this->getPatch($node->id(), $node->getEntityTypeId(), $node->bundle());
 
       $patch
@@ -111,7 +111,7 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
         ->set('uid', $this->currentUser->id());
       $patch->save();
 
-      drupal_set_message(t('Thank you. Your improvement has been saved and is to be confirmed.'), 'status', TRUE);
+      drupal_set_message(t('Thank you. Your change request has been saved and is to be confirmed.'), 'status', TRUE);
 
       if ($attach_to = \Drupal::request()->get('attach_to')) {
         $this->attachTo->attachPatchTo($attach_to, $patch->id());
@@ -159,7 +159,7 @@ class NodeObserver implements ObserverInterface, ContainerInjectionInterface {
   protected function getPatch($nid, $type, $bundle = '') {
     $storage = $this->entityTypeManager->getStorage('patch');
     $params = [
-      'status' => PatchRevision::PR_STATUS_ACTIVE,
+      'status' => ChangeRequests::CR_STATUS_ACTIVE,
       'rtype' => $type,
       'rbundle' => $bundle,
       'rid' => $nid,

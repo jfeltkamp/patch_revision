@@ -1,15 +1,16 @@
 
-| Field type                 | sup |
-|:---------------------------|:---:|
-| ____________               |     |
-|   *Texts*                  |     |
-| string                     | YES |
+
+
+
+| Field types supported      | Y/n |
+|:-------------------------- |:---:|
+| *TEXTS*                    |     |
 | string_long                | YES |
+| string                     | YES |
 | text                       | YES |
 | text_long                  | YES |
 | text_with_summary          | YES |
-| ____________               |     |
-|  *Numbers*                 |     |
+| *NUMBERS*                  |     |
 | boolean                    | YES |
 | integer                    | YES |
 | float                      | YES |
@@ -18,35 +19,29 @@
 | datetime                   | YES |
 | timestamp                  | YES |
 | daterange                  | YES |
-| ____________               |     |
-|  *Lists*                   |     |
+| *LISTS*                    |     |
 | list_integer               | YES |
 | list_string                | YES |
 | list_float                 | YES |
-| ____________               |     |
-| *Identifier*               |     |
+| *IDENTIFIER*               |     |
 | email                      | YES |
 | telephone                  | YES |
-| ____________               |     |
-| *References*               |     |
+| *REFERENCES*               |     |
 | entity_reference           | YES |
 | image                      | YES |
 | file                       | YES |
-| ____________               |     |
-| *From contrib Modules*     |     |
+| *FROM CONTRIB MODULES*     |     |
 | entity_reference_revisions | no  |
 | media_entity               | no  |
 | cronpub                    | no  |
-| ____________               |     |
-| *Thinking what to do*      |     |
+| *THINKING ABOUT*           |     |
 | uri                        | ??? |
 | path                       | ??? |
 | language                   | ??? |
 | map                        | ??? |
 | password                   | ??? |
 | comment                    | ??? |
-| ____________               |     |
-| *won't support*            |     |
+| *WON'T SUPPORT*            |     |
 | created                    |     |
 | updated                    |     |
 | uuid                       |     |

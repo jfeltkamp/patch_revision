@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use DiffMatchPatch\DiffMatchPatch;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -15,7 +15,7 @@ class DiffService {
   /**
    * DiffMatchPatch instance.
    *
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   * @var \Drupal\change_requests\Plugin\FieldPatchPluginManager
    */
   protected $dmp;
 

@@ -1,9 +1,9 @@
 
-patch_revision.patches_overview:
+change_requests.patches_overview:
   path: '/node/{node}/patches'
   defaults:
-    _title: 'Improvements Overview'
-    _controller: '\Drupal\patch_revision\Controller\PatchesOverview::overview'
+    _title: 'Change requests Overview'
+    _controller: '\Drupal\change_requests\Controller\PatchesOverview::overview'
   requirements:
     _permission: 'view patch entities'
 
@@ -15,10 +15,10 @@ entity.patch.apply_form:
   requirements:
     _permission: 'view patch entities'
 
-patch_revision.patch_ajax_controller_getPatchAjax:
+change_requests.patch_ajax_controller_getPatchAjax:
   path: '/ajax/patch/{patch}'
   defaults:
-    _controller: '\Drupal\patch_revision\Controller\PatchAjaxController::getPatchAjax'
+    _controller: '\Drupal\change_requests\Controller\PatchAjaxController::getPatchAjax'
     _title: 'title'
   requirements:
     _permission: 'access content'

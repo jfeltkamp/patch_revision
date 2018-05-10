@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
@@ -24,7 +24,7 @@ class PatchViewBuilder extends EntityViewBuilder {
    * {@inheritdoc}
    */
   public function view(EntityInterface $entity, $view_mode = 'full', $langcode = NULL) {
-    /** @var \Drupal\patch_revision\Entity\Patch $entity */
+    /** @var \Drupal\change_requests\Entity\Patch $entity */
     $view = parent::view($entity, $view_mode, $langcode);
     $original_entity = $entity->originalEntityRevision('origin');
 
@@ -44,12 +44,12 @@ class PatchViewBuilder extends EntityViewBuilder {
     }
 
     $view['header'] = [
-      '#theme' => 'pr_patch_header',
+      '#theme' => 'cr_patch_header',
       '#created' => $header_data['created'],
       '#creator' => $header_data['creator'],
       '#log_message' => $header_data['log_message'],
       '#attached' => [
-        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+        'library' => ['change_requests/cr_patch_header'],
       ],
     ];
 
@@ -70,16 +70,16 @@ class PatchViewBuilder extends EntityViewBuilder {
         '#open' => TRUE,
         '#attributes' => [
           'class' => [
-            'pr_field_view',
-            'pr_field_view_name__' . $field_name,
-            'pr_field_view_type__' . $field_type,
+            'cr_field_view',
+            'cr_field_view_name__' . $field_name,
+            'cr_field_view_type__' . $field_type,
           ],
         ],
         'content' => $field_view,
       ];
 
     }
-    $view['#attached']['library'][] = 'patch_revision/patch_revision.patch_view';
+    $view['#attached']['library'][] = 'change_requests/cr_patch_view';
     return $view;
   }
 

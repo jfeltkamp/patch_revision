@@ -1,14 +1,14 @@
 <?php
 
-namespace Drupal\patch_revision\Controller;
+namespace Drupal\change_requests\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\node\Entity\Node;
-use Drupal\patch_revision\Entity\Patch;
+use Drupal\change_requests\Entity\Patch;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\patch_revision\DiffService;
-use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+use Drupal\change_requests\DiffService;
+use Drupal\change_requests\Plugin\FieldPatchPluginManager;
 
 /**
  * Class PatchApplyController.
@@ -23,23 +23,23 @@ class PatchApplyController extends ControllerBase {
   protected $entityTypeManager;
 
   /**
-   * Drupal\patch_revision\DiffService definition.
+   * Drupal\change_requests\DiffService definition.
    *
-   * @var \Drupal\patch_revision\DiffService
+   * @var \Drupal\change_requests\DiffService
    */
-  protected $patchRevisionDiff;
+  protected $changeRequestsDiff;
 
   /**
-   * Drupal\patch_revision\Plugin\FieldPatchPluginManager definition.
+   * Drupal\change_requests\Plugin\FieldPatchPluginManager definition.
    *
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   * @var \Drupal\change_requests\Plugin\FieldPatchPluginManager
    */
   protected $pluginManagerFieldPatchPlugin;
 
   /**
-   * Drupal\patch_revision\Entity\Patch definition.
+   * Drupal\change_requests\Entity\Patch definition.
    *
-   * @var \Drupal\patch_revision\Entity\Patch|false
+   * @var \Drupal\change_requests\Entity\Patch|false
    */
   protected $patch;
 
@@ -53,9 +53,9 @@ class PatchApplyController extends ControllerBase {
   /**
    * Constructs a new PatchApplyController object.
    */
-  public function __construct(EntityTypeManager $entity_type_manager, DiffService $patch_revision_diff, FieldPatchPluginManager $plugin_manager_field_patch_plugin) {
+  public function __construct(EntityTypeManager $entity_type_manager, DiffService $change_requests_diff, FieldPatchPluginManager $plugin_manager_field_patch_plugin) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->patchRevisionDiff = $patch_revision_diff;
+    $this->changeRequestsDiff = $change_requests_diff;
     $this->pluginManagerFieldPatchPlugin = $plugin_manager_field_patch_plugin;
   }
 
@@ -65,7 +65,7 @@ class PatchApplyController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('patch_revision.diff'),
+      $container->get('change_requests.diff'),
       $container->get('plugin.manager.field_patch_plugin')
     );
   }

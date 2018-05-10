@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin;
+namespace Drupal\change_requests\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Field\FieldItemListInterface;

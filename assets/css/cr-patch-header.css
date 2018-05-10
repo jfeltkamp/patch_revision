@@ -1,4 +1,4 @@
-.pr-patch-header {
+.cr-patch-header {
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
@@ -21,8 +21,8 @@
   margin: 2em 0;
 }
 
-.pr-patch-header--by,
-.pr-patch-header--on {
+.cr-patch-header--by,
+.cr-patch-header--on {
   -webkit-flex: 1 1 50%;
   -ms-flex: 1 1 50%;
   flex: 1 1 50%;
@@ -35,23 +35,23 @@
   padding: 0 18px 0 0;
 }
 
-.pr-patch-header--on {
+.cr-patch-header--on {
   text-align: right;
 }
 
-.pr-patch-header--label {
+.cr-patch-header--label {
   font-weight: 700;
 }
 
-.pr-log-message {
+.cr-log-message {
   margin-bottom: 2em;
 }
 
-.pr-log-message--label {
+.cr-log-message--label {
   font-size: 1.125em;
   line-height: 1.5em;
 }
-.pr-log-message--log-message {
+.cr-log-message--log-message {
   padding-left: 18px;
   margin-top: .25em;
 }

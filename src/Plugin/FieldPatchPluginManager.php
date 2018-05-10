@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin;
+namespace Drupal\change_requests\Plugin;
 
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Plugin\DefaultPluginManager;
@@ -38,12 +38,12 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/FieldPatchPlugin', $namespaces, $module_handler, 'Drupal\patch_revision\Plugin\FieldPatchPluginInterface', 'Drupal\patch_revision\Annotation\FieldPatchPlugin');
+    parent::__construct('Plugin/FieldPatchPlugin', $namespaces, $module_handler, 'Drupal\change_requests\Plugin\FieldPatchPluginInterface', 'Drupal\change_requests\Annotation\FieldPatchPlugin');
 
-    $this->alterInfo('patch_revision_field_patch_plugin_info');
-    $this->setCacheBackend($cache_backend, 'patch_revision_field_patch_plugin_plugins');
+    $this->alterInfo('change_requests_field_patch_plugin_info');
+    $this->setCacheBackend($cache_backend, 'change_requests_field_patch_plugin_plugins');
     $this->entityFieldManager = \Drupal::service('entity_field.manager');
-    $this->config = \Drupal::config('patch_revision.config');
+    $this->config = \Drupal::config('change_requests.config');
   }
 
   /**
@@ -107,7 +107,7 @@ class FieldPatchPluginManager extends DefaultPluginManager {
    * @param array $config
    *   The plugin configuration.
    *
-   * @return \Drupal\patch_revision\Plugin\FieldPatchPluginBase|false
+   * @return \Drupal\change_requests\Plugin\FieldPatchPluginBase|false
    *   The FieldPatchPlugin belongs to FieldType.
    */
   public function getPluginFromFieldType($field_type, array $config = []) {

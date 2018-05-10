@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
+namespace Drupal\change_requests\Plugin\FieldPatchPlugin;
 
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
+use Drupal\change_requests\Plugin\FieldPatchPluginBase;
 
 /**
  * FieldPatchPlugin for field type image.
@@ -124,7 +124,7 @@ class FieldPatchImage extends FieldPatchPluginBase {
     $patch = json_decode($patch, TRUE);
     if (empty($patch)) {
       return [
-        '#theme' => 'pr_view_image',
+        '#theme' => 'cr_view_image',
         '#center' => $this->getTargetId($value_old),
       ];
     }
@@ -133,7 +133,7 @@ class FieldPatchImage extends FieldPatchPluginBase {
       $new = $this->getTargetId($patch['new']);
 
       return [
-        '#theme' => 'pr_view_image',
+        '#theme' => 'cr_view_image',
         '#left' => $old,
         '#right' => $new,
       ];
@@ -153,7 +153,7 @@ class FieldPatchImage extends FieldPatchPluginBase {
     if (!$entity_id) {
       return [
         '#type' => 'container',
-        '#attributes' => ['class' => ['pr-no-img']],
+        '#attributes' => ['class' => ['cr-no-img']],
         'content' => ['#markup' => $this->t('No image')],
       ];
     }
@@ -177,13 +177,13 @@ class FieldPatchImage extends FieldPatchPluginBase {
           '#uri' => $uri,
         ],
         'name' => $link,
-        '#attached' => ['library' => ['patch_revision/patch_revision.pr-view-image']],
+        '#attached' => ['library' => ['change_requests/cr_view_image']],
       ];
     }
     else {
       return [
         '#type' => 'container',
-        '#attributes' => ['class' => ['pr-no-img']],
+        '#attributes' => ['class' => ['cr-no-img']],
         'content' => ['#markup' => $this->t('Image not found')],
       ];
     }

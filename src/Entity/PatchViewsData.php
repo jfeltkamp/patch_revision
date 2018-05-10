@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Entity;
+namespace Drupal\change_requests\Entity;
 
 use Drupal\views\EntityViewsData;
 

@@ -1,24 +1,24 @@
 <?php
 
-namespace Drupal\Tests\patch_revision\Unit;
+namespace Drupal\Tests\change_requests\Unit;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\patch_revision\DiffService;
+use Drupal\change_requests\DiffService;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Tests diff service with yetanotherape/diff_match_patch.
  *
- * @coversDefaultClass \Drupal\patch_revision\DiffService
- * @group patch_revision
+ * @coversDefaultClass \Drupal\change_requests\DiffService
+ * @group change_requests
  */
 class DiffServiceTest extends UnitTestCase {
 
   /**
    * The class under test.
    *
-   * @var \Drupal\patch_revision\DiffService
+   * @var \Drupal\change_requests\DiffService
    */
   protected $diffService;
 

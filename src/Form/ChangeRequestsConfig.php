@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Form;
+namespace Drupal\change_requests\Form;
 
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Entity\EntityFieldManager;
@@ -8,14 +8,14 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\node\NodeTypeInterface;
-use Drupal\patch_revision\Plugin\FieldPatchPluginManager;
+use Drupal\change_requests\Plugin\FieldPatchPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 
 /**
- * Class PatchRevisionConfig.
+ * Class ChangeRequestsConfig.
  */
-class PatchRevisionConfig extends ConfigFormBase {
+class ChangeRequestsConfig extends ConfigFormBase {
 
   /**
    * Drupal\Core\Entity\EntityTypeManager definition.
@@ -34,7 +34,7 @@ class PatchRevisionConfig extends ConfigFormBase {
   /**
    * FieldPatchPluginManager.
    *
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   * @var \Drupal\change_requests\Plugin\FieldPatchPluginManager
    */
   protected $pluginManager;
 
@@ -79,7 +79,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'patch_revision_config';
+    return 'change_requests_config';
   }
 
   /**
@@ -87,7 +87,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'patch_revision.config',
+      'change_requests.config',
     ];
   }
 
@@ -113,7 +113,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('patch_revision.config');
+    $config = $this->config('change_requests.config');
     /* @var \Drupal\node\NodeTypeInterface[] $node_types */
     $node_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     $options = [];
@@ -205,7 +205,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
-    $config = $this->config('patch_revision.config');
+    $config = $this->config('change_requests.config');
     $config->set('node_types', $form_state->getValue('node_types'));
     $config->set('general_excluded_fields', preg_split("/\\r\\n|\\r|\\n/", $form_state->getValue('general_excluded_fields')));
     $config->set('enable_checkbox_node_form', $form_state->getValue('enable_checkbox_node_form'));
@@ -235,7 +235,7 @@ class PatchRevisionConfig extends ConfigFormBase {
    *   The form elements to insert into the form.
    */
   protected function getBundleSelector(NodeTypeInterface $node_type, $disabled = TRUE) {
-    $config = $this->config('patch_revision.config');
+    $config = $this->config('change_requests.config');
     $options = $this->getFieldOptions($this->pluginManager->getPatchableFields($node_type->id(), TRUE));
     $element['tab_' . $node_type->id()] = [
       '#type' => 'details',
@@ -249,7 +249,7 @@ class PatchRevisionConfig extends ConfigFormBase {
     $default_value = $config->get('bundle_' . $node_type->id() . '_fields') ?: [];
     $element['tab_' . $node_type->id()]['bundle_' . $node_type->id() . '_fields'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Excluded fields from Patch Revision in @type', ['@type' => $node_type->label()]),
+      '#title' => $this->t('Excluded fields from Change requests in @type', ['@type' => $node_type->label()]),
       '#options' => $options,
       '#default_value' => $default_value,
       '#disabled' => $disabled,

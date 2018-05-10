@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\patch_revision\Functional;
+namespace Drupal\Tests\change_requests\Functional;
 
 use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
@@ -8,7 +8,7 @@ use Drupal\Tests\BrowserTestBase;
 /**
  * Simple test to ensure that main page loads with module enabled.
  *
- * @group patch_revision
+ * @group change_requests
  */
 class LoadTest extends BrowserTestBase {
 
@@ -20,7 +20,7 @@ class LoadTest extends BrowserTestBase {
   public static $modules = [
     'node_test',
     'changed_fields',
-    'patch_revision',
+    'change_requests',
   ];
 
   /**

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains patch_revision.module.
+ * Contains change_requests.module.
  */
 
 use Drupal\Core\Cache\CacheableMetadata;
@@ -10,16 +10,16 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 use Drupal\changed_fields\NodeSubject;
-use Drupal\patch_revision\NodeObserver;
+use Drupal\change_requests\NodeObserver;
 use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_help().
  */
-function patch_revision_help($route_name, RouteMatchInterface $route_match) {
+function change_requests_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    // Main module help for the patch_revision module.
-    case 'help.page.patch_revision':
+    // Main module help for the change_requests module.
+    case 'help.page.change_requests':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Provides the possibility to patch changes from a entity revision into the current revision.') . '</p>';
@@ -33,7 +33,7 @@ function patch_revision_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_help().
  */
-function patch_revision_theme($existing, $type, $theme, $path) {
+function change_requests_theme($existing, $type, $theme, $path) {
   return [
     'field_patches' => [
       'variables' => [
@@ -47,14 +47,14 @@ function patch_revision_theme($existing, $type, $theme, $path) {
         'patch' => NULL,
       ],
     ],
-    'pr_patch_header' => [
+    'cr_patch_header' => [
       'variables' => [
         'created' => NULL,
         'creator' => NULL,
         'log_message' => NULL,
       ],
     ],
-    'pr_view_image' => [
+    'cr_view_image' => [
       'variables' => [
         'center' => NULL,
         'left' => NULL,
@@ -69,9 +69,9 @@ function patch_revision_theme($existing, $type, $theme, $path) {
  *
  * Start patch creation with changed fields api.
  */
-function patch_revision_node_presave(NodeInterface $node) {
-  /** @var \Drupal\patch_revision\AccessService $access_service */
-  $access_service = \Drupal::service('patch_revision.access_service');
+function change_requests_node_presave(NodeInterface $node) {
+  /** @var \Drupal\change_requests\AccessService $access_service */
+  $access_service = \Drupal::service('change_requests.access_service');
 
   if ($access_service->startPatchCreateProcess()) {
 
@@ -90,21 +90,21 @@ function patch_revision_node_presave(NodeInterface $node) {
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
-function patch_revision_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  /** @var \Drupal\patch_revision\AccessService $access_service */
-  $access_service = \Drupal::service('patch_revision.access_service');
+function change_requests_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\change_requests\AccessService $access_service */
+  $access_service = \Drupal::service('change_requests.access_service');
 
   // Insert checkbox create patch to node form.
   /** @var \Drupal\node\NodeInterface $node */
   if ($access_service->allowDisplayCheckboxCreatePatch()) {
     $form['create_patch'] = [
       '#type' => 'checkbox',
-      '#title' => t('Create improvement proposal from changes.'),
+      '#title' => t('Create change request from changes.'),
       '#default_value' => TRUE,
       '#access' => TRUE,
       '#group' => 'revision_information',
       '#disabled' => FALSE,
-      '#description' => t('An improvement proposal and will not be assigned in the revision history of the content entity. It can be reviewed and submitted to a later revision.'),
+      '#description' => t('A change request will not be assigned in the revision history of the content entity. It can be reviewed and submitted to a later revision.'),
       '#weight' => 19,
     ];
   }
@@ -125,19 +125,19 @@ function patch_revision_form_node_form_alter(&$form, FormStateInterface $form_st
 /**
  * Implements hook_menu_local_tasks_alter().
  *
- * Remove tab from node, if node_type not enabled in patch_revision.config.
+ * Remove tab from node, if node_type not enabled in change_requests.config.
  * $data
- *   Array with tabs (for patch_revision
- *   configed in patch_revision.links.task.yml).
+ *   Array with tabs (for change_requests
+ *   configed in change_requests.links.task.yml).
  */
-function patch_revision_menu_local_tasks_alter(array &$data, $route_name) {
-  /** @var \Drupal\patch_revision\AccessService $access_service */
-  $access_service = \Drupal::service('patch_revision.access_service');
+function change_requests_menu_local_tasks_alter(array &$data, $route_name) {
+  /** @var \Drupal\change_requests\AccessService $access_service */
+  $access_service = \Drupal::service('change_requests.access_service');
 
   if (isset($data['tabs'][0]) && array_key_exists('patch.overview_page', $data['tabs'][0])) {
     $node = \Drupal::request()->get('node');
     $node_type = ($node instanceof NodeInterface) ? $node->bundle() : '<none>';
-    $config = \Drupal::config('patch_revision.config')->get('node_types');
+    $config = \Drupal::config('change_requests.config')->get('node_types');
     if (!isset($config[$node_type]) || $config[$node_type] === 0) {
       unset($data['tabs'][0]['patch.overview_page']);
     }

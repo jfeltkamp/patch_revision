@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Session\AccountProxy;
@@ -52,7 +52,7 @@ class AccessService {
    */
   public function __construct(ConfigFactory $config_factory, AccountProxy $current_user, RequestStack $request_stack) {
     $this->configFactory = $config_factory;
-    $this->moduleConfig = $this->configFactory->get('patch_revision.config');
+    $this->moduleConfig = $this->configFactory->get('change_requests.config');
     $this->currentUser = $current_user;
     $this->requestStack = $request_stack;
     $this->currentRequest = $this->requestStack->getCurrentRequest();

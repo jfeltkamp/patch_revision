@@ -22,7 +22,7 @@ entity.patch.delete_form:
 
 # Including in node tab menu.
 patch.overview_page:
-  route_name: patch_revision.patches_overview
-  title: 'Improvements'
+  route_name: change_requests.patches_overview
+  title: 'Change requests'
   weight: 20
   base_route: entity.node.canonical

@@ -1,0 +1,8 @@
+name: Change requests
+type: module
+description: Provides change requests for nodes stored field-by-field separatly from node revision history.
+core: 8.x
+package: Argue
+dependencies:
+  - changed_fields
+configure: change_requests.change_requests_config

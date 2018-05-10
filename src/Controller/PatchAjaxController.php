@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Controller;
+namespace Drupal\change_requests\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;

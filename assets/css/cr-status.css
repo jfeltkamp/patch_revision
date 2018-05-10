@@ -1,4 +1,4 @@
-span.pr-status {
+span.cr-status {
   display: inline-block;
   border: 1px solid transparent;
   -webkit-border-radius: 2px;
@@ -8,27 +8,27 @@ span.pr-status {
   padding: 0 .5em;
 }
 
-span.pr-status.proposed {
+span.cr-status.proposed {
   color: #0000ff;
   border-color: #0000ff;
 }
 
-span.pr-status.applied {
+span.cr-status.applied {
   color: #008000;
   border-color: #008000;
 }
 
-span.pr-status.conflicted {
+span.cr-status.conflicted {
   color: #ffaa00;
   border-color: #ffaa00;
 }
 
-span.pr-status.declined {
+span.cr-status.declined {
   color: #ff0000;
   border-color: #ff0000;
 }
 
-span.pr-status.disabled {
+span.cr-status.disabled {
   color: #666666;
   border-color: #666666;
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
@@ -21,7 +21,7 @@ class PatchHtmlRouteProvider extends AdminHtmlRouteProvider {
     $collection = parent::getRoutes($entity_type);
 
     if ($settings_form_route = $this->getSettingsFormRoute($entity_type)) {
-      $collection->add("patch_revision.patch_revision_config", $settings_form_route);
+      $collection->add("change_requests.change_requests_config", $settings_form_route);
     }
 
     return $collection;
@@ -38,11 +38,11 @@ class PatchHtmlRouteProvider extends AdminHtmlRouteProvider {
    */
   protected function getSettingsFormRoute(EntityTypeInterface $entity_type) {
     if (!$entity_type->getBundleEntityType()) {
-      $route = new Route("/admin/config/content/patch_revision");
+      $route = new Route("/admin/config/content/change_requests");
       $route
         ->setDefaults([
-          '_form' => 'Drupal\patch_revision\Form\PatchRevisionConfig',
-          '_title' => 'Patch Revision Config',
+          '_form' => 'Drupal\change_requests\Form\ChangeRequestsConfig',
+          '_title' => 'Change requests Config',
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())
         ->setOption('_admin_route', TRUE);

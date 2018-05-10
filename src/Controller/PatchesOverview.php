@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Controller;
+namespace Drupal\change_requests\Controller;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Cache\Cache;
@@ -9,8 +9,8 @@ use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Link;
 use Drupal\node\NodeInterface;
-use Drupal\patch_revision\Entity\Patch;
-use Drupal\patch_revision\Events\PatchRevision;
+use Drupal\change_requests\Entity\Patch;
+use Drupal\change_requests\Events\ChangeRequests;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -70,7 +70,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * DateFormatterInterface definition.
    *
-   * @var \Drupal\patch_revision\Entity\PatchRevision
+   * @var \Drupal\change_requests\Entity\ChangeRequests
    */
   protected $constants;
 
@@ -94,7 +94,7 @@ class PatchesOverview extends ControllerBase {
     $this->entityStorage = $this->entityTypeManager->getStorage('patch');
     $this->dateFormatter = $date_formatter;
     $this->time = $time;
-    $this->constants = new PatchRevision();
+    $this->constants = new ChangeRequests();
   }
 
   /**
@@ -153,7 +153,7 @@ class PatchesOverview extends ControllerBase {
    * {@inheritdoc}
    */
   public function buildRow(Patch $entity) {
-    /* @var $entity \Drupal\patch_revision\Entity\Patch */
+    /* @var $entity \Drupal\change_requests\Entity\Patch */
     $row['created']['data'] = $this->getDate($entity);
     /** @var \Drupal\user\UserInterface $user */
     $user = $entity->get('uid')->entity;
@@ -181,7 +181,7 @@ class PatchesOverview extends ControllerBase {
     $build['table'] = [
       '#type' => 'table',
       '#header' => $this->buildHeader(),
-      '#title' => $this->t('Improvements for "@title"', ['@title' => $this->node->label()]),
+      '#title' => $this->t('Change requests for "@title"', ['@title' => $this->node->label()]),
       '#rows' => [],
       '#empty' => $this->t('There is no @label yet.', ['@label' => strtolower($this->entityType->getLabel())]),
       '#cache' => [
@@ -189,14 +189,10 @@ class PatchesOverview extends ControllerBase {
         'tags' => ['patch_list:node:' . $this->nid],
         'max-age' => Cache::PERMANENT,
       ],
-      '#attached' => [
-        'library' => [
-          'patch_revision/patch_revision.pr-status',
-        ],
-      ],
+      '#attached' => ['library' => ['change_requests/cr_status']],
     ];
     foreach ($this->load() as $entity) {
-      /** @var \Drupal\patch_revision\Entity\Patch $entity */
+      /** @var \Drupal\change_requests\Entity\Patch $entity */
       if ($row = $this->buildRow($entity)) {
         $build['table']['#rows'][$entity->id()] = $row;
       }
@@ -220,7 +216,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * Gets this list's default operations.
    *
-   * @param \Drupal\patch_revision\Entity\Patch $entity
+   * @param \Drupal\change_requests\Entity\Patch $entity
    *   The entity the operations are for.
    *
    * @return array
@@ -238,7 +234,7 @@ class PatchesOverview extends ControllerBase {
     }
     if ($entity->access('apply') && $entity->hasLinkTemplate('apply-form')) {
       $operations['apply'] = [
-        'title' => $this->t('Apply improvement'),
+        'title' => $this->t('Apply change request'),
         'weight' => 30,
         'url' => $entity->urlInfo('apply-form'),
       ];
@@ -264,7 +260,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * Builds a renderable list of operation links for the entity.
    *
-   * @param \Drupal\patch_revision\Entity\Patch $entity
+   * @param \Drupal\change_requests\Entity\Patch $entity
    *   The entity on which the linked operations will be performed.
    *
    * @return array
@@ -284,7 +280,7 @@ class PatchesOverview extends ControllerBase {
   /**
    * Get the creation or recent change date.
    *
-   * @param \Drupal\patch_revision\Entity\Patch $entity
+   * @param \Drupal\change_requests\Entity\Patch $entity
    *   The patch entity.
    * @param string $mode
    *   Created or changed time.
@@ -317,7 +313,7 @@ class PatchesOverview extends ControllerBase {
     $class = $this->constants->getStatus($value);
     return [
       '#markup' => $literal,
-      '#prefix' => "<span class=\"pr-status {$class}\">",
+      '#prefix' => "<span class=\"cr-status {$class}\">",
       '#suffix' => '</span>',
     ];
   }

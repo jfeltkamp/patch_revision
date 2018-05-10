@@ -4,26 +4,26 @@ administer patch entities:
   restrict access: true
 
 add patch entities:
-  title: 'Create new improvements'
+  title: 'Create new change request'
 
 view patch entities:
-  title: 'View improvements'
+  title: 'View change requests'
 
 view unpublished patch entities:
-  title: 'View unpublished improvements'
+  title: 'View unpublished change requests'
 
 edit patch entities:
-  title: 'Edit improvements'
+  title: 'Edit change requests'
 
 apply patch entities:
-  title: 'Apply improvements to original entity'
-  description: 'Write improvements into the original node.'
+  title: 'Apply change requests to original entity'
+  description: 'Write change requests into the original node.'
   restrict access: true
 
 change status of patch entities:
-  title: 'Change status of improvements'
+  title: 'Change status of change requests'
   restrict access: true
 
 delete patch entities:
-  title: 'Delete improvements'
+  title: 'Delete change requests'
   restrict access: true

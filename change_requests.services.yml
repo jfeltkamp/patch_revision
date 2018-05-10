@@ -1,0 +1,20 @@
+services:
+  plugin.manager.field_patch_plugin:
+    class: Drupal\change_requests\Plugin\FieldPatchPluginManager
+    parent: default_plugin_manager
+
+  change_requests.diff:
+    class: Drupal\change_requests\DiffService
+
+  change_requests.access_service:
+    class: Drupal\change_requests\AccessService
+    arguments: ['@config.factory', '@current_user', '@request_stack']
+
+  change_requests.breadcrumb:
+    class: Drupal\change_requests\PatchBreadcrumbBuilder
+    arguments: ['@request_stack']
+    tags:
+      - { name: breadcrumb_builder, priority: 100 }
+  change_requests.attach_service:
+    class: Drupal\change_requests\AttachService
+    arguments: ['@entity_type.manager', '@current_user']

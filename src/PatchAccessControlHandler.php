@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
@@ -10,7 +10,7 @@ use Drupal\Core\Access\AccessResult;
 /**
  * Access controller for the Patch entity.
  *
- * @see \Drupal\patch_revision\Entity\Patch.
+ * @see \Drupal\change_requests\Entity\Patch.
  */
 class PatchAccessControlHandler extends EntityAccessControlHandler {
 
@@ -18,7 +18,7 @@ class PatchAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    /** @var \Drupal\patch_revision\Entity\Patch $entity */
+    /** @var \Drupal\change_requests\Entity\Patch $entity */
     switch ($operation) {
       case 'view':
         return AccessResult::allowedIfHasPermission($account, 'view patch entities');

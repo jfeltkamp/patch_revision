@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Form;
+namespace Drupal\change_requests\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\ContentEntityForm;
@@ -12,22 +12,22 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\Exception\ReadOnlyException;
-use Drupal\patch_revision\DiffService;
-use Drupal\patch_revision\Events\PatchRevision;
+use Drupal\change_requests\DiffService;
+use Drupal\change_requests\Events\ChangeRequests;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Class PatchSettingsForm.
  *
- * @ingroup patch_revision
+ * @ingroup change_requests
  */
 class PatchApplyForm extends ContentEntityForm {
 
   /**
    * The entity being used by this form.
    *
-   * @var \Drupal\patch_revision\Entity\Patch
+   * @var \Drupal\change_requests\Entity\Patch
    */
   protected $entity;
 
@@ -55,7 +55,7 @@ class PatchApplyForm extends ContentEntityForm {
   /**
    * DiffService.
    *
-   * @var \Drupal\patch_revision\DiffService
+   * @var \Drupal\change_requests\DiffService
    */
   protected $diffService;
 
@@ -69,7 +69,7 @@ class PatchApplyForm extends ContentEntityForm {
   /**
    * Constants for environment.
    *
-   * @var \Drupal\patch_revision\Events\PatchRevision
+   * @var \Drupal\change_requests\Events\ChangeRequests
    */
   protected $constants;
 
@@ -90,7 +90,7 @@ class PatchApplyForm extends ContentEntityForm {
     $this->entityTypeManager = $entity_type_manager;
     $this->diffService = $diff_service;
     $this->formBuilder = $form_builder;
-    $this->constants = new PatchRevision();
+    $this->constants = new ChangeRequests();
   }
 
   /**
@@ -103,7 +103,7 @@ class PatchApplyForm extends ContentEntityForm {
       $container->get('datetime.time'),
       $container->get('entity_field.manager'),
       $container->get('entity_type.manager'),
-      $container->get('patch_revision.diff'),
+      $container->get('change_requests.diff'),
       $container->get('form_builder')
     );
   }
@@ -131,9 +131,9 @@ class PatchApplyForm extends ContentEntityForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // CHECK STATUS.
-    if (($status = (int) $this->entity->get('status')->getString()) !== PatchRevision::PR_STATUS_ACTIVE) {
+    if (($status = (int) $this->entity->get('status')->getString()) !== ChangeRequests::CR_STATUS_ACTIVE) {
       drupal_set_message(
-        $this->t('Status is set to "@status". The status must be "@active" to apply improvements.', [
+        $this->t('Status is set to "@status". The status must be "@active" to apply change requests.', [
           '@status' => $this->constants->getStatusLiteral($status),
           '@active' => $this->constants->getStatusLiteral(1),
         ]), 'warning');
@@ -178,7 +178,7 @@ class PatchApplyForm extends ContentEntityForm {
     /** @var \Drupal\user\UserInterface|FALSE $patch_creator */
     $users = $this->entity->get('uid')->referencedEntities();
     $patch_creator = reset($users);
-    $message = $this->t('Applied improvement with id "@id" of user "@user" with message "@message".', [
+    $message = $this->t('Applied change request with id "@id" of user "@user" with message "@message".', [
       '@id' => $this->entity->id(),
       '@user' => ($patch_creator) ? $patch_creator->getAccountName() : $this->t('Anonymous'),
       '@message' => $this->entity->get('message')->getString(),
@@ -186,7 +186,7 @@ class PatchApplyForm extends ContentEntityForm {
     $orig_entity->set('revision_log', $message);
     $orig_entity->save();
 
-    $this->entity->set('status', PatchRevision::PR_STATUS_PATCHED);
+    $this->entity->set('status', ChangeRequests::CR_STATUS_PATCHED);
     $this->entity->save();
     drupal_set_message($message);
 
@@ -208,9 +208,9 @@ class PatchApplyForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    if (($status = (int) $this->entity->get('status')->getString()) !== PatchRevision::PR_STATUS_ACTIVE) {
+    if (($status = (int) $this->entity->get('status')->getString()) !== ChangeRequests::CR_STATUS_ACTIVE) {
       drupal_set_message(
-        $this->t('Status is "@status". The status must be "@active" to apply the improvement.', [
+        $this->t('Status is "@status". The status must be "@active" to apply the change request.', [
           '@status' => $this->constants->getStatusLiteral($status),
           '@active' => $this->constants->getStatusLiteral(1),
         ]), 'warning');
@@ -221,7 +221,7 @@ class PatchApplyForm extends ContentEntityForm {
     }
 
     $form['#parents'] = [];
-    $form['#attached']['library'][] = 'patch_revision/patch_revision.apply_form';
+    $form['#attached']['library'][] = 'change_requests/cr_apply_form';
 
     /** @var \Drupal\node\NodeInterface $orig_entity */
     $orig_entity = $this->entity->originalEntityRevision('latest');
@@ -229,18 +229,18 @@ class PatchApplyForm extends ContentEntityForm {
     $orig_entity_old = $this->entity->originalEntityRevisionOld();
 
     $header_data = $this->entity->getViewHeaderData();
-    $form['#title'] = $this->t('Apply improvement for @type: @title', [
+    $form['#title'] = $this->t('Apply change request for @type: @title', [
       '@type' => $header_data['orig_type'],
       '@title' => $header_data['orig_title'],
     ]);
 
     $form['header'] = [
-      '#theme' => 'pr_patch_header',
+      '#theme' => 'cr_patch_header',
       '#created' => $header_data['created'],
       '#creator' => $header_data['creator'],
       '#log_message' => $header_data['log_message'],
       '#attached' => [
-        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+        'library' => ['change_requests/cr_patch_header'],
       ],
     ];
 
@@ -264,8 +264,8 @@ class PatchApplyForm extends ContentEntityForm {
         '#open' => TRUE,
         '#attributes' => [
           'class' => [
-            'pr_apply_group',
-            'pr_apply_' . $field_name,
+            'cr_apply_group',
+            'cr_apply_' . $field_name,
           ],
         ],
         'left' => [
@@ -339,7 +339,7 @@ class PatchApplyForm extends ContentEntityForm {
     $element = parent::actionsElement($form, $form_state);
     unset($element['delete']);
     if (isset($element['submit'])) {
-      $element['submit']['#value'] = new TranslatableMarkup('Apply improvement');
+      $element['submit']['#value'] = new TranslatableMarkup('Apply change request');
     }
     return $element;
   }

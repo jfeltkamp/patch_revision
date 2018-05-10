@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
@@ -51,7 +51,7 @@ class PatchBreadcrumbBuilder implements BreadcrumbBuilderInterface {
     $breadcrumb = new Breadcrumb();
     $breadcrumb->addCacheContexts(['route', 'url.query_args']);
     $breadcrumb->addLink(Link::createFromRoute(t('Home'), '<front>'));
-    /** @var \Drupal\patch_revision\Entity\Patch $patch_entity */
+    /** @var \Drupal\change_requests\Entity\Patch $patch_entity */
     $patch_entity = $route_match->getParameter('patch');
 
     /** @var \Drupal\node\NodeInterface $orig_entity */
@@ -62,8 +62,8 @@ class PatchBreadcrumbBuilder implements BreadcrumbBuilderInterface {
 
       // Orig node patch overview link.
       $link_patches = Link::createFromRoute(
-        $this->t('Improvements'),
-        'patch_revision.patches_overview',
+        $this->t('Change requests'),
+        'change_requests.patches_overview',
         ['node' => $orig_entity->id()]
       );
       $breadcrumb->addLink($link_patches);

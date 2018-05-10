@@ -1,25 +1,25 @@
 <?php
 
-namespace Drupal\patch_revision\Form;
+namespace Drupal\change_requests\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\patch_revision\Events\PatchRevision;
+use Drupal\change_requests\Events\ChangeRequests;
 
 /**
  * Form controller for Patch edit forms.
  *
- * @ingroup patch_revision
+ * @ingroup change_requests
  */
 class PatchForm extends ContentEntityForm {
 
   /**
-   * The patch_revision environment variables.
+   * The change_requests environment variables.
    *
-   * @var \Drupal\patch_revision\Events\PatchRevision
+   * @var \Drupal\change_requests\Events\ChangeRequests
    */
   protected $constants;
 
@@ -35,29 +35,29 @@ class PatchForm extends ContentEntityForm {
    */
   public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL) {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
-    $this->constants = new PatchRevision();
+    $this->constants = new ChangeRequests();
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\patch_revision\Entity\Patch */
+    /* @var $entity \Drupal\change_requests\Entity\Patch */
     $form = parent::buildForm($form, $form_state);
 
     $header_data = $this->entity->getViewHeaderData();
-    $form['#title'] = $this->t('Edit improvement for @type: @title', [
+    $form['#title'] = $this->t('Edit change request for @type: @title', [
       '@type' => $header_data['orig_type'],
       '@title' => $header_data['orig_title'],
     ]);
 
     $form['header'] = [
-      '#theme' => 'pr_patch_header',
+      '#theme' => 'cr_patch_header',
       '#created' => $header_data['created'],
       '#creator' => $header_data['creator'],
       '#log_message' => $header_data['log_message'],
       '#attached' => [
-        'library' => ['patch_revision/patch_revision.pr_patch_header'],
+        'library' => ['change_requests/cr_patch_header'],
       ],
     ];
 
@@ -65,10 +65,10 @@ class PatchForm extends ContentEntityForm {
       $form['status'] = [
         '#type' => 'select',
         '#title' => $this->t('Status'),
-        '#description' => $this->t('Status of the improvement. Set to "active" if improvement shall be applied to original entity.', [
+        '#description' => $this->t('Status of the change request. Set to "active" if change request shall be applied to original entity.', [
           '@status' => $this->constants->getStatusLiteral(1),
         ]),
-        '#options' => PatchRevision::PR_STATUS,
+        '#options' => ChangeRequests::CR_STATUS,
         '#default_value' => $this->entity->get('status')->getString(),
       ];
     }
@@ -87,13 +87,13 @@ class PatchForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label improvement.', [
+        drupal_set_message($this->t('Created the %label change request.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label improvement.', [
+        drupal_set_message($this->t('Saved the %label change request.', [
           '%label' => $entity->label(),
         ]));
     }

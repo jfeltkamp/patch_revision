@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Entity;
+namespace Drupal\change_requests\Entity;
 
 use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -12,24 +12,24 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 /**
  * Defines the Patch entity.
  *
- * @ingroup patch_revision
+ * @ingroup change_requests
  *
  * @ContentEntityType(
  *   id = "patch",
- *   label = @Translation("Improvement"),
+ *   label = @Translation("Change request"),
  *   handlers = {
- *     "view_builder" = "Drupal\patch_revision\PatchViewBuilder",
- *     "views_data" = "Drupal\patch_revision\Entity\PatchViewsData",
+ *     "view_builder" = "Drupal\change_requests\PatchViewBuilder",
+ *     "views_data" = "Drupal\change_requests\Entity\PatchViewsData",
  *
  *     "form" = {
- *       "default" = "Drupal\patch_revision\Form\PatchForm",
- *       "apply" = "Drupal\patch_revision\Form\PatchApplyForm",
- *       "edit" = "Drupal\patch_revision\Form\PatchForm",
- *       "delete" = "Drupal\patch_revision\Form\PatchDeleteForm",
+ *       "default" = "Drupal\change_requests\Form\PatchForm",
+ *       "apply" = "Drupal\change_requests\Form\PatchApplyForm",
+ *       "edit" = "Drupal\change_requests\Form\PatchForm",
+ *       "delete" = "Drupal\change_requests\Form\PatchDeleteForm",
  *     },
- *     "access" = "Drupal\patch_revision\PatchAccessControlHandler",
+ *     "access" = "Drupal\change_requests\PatchAccessControlHandler",
  *     "route_provider" = {
- *       "html" = "Drupal\patch_revision\PatchHtmlRouteProvider",
+ *       "html" = "Drupal\change_requests\PatchHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "patch",
@@ -92,16 +92,16 @@ class Patch extends ContentEntityBase {
   protected $entityFieldMap;
 
   /**
-   * The patch_revision.diff service as adapter to diff_match_patch.
+   * The change_requests.diff service as adapter to diff_match_patch.
    *
-   * @var \Drupal\patch_revision\DiffService
+   * @var \Drupal\change_requests\DiffService
    */
   public $diffService;
 
   /**
-   * The patch_revision field patch manager.
+   * The change_requests field patch manager.
    *
-   * @var \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   * @var \Drupal\change_requests\Plugin\FieldPatchPluginManager
    */
   private $pluginManager;
 
@@ -129,7 +129,7 @@ class Patch extends ContentEntityBase {
   /**
    * Returns lazy instance of field patch plugin manager.
    *
-   * @return \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+   * @return \Drupal\change_requests\Plugin\FieldPatchPluginManager
    *   The field patch plugin manager.
    */
   public function getPluginManager() {
@@ -142,12 +142,12 @@ class Patch extends ContentEntityBase {
   /**
    * Returns the Diff entity.
    *
-   * @return \Drupal\patch_revision\DiffService
-   *   Returns lazy instance of the patch_revision.diff service.
+   * @return \Drupal\change_requests\DiffService
+   *   Returns lazy instance of the change_requests.diff service.
    */
   public function getDiffService() {
     if (!$this->diffService) {
-      $this->diffService = \Drupal::service('patch_revision.diff');
+      $this->diffService = \Drupal::service('change_requests.diff');
     }
     return $this->diffService;
   }

@@ -1,6 +1,0 @@
-patch_revision.patch_revision_config:
-  title: 'Patch revision config'
-  route_name: patch_revision.patch_revision_config
-  description: 'Config patchable revisions.'
-  parent: system.admin_config_content
-  weight: 99

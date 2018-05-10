@@ -1,60 +1,60 @@
 <?php
 
-namespace Drupal\patch_revision\Events;
+namespace Drupal\change_requests\Events;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Contains global constants for status management.
  */
-final class PatchRevision {
+final class ChangeRequests {
   use StringTranslationTrait;
 
   /* @var integer
    *   Stored value for pro argument.
    */
-  const PR_STATUS_ACTIVE = 1;
+  const CR_STATUS_ACTIVE = 1;
 
   /* @var string
    *   Stored value for pro argument.
    */
-  const PR_STATUS_ACTIVE_TXT = 'proposed';
+  const CR_STATUS_ACTIVE_TXT = 'proposed';
 
   /* @var integer
    *   Stored value for con argument.
    */
-  const PR_STATUS_CONFLICTED = 2;
-  const PR_STATUS_CONFLICTED_TXT = 'conflicted';
+  const CR_STATUS_CONFLICTED = 2;
+  const CR_STATUS_CONFLICTED_TXT = 'conflicted';
 
   /* @var integer
    *   Stored value for con argument.
    */
-  const PR_STATUS_PATCHED = 3;
-  const PR_STATUS_PATCHED_TXT = 'applied';
+  const CR_STATUS_PATCHED = 3;
+  const CR_STATUS_PATCHED_TXT = 'applied';
 
   /* @var integer
    *   Stored value for con argument.
    */
-  const PR_STATUS_DECLINED = 4;
-  const PR_STATUS_DECLINED_TXT = 'declined';
+  const CR_STATUS_DECLINED = 4;
+  const CR_STATUS_DECLINED_TXT = 'declined';
 
   /* @var integer
    *   Stored value for con argument.
    */
-  const PR_STATUS_DISABLED = 0;
-  const PR_STATUS_DISABLED_TXT = 'disabled';
+  const CR_STATUS_DISABLED = 0;
+  const CR_STATUS_DISABLED_TXT = 'disabled';
 
   /* @var integer
    *   The default value for argument type.
    */
-  const PR_STATUS_DEFAULT = self::PR_STATUS_ACTIVE;
+  const CR_STATUS_DEFAULT = self::CR_STATUS_ACTIVE;
 
-  const PR_STATUS = [
-    self::PR_STATUS_ACTIVE => self::PR_STATUS_ACTIVE_TXT,
-    self::PR_STATUS_CONFLICTED => self::PR_STATUS_CONFLICTED_TXT,
-    self::PR_STATUS_PATCHED => self::PR_STATUS_PATCHED_TXT,
-    self::PR_STATUS_DECLINED => self::PR_STATUS_DECLINED_TXT,
-    self::PR_STATUS_DISABLED => self::PR_STATUS_DISABLED_TXT,
+  const CR_STATUS = [
+    self::CR_STATUS_ACTIVE => self::CR_STATUS_ACTIVE_TXT,
+    self::CR_STATUS_CONFLICTED => self::CR_STATUS_CONFLICTED_TXT,
+    self::CR_STATUS_PATCHED => self::CR_STATUS_PATCHED_TXT,
+    self::CR_STATUS_DECLINED => self::CR_STATUS_DECLINED_TXT,
+    self::CR_STATUS_DISABLED => self::CR_STATUS_DISABLED_TXT,
   ];
 
 
@@ -107,7 +107,7 @@ final class PatchRevision {
    *   The string status ID.
    */
   public function getStatus($id) {
-    return self::PR_STATUS[$id];
+    return self::CR_STATUS[$id];
   }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision;
+namespace Drupal\change_requests;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -65,7 +65,7 @@ class AttachService {
         '%to' => $to,
       ]);
       \Drupal::messenger()->addError($message);
-      \Drupal::logger('patch_revision')->error($exception->getMessage());
+      \Drupal::logger('change_requests')->error($exception->getMessage());
     }
   }
 

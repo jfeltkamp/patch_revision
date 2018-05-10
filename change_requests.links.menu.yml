@@ -1,0 +1,6 @@
+change_requests.change_requests_config:
+  title: 'Change requests config'
+  route_name: change_requests.change_requests_config
+  description: 'Config patchable revisions.'
+  parent: system.admin_config_content
+  weight: 99

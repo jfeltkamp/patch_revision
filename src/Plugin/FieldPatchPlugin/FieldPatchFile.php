@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
+namespace Drupal\change_requests\Plugin\FieldPatchPlugin;
 
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\patch_revision\Plugin\FieldPatchPluginBase;
+use Drupal\change_requests\Plugin\FieldPatchPluginBase;
 
 /**
  * FieldPatchPlugin for field type image.

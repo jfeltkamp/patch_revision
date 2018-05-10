@@ -1,0 +1,26 @@
+cr_apply_form:
+  css:
+    theme:
+      assets/css/cr-apply-form.css: {}
+      assets/css/cr-diff.css: {}
+
+cr_patch_view:
+  css:
+    theme:
+      assets/css/cr-patch-view.css: {}
+      assets/css/cr-diff.css: {}
+
+cr_view_image:
+  css:
+    theme:
+      assets/css/cr-view-image.css: {}
+
+cr_status:
+  css:
+    theme:
+      assets/css/cr-status.css: {}
+
+cr_patch_header:
+  css:
+    theme:
+      assets/css/cr-patch-header.css: {}

@@ -1,14 +1,14 @@
 {
-  "name": "jfeltkamp/patch_revision",
+  "name": "jfeltkamp/change_requests",
   "type": "drupal-module",
   "description": "Provides the possibility to patch changes from a entity revision into the current revision.",
   "keywords": ["Drupal"],
   "license": "GPL-2.0+",
-  "homepage": "https://www.drupal.org/project/patch_revision",
+  "homepage": "https://www.drupal.org/project/change_requests",
   "minimum-stability": "dev",
   "support": {
-    "issues": "https://www.drupal.org/project/issues/patch_revision",
-    "source": "http://cgit.drupalcode.org/patch_revision"
+    "issues": "https://www.drupal.org/project/issues/change_requests",
+    "source": "http://cgit.drupalcode.org/change_requests"
   },
   "require": {
     "drupal/changed_fields": "^2.0",

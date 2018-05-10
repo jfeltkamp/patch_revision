@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\patch_revision\Plugin\FieldPatchPlugin;
+namespace Drupal\change_requests\Plugin\FieldPatchPlugin;
 
 /**
  * Plugin implementation of the 'promote' actions.

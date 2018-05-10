@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\patch_revision\Annotation;
+namespace Drupal\change_requests\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 
 /**
  * Defines a Field patch plugin item annotation object.
  *
- * @see \Drupal\patch_revision\Plugin\FieldPatchPluginManager
+ * @see \Drupal\change_requests\Plugin\FieldPatchPluginManager
  * @see plugin_api
  *
  * @Annotation
